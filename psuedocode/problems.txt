@@ -1,0 +1,18 @@
+ADD
+	I don't actually consider what would be in DEST in SRC I just make them two 64 bit constants and add them together. I assume this will generate a 64 bit number that can be placed in a register that will be chosen in the master state file. If that register is a 32 bit register than I can just choose the lower 32 bits and so on 
+
+	needed to add visit nodes for binop and add
+SYSCALL
+	NOT does not equal not in python, but ~
+	if then is ecountered with a fault doesn't delete the then 
+	AND & OR are the bitwise operators while and & or are logical
+	handling cs
+	removing "or" from line when it should be " or "
+	handling how faults (exit status affects assignments after)
+	need to handle hex
+	adding 10 things to the ast unary, slice, subscript etc
+	Nones in case statements
+	Need to handle vars in the conditional aka add state access
+sysret
+	intel syntax varies to say the least  if - then - fi on same line
+	python doesn't like hex because it assumes a variable that starts with a number 

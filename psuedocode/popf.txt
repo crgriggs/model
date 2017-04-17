@@ -1,0 +1,90 @@
+IF VM = 0 (* Not in Virtual-8086 Mode *)
+    THEN IF CPL = 0
+        THEN
+            IF OperandSize = 32;
+                THEN
+                    EFLAGS ← Pop(); (* 32-bit pop *)
+                    (* All non-reserved flags except RF, VIP, VIF, and VM can be modified;
+                    VIP, VIF, VM, and all reserved bits are unaffected. RF is cleared. *)
+                ELSE IF (Operandsize = 64)
+                    RFLAGS = Pop(); (* 64-bit pop *)
+                    (* All non-reserved flags except RF, VIP, VIF, and VM can be modified;
+                    VIP, VIF, VM, and all reserved bits are unaffected. RF is cleared. *)
+                ELSE (* OperandSize = 16 *)
+                    EFLAGS[15:0] ← Pop(); (* 16-bit pop *)
+                    (* All non-reserved flags can be modified. *)
+            FI;
+        ELSE (* CPL > 0 *)
+            IF OperandSize = 32
+                THEN
+                    IF CPL > IOPL
+                        THEN
+                            EFLAGS ← Pop(); (* 32-bit pop *)
+                            (* All non-reserved bits except IF, IOPL, VIP, VIF, VM and RF can be modified;
+                            IF, IOPL, VIP, VIF, VM and all reserved bits are unaffected; RF is cleared. *)
+                        ELSE
+                            EFLAGS ← Pop(); (* 32-bit pop *)
+                            (* All non-reserved bits except IOPL, VIP, VIF, VM and RF can be modified;
+                            IOPL, VIP, VIF, VM and all reserved bits are unaffected; RF is cleared. *)
+                    FI;
+                ELSE IF (Operandsize = 64)
+                    IF CPL > IOPL
+                        THEN
+                            RFLAGS ← Pop(); (* 64-bit pop *)
+                            (* All non-reserved bits except IF, IOPL, VIP, VIF, VM and RF can be modified;
+                            IF, IOPL, VIP, VIF, VM and all reserved bits are unaffected; RF is cleared. *)
+                        ELSE
+                            RFLAGS ← Pop(); (* 64-bit pop *)
+                            (* All non-reserved bits except IOPL, VIP, VIF, VM and RF can be modified;
+                            IOPL, VIP, VIF, VM and all reserved bits are unaffected; RF is cleared. *)
+                    FI;
+                ELSE (* OperandSize = 16 *)
+                    EFLAGS[15:0] ← Pop(); (* 16-bit pop *)
+                    (* All non-reserved bits except IOPL can be modified; IOPL and all
+                    reserved bits are unaffected. *)
+            FI;
+        FI;
+        END;
+    ELSE IF CR4.VME = 1 (* In Virtual-8086 Mode with VME Enabled *)
+        IF IOPL = 3
+            THEN IF OperandSize = 32
+                THEN
+                    EFLAGS ← Pop();
+                    (* All non-reserved bits except IOPL, VIP, VIF, VM, and RF can be modified;
+                    VIP, VIF, VM, IOPL and all reserved bits are unaffected. RF is cleared. *)
+                ELSE
+                    EFLAGS[15:0] ← Pop(); FI;
+                    (* All non-reserved bits except IOPL can be modified;
+                    IOPL and all reserved bits are unaffected. *)
+        ELSE (* IOPL < 3 *)
+            IF (Operandsize = 32)
+                THEN
+                    #GP(0); (* Trap to virtual-8086 monitor. *)
+                ELSE (* Operandsize = 16 *)
+                    tempFLAGS ← Pop();
+                    IF (EFLAGS.VIP = 1) AND (tempFLAGS[9] = 1)
+                        THEN #GP(0);
+                        ELSE
+                            EFLAGS.VIF ← tempFLAGS[9];
+                            EFLAGS[15:0] ← tempFLAGS;
+                        (* All non-reserved bits except IOPL and IF can be modified;
+                        IOPL, IF, and all reserved bits are unaffected. *)
+                FI;
+            FI;
+        FI;
+    ELSE (* In Virtual-8086 Mode *)
+        IF IOPL = 3
+            THEN IF OperandSize = 32
+                THEN
+                    EFLAGS ← Pop();
+                    (* All non-reserved bits except IOPL, VIP, VIF, VM, and RF can be modified;
+                    VIP, VIF, VM, IOPL and all reserved bits are unaffected. RF is cleared. *)
+                ELSE
+                    EFLAGS[15:0] ← Pop(); FI;
+                    (* All non-reserved bits except IOPL can be modified;
+                    IOPL and all reserved bits are unaffected. *)
+        ELSE (* IOPL < 3 *)
+            #GP(0); (* Trap to virtual-8086 monitor. *)
+    FI;
+FI;
+END;

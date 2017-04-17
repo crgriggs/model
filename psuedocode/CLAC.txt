@@ -1,0 +1,1 @@
+EFLAGS.AC ← 0;

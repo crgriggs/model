@@ -1,0 +1,45 @@
+IF (CS.L ≠ 1 ) or (IA32_EFER.LMA ≠ 1) or (IA32_EFER.SCE ≠ 1)
+(* Not in 64-Bit Mode or SYSCALL/SYSRET not enabled in IA32_EFER *)
+    THEN #UD; FI;
+IF (CPL ≠ 0) OR (RCX is not canonical) THEN #GP(0); FI;
+
+IF (operand size is 64-bit)
+    THEN (* Return to 64-Bit Mode *)
+        RIP ← RCX;
+    ELSE (* Return to Compatibility Mode *)
+        RIP ← ECX;
+FI;
+RFLAGS ← (R11 & 3C7FD7H) | 2; (* Clear RF, VM, reserved bits; set bit 2 *)
+IF (operand size is 64-bit)
+    THEN CS.Selector ← IA32_STAR[63:48]+16;
+    ELSE CS.Selector ← IA32_STAR[63:48];
+FI;
+CS.Selector ← CS.Selector OR 3; (* RPL forced to 3 *)
+(* Set rest of CS to a fixed value *)
+CS.Base ← 0; (* Flat segment *)
+CS.Limit ← FFFFFH; (* With 4-KByte granularity, implies a 4-GByte limit *)
+CS.Type ← 11; (* Execute/read code, accessed *)
+CS.S ← 1;
+CS.DPL ← 3;
+CS.P ← 1;
+IF (operand size is 64-bit)
+    THEN (* Return to 64-Bit Mode *)
+        CS.L ← 1; (* 64-bit code segment *)
+        CS.D ← 0; (* Required if CS.L = 1 *)
+    ELSE (* Return to Compatibility Mode *)
+        CS.L ← 0; (* Compatibility mode *)
+        CS.D ← 1; (* 32-bit code segment *)
+FI;
+CS.G ← 1; (* 4-KByte granularity *)
+CPL ← 3;
+SS.Selector ← (IA32_STAR[63:48]+8) OR 3; (* RPL forced to 3 *)
+(* Set rest of SS to a fixed value *)
+SS.Base ← 0; (* Flat segment *)
+SS.Limit ← FFFFFH; (* With 4-KByte granularity, implies a 4-GByte limit *)
+SS.Type ← 3; (* Read/write data, accessed *)
+SS.S ← 1;
+SS.DPL ← 3;
+SS.P ← 1;
+SS.B ← 1; (* 32-bit stack segment*)
+SS.G ← 1; (* 4-KByte granularity *)
+END;

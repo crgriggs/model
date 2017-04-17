@@ -1,0 +1,42 @@
+if (CS.L != b1 ) or (IA32_EFER.LMA != 1) or (IA32_EFER.SCE != 1):
+    # Not in 64-Bit Mode or SYSCALL/SYSRET not enabled in IA32_EFER 
+    exitStatus = UD 
+if (CPL != 0) | (canon == 1):
+    exitStatus = GP 
+if (op64 == 1):
+    # Return to 64-Bit Mode 
+    RIP = RCX
+else: # Return to Compatibility Mode 
+    RIP = ECX
+RFLAGS = (R11 & hex3C7FD7) | 2 # Clear RF, VM, reserved bits set bit 2 
+if (op64 == 1):
+     CS.Selector = IA32_STAR[63:48]+16
+else:
+    CS.Selector = IA32_STAR[63:48]
+CS.Selector = CS.Selector | 3 # RPL forced to 3 
+# Set rest of CS to a fixed value 
+CS.Base = b0 # Flat segment 
+CS.Limit = hexFFFFF # With 4-KByte granularity, implies a 4-GByte limit 
+CS.Type = 11 # Execute/read code, accessed 
+CS.S = 1
+CS.DPL = 3
+CS.P = 1
+if (op64 == 1):
+    # Return to 64-Bit Mode 
+    CS.L = b1 # 64-bit code segment 
+    CS.D = b0 # Required if CS.L == b1 
+else: # Return to Compatibility Mode 
+    CS.L = b0 # Compatibility mode 
+    CS.D = b1 # 32-bit code segment 
+CS.G = b1 # 4-KByte granularity 
+CPL = 3
+SS.Selector = (IA32_STAR[63:48]+8) | 3 # RPL forced to 3 
+# Set rest of SS to a fixed value 
+SS.Base = b0 # Flat segment 
+SS.Limit = hexFFFFF # With 4-KByte granularity, implies a 4-GByte limit 
+SS.Type = 3 # Read/write data, accessed 
+SS.S = 1
+SS.DPL = 3
+SS.P = 1
+SS.B = b1 # 32-bit stack segment
+SS.G = b1 # 4-KByte granularity 
