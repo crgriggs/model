@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import ast, sys, tokenize, argparse, os, re
+import networkx as nx
+import matplotlib.pyplot as plt
 from ast import *
 
 #Dictionary of what variables are tracked by state and how many bits they use
@@ -249,6 +251,12 @@ class astVisit(ast.NodeVisitor):
     def __init__(self):
         self.varDict = {}
         self.assignOrder = []
+        self.cfg = nx.DiGraph()
+        self.cfg.add_node(0)
+        self.currentNode = 0
+        self.numAssignInBlock = 0
+        self.assigned = {}
+        self.assignedToNode = {}
 
     def visit(self, node, conditional = None):
         """Visit a node."""
@@ -367,7 +375,6 @@ class astVisit(ast.NodeVisitor):
     #each hold a list of nodes.
 
     def negate(self, comp):
-        print len(comp.split())
         if len(comp.split()) < 4:
 
             if "== 1" in comp and "CPL" not in comp:
@@ -387,6 +394,7 @@ class astVisit(ast.NodeVisitor):
     #elif clauses don’t have a special representation in the AST, but rather appear as 
     #extra If nodes within the orelse section of the previous one.
     def visit_If(self, node, condition = None):
+        parent = self.currentNode
         comparison = self.visit(node.test, condition)
         copy = comparison
         if condition != None:
@@ -394,6 +402,12 @@ class astVisit(ast.NodeVisitor):
             comparison = comparison + " && " + condition
             # print condition, comparison
         #pushes the condition down the true part of the if block
+
+        self.cfg.add_node(self.currentNode + 1)
+        self.cfg.add_edge(self.currentNode, self.currentNode + 1)
+        self.currentNode += 1
+        ifNode = self.currentNode
+        self.numAssignInBlock = 0
         for nodes in node.body:
             self.visit(nodes, comparison)
         #pushes the negation of the condition down the else/elif of the if block
@@ -401,25 +415,26 @@ class astVisit(ast.NodeVisitor):
             # print condition, comparison
             comparison = "!!(" + comparison +" && " + copy + ")"
             # print condition, comparison
-        for nodes in node.orelse:
-            print comparison, self.negate(comparison)
-            self.visit(nodes, self.negate(comparison))
 
+        if len(node.orelse) > 0:
+            self.currentNode += 1
+            elseNode = self.currentNode
+            self.cfg.add_node(elseNode)
+            self.numAssignInBlock = 0
+            self.cfg.add_edge(parent, elseNode)
+            for nodes in node.orelse:
+                self.visit(nodes, self.negate(comparison))
+            self.currentNode += 1
+            self.cfg.add_node(self.currentNode)
+            self.cfg.add_edge(ifNode, self.currentNode)
+            self.cfg.add_edge(elseNode, self.currentNode)
+            self.numAssignInBlock = 0
+        else:
+            self.currentNode += 1
+            self.cfg.add_node(self.currentNode)
+            self.cfg.add_edge(ifNode, self.currentNode)
+            self.cfg.add_edge(parent, self.currentNode)
 
-    # class Compare(left, ops, comparators)
-    # A comparison of two or more values. left is the first value in the comparison, 
-    # ops the list of operators, and comparators the list of values after the first. 
-
-    # >>> parseprint("1 < a < 10")
-    # Module(body=[
-    #   Expr(value=Compare(left=Num(n=1), ops=[
-    #       Lt(),
-    #       Lt(),
-    #     ], comparators=[
-    #       Name(id='a', ctx=Load()),
-    #       Num(n=10),
-    #     ])),
-    #   ])
 
     def visit_Compare(self, node, conditional = None):
         comparison = ''
@@ -436,30 +451,158 @@ class astVisit(ast.NodeVisitor):
     def visit_Str(self, node):
         return node.s
 
-    # An assignment. targets is a list of nodes, and value is a single node.
-    # >>> parseprint("a = b = 1")     # Multiple assignment
-    # Module(body=[
-    #     Assign(targets=[
-    #        Name(id='a', ctx=Store()),
-    #        Name(id='b', ctx=Store()),
-    #      ], value=Num(n=1)),
-    #   ])
-
     def visit_Assign(self, node, condition = None):
-        lhs = str(self.visit(node.targets[0])) 
+        lhs = str(self.visit(node.targets[0]))
+        if lhs in self.assignedToNode:
+            self.assignedToNode[lhs].append(self.currentNode)
+        else:
+            self.assignedToNode[lhs] = [self.currentNode]
         self.assignOrder.append(lhs)
         rhs =  str(self.visit(node.value))
-        if lhs in self.varDict:
-            self.varDict[lhs].append([rhs, condition])
+        if lhs in self.assigned:
+            lhs += str(self.assigned[lhs])
+            self.assigned[lhs[0:-1]] = self.assigned[lhs[0:-1]] + 1
         else:
-            self.varDict[lhs] = [[rhs, condition]]
+            lhs += "0"
+            self.assigned[lhs[0:-1]] = 1
+        if lhs in self.varDict:
+            self.varDict[lhs].append([rhs, condition, self.currentNode])
+        else:
+            self.varDict[lhs] = [[rhs, condition, self.currentNode]]
+        self.cfg.node[self.currentNode][self.numAssignInBlock] = lhs + " = " + rhs
+        self.numAssignInBlock += 1
         return lhs + " = " + rhs
         
-
     def visit_Expr(self, node):
 
         ast.NodeVisitor.generic_visit(self, node)
 
+    def dominates(self, a, b):
+        for path in nx.all_simple_paths(self.cfg, source=0, target=b):
+            if b not in path:
+                return False
+        return True
+
+    def findIdom(self, v):
+        if v == 0:
+            return 0
+        if len(self.cfg.predecessors(v)) > 1:
+            for p in self.cfg.predecessors(v):
+                return self.findIdom(p)
+        if self.cfg.predecessors(v) != []:
+            return self.cfg.predecessors(v)[0]
+        return []
+
+    def strictlyDominates(self, a, b):
+        if a == b:
+            return False
+        for path in nx.all_simple_paths(self.cfg, source=0, target=b):
+            if b not in path:
+                return False
+        return True
+
+    def dominanceFrontier(self):
+        df = {}
+        for node in self.cfg:
+            if len(self.cfg.predecessors(node)) > 1:
+                for pred in self.cfg.predecessors(node):
+                    runner = pred
+                    while runner != self.findIdom(node):
+                        if runner in df:
+                            df[runner].add(node)
+                        else:
+                            df[runner] = {node}
+                        runner = self.findIdom(runner)
+
+        return df
+
+    def phi(self):
+        DF = self.dominanceFrontier()
+        phi = {}
+        for var in self.varDict:
+
+            if self.assigned[var[0:-1]] < 2:
+                continue
+            #removiing the ssa index
+            #assumes no more than 10 writes
+            var = var[0:-1]
+            WorkList = set()
+            EverOnWorkList = set()
+            AlreadyHasPhiFunc = set()
+            for n in self.assignedToNode[var]:
+                WorkList.add(n)
+
+            EverOnWorkList = WorkList.copy()
+            while WorkList:
+                n = WorkList.pop()
+                if n not in DF:
+                    continue
+                for d in DF[n]:
+                    if d not in AlreadyHasPhiFunc:
+                        if var in phi:
+                            if d not in phi[var]:
+                                phi[var].append(d)
+                        else:
+                            phi[var] = [d]
+                        AlreadyHasPhiFunc.add(d)
+                        if d not in EverOnWorkList:
+                            if d in DF:
+                                WorkList.add(d)
+                            EverOnWorkList.add(d)
+        return phi
+
+         
+    #finds the node where var was last written
+    #assumes var has been written before
+    def findAncestorWrite(self, node, var):
+        if node in self.assignedToNode[var]:
+            return node
+        else:
+            for pred in self.cfg.predecessors(node):
+                return self.findAncestorWrite(pred, var)
+
+    def phiInput(self):
+        phi = self.phi()
+        phiWithInput = {}
+        
+        for var in phi:
+            inputs = set()
+            for node in phi[var]:
+                for pred in self.cfg.predecessors(node):
+                    inputs.add(self.findAncestorWrite(pred, var))
+                if var in phiWithInput:
+                    phiWithInput[var].append([node, inputs])
+                else:
+                    phiWithInput[var] = [[node, inputs]]
+        return phiWithInput
+
+        #[lhs : [rhs, condtion, nodeWrittenTo]]
+
+    def unSSA(self):
+        phi = self.phiInput()
+        newVD = {}
+        phiDict = {}
+        for var in self.varDict:
+            #if the var is in the right hand side and after the phi function for this var
+            if (" " +  var[0:-1] + " ") in self.varDict[var][0] and var[0:-1] in phi and self.varDict[var][2] >= phi[var[0:-1]][0]:
+                #need to loop through newVD to find the assigns that determine the phi function
+                inputs = [[self.varDict[var]]]
+                inputLoc = phi[var[0:-1]][1]
+                for defs in range(0, len(newVD[var[0:-1]])):
+                    if newVD[var[0:-1]][i][2] in inputLoc:
+                        inputs.append(newVD[var[0:-1]][i])
+                if var[0:-1] in phiDict:
+                    phiDict[var[0:-1]].append(inputs)
+                else:
+                    phiDict[var[0:-1]] = [inputs]
+            if var[0:-1] in newVD:
+                newVD[var[0:-1]].append(self.varDict[var])
+            else:
+                newVD[var[0:-1]] = [self.varDict[var]]
+        self.varDict = newVD
+        return phiDict
+
+                           
     def dump(node, annotate_fields=True, include_attributes=True, indent='  '):
         print '=' * 50
         print 'AST tree for', filename
@@ -493,13 +636,14 @@ class astVisit(ast.NodeVisitor):
 
 class modulePrint():
 
-    def __init__(self, filename, varDict, assignOrder):
+    def __init__(self, filename, varDict, assignOrder, phi):
         self.filename = filename
         self.assignOrder = assignOrder
         self.inputs = set()
         self.constants = set()
         self.defines = set()
         self.cvd = varDict
+        self.phi = phi
     
     def findInputs(self):
         file = open(self.filename)
@@ -584,6 +728,9 @@ class modulePrint():
     def printDefine(self):
         print
         print "DEFINE"
+        print 
+
+        for var in phi
         for define in self.defines:
             print define
 
@@ -722,12 +869,8 @@ class modulePrint():
                 self.cvd[lhs].pop(index)
             for new in temp:
                 self.cvd[lhs].append(new)
-     
 
-
-
-
-    #[lhs : [rhs, condtion]]
+    #[lhs : [rhs, condtion, nodeWrittenTo]]
     def printAssign(self):
         self.cleanAssign()
         printed = set()
@@ -821,7 +964,12 @@ if __name__ == "__main__":
         print fstr
     v = astVisit()
     v.visit(parse(fstr, filename=filename))
-    writer = modulePrint(varDict = v.varDict, filename = filename, assignOrder = v.assignOrder)
+    phi = v.unSSA()
+    # print list(v.cfg.predecessors(7))
+
+    # nx.draw_shell(nx.convert_node_labels_to_integers(v.cfg),  with_labels=True)
+    # plt.show()
+    writer = modulePrint(varDict = v.varDict, filename = filename, assignOrder = v.assignOrder, phi = phi)
     writer.write()
     if not args.keep:
         os.system("rm " + filename)
