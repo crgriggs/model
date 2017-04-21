@@ -8,59 +8,25 @@ from ast import *
 #Dictionary of what variables are tracked by state and how many bits they use
 #Dictionaries that translate psuedocode into uclid mode, not sure if this is going to be human readabale
 inputs = set()
-stateVars = {'r11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'cpl': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'rcx': '64', 'rip': '64'}
+stateVars = {'R11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'CPL': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'RCX': '64', 'RIP': '64'}
 rflagsDict ={'CF': 'State.rflags # [0:0]', 'PF': 'State.rflags # [1:1]', 'AF': 'State.rflags # [4:4]', 'ZF': 'State.rflags # [6:6]', 'SF': 'State.rflags # [7:7]', 'TF': 'State.rflags # [8:8]', 'IF': 'State.rflags # [9:9]', 'DF': 'State.rflags # [10:10]', 'OF': 'State.rflags # [11:11]', 'IOPL': 'State.rflags # [13:12]', 'NT': 'State.rflags # [14:14]', 'RF': 'State.rflags # [16:16]', 'VM': 'State.rflags # [17:17]', 'AC': 'State.rflags # [18:18]', 'VIF': 'State.rflags # [19:19]', 'VIP': 'State.rflags # [20:20]', 'ID': 'State.rflags # [21:21]'}
 CR0Dict = {'PE': 'State.CR0 # [0:0]', 'MP': 'State.CR0 # [1:1]', 'EM': 'State.CR0 # [2:2]', 'TS': 'State.CR0 # [3:3]', 'ET': 'State.CR0 # [4:4]', 'NE': 'State.CR0 # [5:5]', 'WP': 'State.CR0 # [16:16]', 'AM': 'State.CR0 # [18:18]','NW': 'State.CR0 # [29:29]', 'CD': 'State.CR0 # [30:30]', 'PG': 'State.CR0 # [31:31]'}
 CR4Dict = {'VME': 'State.CR4 # [0:0]', 'PVI': 'State.CR4 # [1:1]', 'TSD': 'State.CR4 # [2:2]', 'DE': 'State.CR4 # [3:3]', 'PSE': 'State.CR4 # [4:4]', 'PAE': 'State.CR4 # [5:5]', 'MCE': 'State.CR4 # [6:6]', 'PGE': 'State.CR4 # [7:7]','PCE': 'State.CR4 # [8:8]', 'OSFXSR': 'State.CR4 # [9:9]', 'OSXMMEXCPT': 'State.CR4 # [10:10]', 'VMXE': 'State.CR4 # [13:13]', 'SMXE': 'State.CR4 # [14:14]', 'FSGSBASE': 'State.CR4 # [16:16]', 'PCIDE': 'State.CR4 # [17:17]', 'OSXSAVE': 'State.CR4 # [18:18]', 'SMEP': 'State.CR4 # [20:20]', 'SMAP': 'State.CR4 # [21:21]', 'PKE': 'State.CR4 # [22:22]'}
 EFERDict = {'SCE': 'State.EFER # [0:0]', 'LME': 'State.EFER # [8:8]', 'LMA': 'State.EFER # [10:10]', 'NXE': 'State.EFER # [11:11]', 'SVME': 'State.EFER # [12:12]', 'LMSLE': 'State.EFER # [13:13]', 'FFXSR': 'State.EFER # [14:14]', 'TCE': 'State.EFER # [15:15]'}
-cs_accessRightsDict = {'TYPE': 'State.cs_accessRights # [11:8]', 'S': 'State.cs_accessRights # [7:7]', 'DPL': 'State.cs_accessRights # [6:5]', 'P': 'State.cs_accessRights # [4:4]', 'AVL': 'State.cs_accessRights # [3:3]', 'L': 'State.cs_accessRights # [2:2]', 'D': 'State.cs_accessRights # [1:1]', 'B': 'State.cs_accessRights # [1:1]', 'G': 'State.cs_accessRights # [0:0]', "SELECTOR": "State.cs_selector", "BASE": "State.cs_base", "LIMIT": "State.cs_limit"}
-ss_accessRightsDict = {'TYPE': 'State.ss_accessRights # [11:8]', 'S': 'State.ss_accessRights # [7:7]', 'DPL': 'State.ss_accessRights # [6:5]', 'P': 'State.ss_accessRights # [4:4]', 'AVL': 'State.ss_accessRights # [3:3]', 'L': 'State.ss_accessRights # [2:2]', 'D': 'State.ss_accessRights # [1:1]', 'B': 'State.ss_accessRights # [1:1]', 'G': 'State.ss_accessRights # [0:0]', "SELECTOR": "State.ss_selector", "BASE": "State.ss_base", "LIMIT": "State.ss_limit"}
+cs_accessRightsDict = {'Type': 'State.cs_accessRights # [11:8]', 'S': 'State.cs_accessRights # [7:7]', 'DPL': 'State.cs_accessRights # [6:5]', 'P': 'State.cs_accessRights # [4:4]', 'AVL': 'State.cs_accessRights # [3:3]', 'L': 'State.cs_accessRights # [2:2]', 'D': 'State.cs_accessRights # [1:1]', 'B': 'State.cs_accessRights # [1:1]', 'G': 'State.cs_accessRights # [0:0]'}#, "SELECTOR": "State.cs_selector", "BASE": "State.cs_base", "LIMIT": "State.cs_limit"}
+ss_accessRightsDict = {'Type': 'State.ss_accessRights # [11:8]', 'S': 'State.ss_accessRights # [7:7]', 'DPL': 'State.ss_accessRights # [6:5]', 'P': 'State.ss_accessRights # [4:4]', 'AVL': 'State.ss_accessRights # [3:3]', 'L': 'State.ss_accessRights # [2:2]', 'D': 'State.ss_accessRights # [1:1]', 'B': 'State.ss_accessRights # [1:1]', 'G': 'State.ss_accessRights # [0:0]'}#, "SELECTOR": "State.ss_selector", "BASE": "State.ss_base", "LIMIT": "State.ss_limit"}
 AMDDict = {'REAL_MODE': 'PE == 0', 'PROTECTED_MODE': '((PE == 1) && (VM == 0))','VIRTUAL_MODE': '((PE == 1) && (VM == 1))', 'LEGACY_MODE': '(LMA == 0)', 'LONG_MODE': '(LMA == 1)', '64BIT_MODE': '((LMA==1) && (cs_L == 1) && (cs_D == 0))','COMPATIBILITY_MODE': '(LMA == 1) && (cs_L == 0)', 'PAGING_ENABLED': '(PG == 1)', 'ALIGNMENT_CHECK_ENABLED': '((AM == 1) && (AC == 1) && (CPL == 3))'}
 AMDrflagsDict ={'RFLAGS.CF': 'State.rflags # [0:0]', 'RFLAGS.PF': 'State.rflags # [1:1]', 'RFLAGS.AF': 'State.rflags # [4:4]', 'RFLAGS.ZF': 'State.rflags # [6:6]', 'RFLAGS.SF': 'State.rflags # [7:7]', 'RFLAGS.TF': 'State.rflags # [8:8]', 'RFLAGS.IF': 'State.rflags # [9:9]', 'RFLAGS.DF': 'State.rflags # [10:10]', 'RFLAGS.OF': 'State.rflags # [11:11]', 'RFLAGS.IOPL': 'State.rflags # [13:12]', 'RFLAGS.NT': 'State.rflags # [14:14]', 'RFLAGS.RF': 'State.rflags # [16:16]', 'RFLAGS.VM': 'State.rflags # [17:17]', 'RFLAGS.AC': 'State.rflags # [18:18]', 'RFLAGS.VIF': 'State.rflags # [19:19]', 'RFLAGS.VIP': 'State.rflags # [20:20]', 'RFLAGS.ID': 'State.rflags # [21:21]'}
 accessRights = set(["ss_type", "ss_s", "ss_dpl", "ss_p", "ss_avl", "ss_g", "ss_l", "ss_d","ss_b", "cs_type", "cs_s", "cs_dpl", "cs_p", "cs_avl", "cs_g", "cs_l", "cs_d","cs_b"])
+
 class fileConverter():
 
     def __init__(self, filename):
         self.filename = filename
     
     def convert(self):
-        if self.isIntel(self.filename):
-            file = self.convertIntel(self.filename)
-        else:
-            file = self.convertAMD(self.filename)
-        return file
-        
-
-
-    #Determines whether pseudocode is AMD or intel as Intel uses ←
-    def isIntel(self, filename):
-        with open(filename) as f:
-            for line in f:
-                if "←" in line:
-                    print("Assuming " + filename + " is Intel psuedocode based on assign statements\n")
-                    return True
-        print("Assuming " + filename + " is AMD psuedocode based on assign statements\n")
-        return False
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-
-
-    #checks if assigned var is part of a larger register
-    #doesn't consider things like ecx is part of rcx for now
-    def isPartOfRegister(self, var):
-        if var.upper() in rflagsDict or var.upper() in CR0Dict or var.upper() in CR4Dict or var.upper() in EFERDict:
-            return True
-        return False
-
-    #returns the larger register
-    def largerRegister(self, var):
-        if var.upper() in rflagsDict:
-            return "rflags"
-        if var.upper() in CR0Dict:
-            return "CRO"
-        if var.upper() in CR4Dict:
-            return "CR4"
-        if var.upper() in EFERDict:
-            return "EFER"
+        file = self.convertIntel(self.filename)
+        return self.filename.split(".")[0] + "Python.txt"
 
     #converts intel psuedocode into python-esque syntax
     def convertIntel(self, filename):
@@ -248,15 +214,40 @@ class fileConverter():
 #form key -> var = next[var] value -> case
 class astVisit(ast.NodeVisitor):
 
-    def __init__(self):
+    def __init__(self, node):
         self.varDict = {}
-        self.assignOrder = []
+        self.numAssignInBlock = 0
         self.cfg = nx.DiGraph()
         self.cfg.add_node(0)
         self.currentNode = 0
-        self.numAssignInBlock = 0
+        self.exitPointNodes = {}
         self.assigned = {}
+        self.phiDict = {}
         self.assignedToNode = {}
+        self.visit(node)
+        self.selectorHandle()
+        self.unSSA()
+        self.addingExitPoints()
+
+    #if any part of the cs/ss selector is changed, then
+    #we only want one assign instead of multiple for 
+    #each part, so we add an assign for those values at the last node
+    def selectorHandle(self):
+        cs = False
+        ss = False
+        for var in self.varDict:
+            if "CS." in var:
+                cs = True
+            elif "SS." in var:
+                ss = True
+        if cs:
+                self.varDict["cs_accessRights0"] = [["(CS.TYPE) @ (CS.S) @ (CS.DPL) @ (CS.P) @ (CS.AVL) @ (CS.L) @ (CS.D) @ (CS.B) @ (CS.G)", None, self.currentNode]]
+                self.assignedToNode["cs_accessRights"] = [self.currentNode]
+                self.assigned["cs_accessRights"] = 2
+        if ss:
+                self.varDict["ss_accessRights0"] = [["(SS.TYPE) @ (SS.S) @ (SS.DPL) @ (SS.P) @ (SS.AVL) @ (SS.L) @ (SS.D) @ (SS.B) @ (SS.G)", None, self.currentNode]]
+                self.assignedToNode["ss_accessRights"] = [self.currentNode]
+                self.assigned["ss_accessRights"] = 2
 
     def visit(self, node, conditional = None):
         """Visit a node."""
@@ -457,8 +448,9 @@ class astVisit(ast.NodeVisitor):
             self.assignedToNode[lhs].append(self.currentNode)
         else:
             self.assignedToNode[lhs] = [self.currentNode]
-        self.assignOrder.append(lhs)
         rhs =  str(self.visit(node.value))
+        if lhs == "exitStatus":
+            self.exitPointNodes[self.currentNode] = rhs
         if lhs in self.assigned:
             lhs += str(self.assigned[lhs])
             self.assigned[lhs[0:-1]] = self.assigned[lhs[0:-1]] + 1
@@ -518,9 +510,10 @@ class astVisit(ast.NodeVisitor):
 
     def phi(self):
         DF = self.dominanceFrontier()
+        print DF
+
         phi = {}
         for var in self.varDict:
-
             if self.assigned[var[0:-1]] < 2:
                 continue
             #removiing the ssa index
@@ -531,14 +524,14 @@ class astVisit(ast.NodeVisitor):
             AlreadyHasPhiFunc = set()
             for n in self.assignedToNode[var]:
                 WorkList.add(n)
-
             EverOnWorkList = WorkList.copy()
             while WorkList:
-                n = WorkList.pop()
+                n = WorkList.pop()               
                 if n not in DF:
                     continue
                 for d in DF[n]:
                     if d not in AlreadyHasPhiFunc:
+                        #print var, d
                         if var in phi:
                             if d not in phi[var]:
                                 phi[var].append(d)
@@ -549,8 +542,8 @@ class astVisit(ast.NodeVisitor):
                             if d in DF:
                                 WorkList.add(d)
                             EverOnWorkList.add(d)
-        return phi
 
+        return phi
          
     #finds the node where var was last written
     #assumes var has been written before
@@ -564,15 +557,18 @@ class astVisit(ast.NodeVisitor):
     def phiInput(self):
         phi = self.phi()
         phiWithInput = {}
-        
         for var in phi:
             inputs = set()
             for node in phi[var]:
                 for pred in self.cfg.predecessors(node):
                     inputs.add(self.findAncestorWrite(pred, var))
                 if var in phiWithInput:
+                    if None in inputs:
+                        inputs.remove(None)
                     phiWithInput[var].append([node, inputs])
                 else:
+                    if None in inputs:
+                        inputs.remove(None)
                     phiWithInput[var] = [[node, inputs]]
         return phiWithInput
 
@@ -584,61 +580,48 @@ class astVisit(ast.NodeVisitor):
         phiDict = {}
         for var in self.varDict:
             #if the var is in the right hand side and after the phi function for this var
-            if (" " +  var[0:-1] + " ") in self.varDict[var][0] and var[0:-1] in phi and self.varDict[var][2] >= phi[var[0:-1]][0]:
+            if (var[0:-1] + " ") in self.varDict[var][0][0] and var[0:-1] in phi and self.varDict[var][0][2] >= phi[var[0:-1]][0][0]:
                 #need to loop through newVD to find the assigns that determine the phi function
-                inputs = [[self.varDict[var]]]
-                inputLoc = phi[var[0:-1]][1]
-                for defs in range(0, len(newVD[var[0:-1]])):
-                    if newVD[var[0:-1]][i][2] in inputLoc:
+                write = self.varDict[var][0][2]
+                inputs = self.varDict[var]
+                inputLoc = phi[var[0:-1]]
+                for i in range(0, len(newVD[var[0:-1]])):
+                    if newVD[var[0:-1]][i][2] in inputLoc[0][1]:
                         inputs.append(newVD[var[0:-1]][i])
                 if var[0:-1] in phiDict:
                     phiDict[var[0:-1]].append(inputs)
                 else:
                     phiDict[var[0:-1]] = [inputs]
-            if var[0:-1] in newVD:
-                newVD[var[0:-1]].append(self.varDict[var])
+                #delete data in vardict
+                del newVD[var[0:-1]]
+                # add new data
+                newVD[var[0:-1]] = [[var[0:-1]+"_n", None, write]]
+            elif var[3:-1] in cs_accessRightsDict or var[3:-1] in ss_accessRightsDict:
+                continue
+            elif var[0:-1] in newVD:
+                newVD[var[0:-1]].append(self.varDict[var][0])
             else:
-                newVD[var[0:-1]] = [self.varDict[var]]
+                newVD[var[0:-1]] = self.varDict[var]
         self.varDict = newVD
-        return phiDict
+        self.phiDict = phiDict
 
-                           
-    def dump(node, annotate_fields=True, include_attributes=True, indent='  '):
-        print '=' * 50
-        print 'AST tree for', filename
-        print '=' * 50
-        def _format(node, level=0):
-            if isinstance(node, AST):
-                fields = [(a, _format(b, level)) for a, b in iter_fields(node)]
-                if include_attributes and node._attributes:
-                    fields.extend([(a, _format(getattr(node, a), level))
-                                   for a in node._attributes])
-                return ''.join([
-                    node.__class__.__name__,
-                    '(',
-                    ', '.join(('%s=%s' % field for field in fields)
-                               if annotate_fields else
-                               (b for a, b in fields)),
-                    ')'])
-            elif isinstance(node, list):
-                lines = ['[']
-                lines.extend((indent * (level + 2) + _format(x, level + 2) + ','
-                             for x in node))
-                if len(lines) > 1:
-                    lines.append(indent * (level + 1) + ']')
-                else:
-                    lines[-1] += ']'
-                return '\n'.join(lines)
-            return repr(node)
-        if not isinstance(node, AST):
-            raise TypeError('expected AST, got %r' % node.__class__.__name__)
-        return _format(node)
+    def addingExitPoints(self):
+        for exitNode in self.exitPointNodes:
+            descendant = nx.descendants(self.cfg, exitNode)
+            for var in self.varDict:
+                for define in self.varDict[var]:
+                    if define[2] in descendant:
+                        if define[1] == None:
+                            define[1] = "next[exitStatus] != " + self.exitPointNodes[exitNode] 
+                        else:
+                            define[1] = define[1] + " & next[exitStatus] != " + self.exitPointNodes[exitNode] 
 
+
+                
 class modulePrint():
 
-    def __init__(self, filename, varDict, assignOrder, phi):
+    def __init__(self, filename, varDict, phi):
         self.filename = filename
-        self.assignOrder = assignOrder
         self.inputs = set()
         self.constants = set()
         self.defines = set()
@@ -729,8 +712,40 @@ class modulePrint():
         print
         print "DEFINE"
         print 
-
-        for var in phi
+        #{var : [[phiVar, inputVar, inputVar...]+]}
+        #var -> [rhs, condtion, nodeWrittenTo]]
+        for var in self.phi:
+            count = 0
+            groupCount = 0
+            for group in self.phi[var]:
+                temp = ""
+                for inputs in group:
+                    #need to save the first as it needs to be printed after
+                    if inputs == [group][groupCount][0]:
+                        temp = [group][groupCount][0]
+                    #the first needs to set up the case statement
+                    elif inputs == [group][groupCount][1]:
+                        print var + str(count) + " := case"
+                        print "    " + [group][groupCount][1][1] + " : " + [group][groupCount][1][0] + ";"
+                    #the last needs to close the case state
+                    elif inputs == [group][groupCount][-1]:
+                        print "    " + [group][groupCount][-1][1] + " : " + [group][groupCount][-1][0] + ";"
+                        print "    default : State." + var
+                        print "esac;"
+                    #regular part of the case
+                    else:
+                        print "    " + inputs[1] + " : " + inputs[0] + ";" 
+                print
+                #if it's the last time we will call it var_n so the assign section can reference
+                #otherwise it's just given a number
+                if group == self.phi[var][-1]:
+                    print var + "_n := " + temp[0].replace(var, var + str(count)) + ";"
+                    print
+                else:
+                    print var + str(count+1)+  " := " +temp[0].replace(var, var + str(count)) + ";"
+                    print
+                    count += 2
+            groupCount += 1
         for define in self.defines:
             print define
 
@@ -754,14 +769,14 @@ class modulePrint():
                         ss = False
                         print "ss_accessRights : [12];"
                     continue
-            if "CS" in var:
+            elif "CS" in var:
                 var = var.replace(".", "_").lower()
                 if var in accessRights:
                     if cs:
                         cs = False
                         print "cs_accessRights : [12];"
                     continue 
-            if var == 'exitStatus':
+            elif var == 'exitStatus':
                 continue
             elif var == 'DEST':
                 print "DEST : [64];" 
@@ -770,7 +785,7 @@ class modulePrint():
                     rflags = False
                     print "rflags : [64];"
             else:
-                print str(var) + " : [" + str(stateVars[var.lower()]) + "];"
+                print str(var) + " : [" + str(stateVars[var]) + "];"
 
     def printCS(self, cs):
         B = True
@@ -841,38 +856,10 @@ class modulePrint():
         # print var[0], var1, var2
         return [rhs, cond]
 
-    def cleanAssign(self):
-        for var in self.assignOrder:
-            lhs = var
-            rhsCond = self.cvd[lhs]
-            combined = set()
-            temp = []
-            #if assigned more than once
-            # print lhs, rhsCond
-            if len(rhsCond) > 1:
-                #iterate through with a runner
-                for i in range(0, len(rhsCond) - 1):
-                    for j in range(i + 1, len(rhsCond)):
-                        #if the second assign's conditional is encompassed by the first's
-                        if rhsCond[j][1] == None or rhsCond[j][1] in rhsCond[i][1]:
-                            #if we use the lhs after it's already been assigned
-                            if lhs in rhsCond[j][0]:
-                                #we append the conditional to the previous assign
-                                newRHS = rhsCond[j][0].replace(var, "")
-                                combined.add(i)
-                                combined.add(j)
-                                temp.append([rhsCond[i][0] + " " + newRHS, rhsCond[i][1]])
-            sortedRemoval = []
-            for index in combined:
-                sortedRemoval.append(index)
-            for index in sorted(sortedRemoval, reverse = True):
-                self.cvd[lhs].pop(index)
-            for new in temp:
-                self.cvd[lhs].append(new)
+   
 
     #[lhs : [rhs, condtion, nodeWrittenTo]]
     def printAssign(self):
-        self.cleanAssign()
         printed = set()
         ss = []
         cs = []
@@ -880,8 +867,7 @@ class modulePrint():
         tab = "    "
         print "ASSIGN"
         print
-        exit = False
-        for var in self.assignOrder:
+        for var in self.cvd:
             if(var in printed):
                 continue
             else:
@@ -909,22 +895,15 @@ class modulePrint():
             else:
                 print "init[" + var + "] := 0;"
                 print "next[" + var + "] := case"
-                replace = ""
                 for rhsCondCombo in rhsCond:
-                    rhsCondCombo = self.connectState(rhsCondCombo)
-                    if exit:
-                        if rhsCondCombo[1] == None:
-                            rhsCondCombo[1] = "next[exitStatus] = normal"
-                        else:
-                            rhsCondCombo[1] = rhsCondCombo[1] + " & next[exitStatus] = normal"
+                    # rhsCondCombo = self.connectState(rhsCondCombo)
                     print tab + rhsCondCombo[1] + " : " + rhsCondCombo[0].replace(" 3", " b1@b1").replace("hex", "") + ";"
                 print tab + "default : " + default + ";"
                 print "esac;"
-                if var == "exitStatus":
-                    exit = True
                 print
 
         if cs != []:
+            print "uyaausd"
             self.printCS(cs)
             print
         if ss != []:
@@ -957,20 +936,20 @@ if __name__ == "__main__":
     fc = fileConverter(filename = args.filename)
     #fc = fileConverter(filename = "psuedocode/sysret.txt")
     filename = fc.convert()
+    print filename
     f = open(filename, 'r')
     fstr = f.read()
     f.close()
     if args.interPrint:
         print fstr
-    v = astVisit()
-    v.visit(parse(fstr, filename=filename))
-    phi = v.unSSA()
+    v = astVisit(parse(fstr, filename=filename))
+
     # print list(v.cfg.predecessors(7))
 
     # nx.draw_shell(nx.convert_node_labels_to_integers(v.cfg),  with_labels=True)
     # plt.show()
-    writer = modulePrint(varDict = v.varDict, filename = filename, assignOrder = v.assignOrder, phi = phi)
-    writer.write()
+    # writer = modulePrint(varDict = v.varDict, filename = filename, phi = v.phiDict)
+    # writer.write()
     if not args.keep:
         os.system("rm " + filename)
    
