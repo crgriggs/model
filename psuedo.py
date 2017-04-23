@@ -15,9 +15,6 @@ CR4Dict = {'VME': 'State.CR4 # [0:0]', 'PVI': 'State.CR4 # [1:1]', 'TSD': 'State
 EFERDict = {'SCE': 'State.EFER # [0:0]', 'LME': 'State.EFER # [8:8]', 'LMA': 'State.EFER # [10:10]', 'NXE': 'State.EFER # [11:11]', 'SVME': 'State.EFER # [12:12]', 'LMSLE': 'State.EFER # [13:13]', 'FFXSR': 'State.EFER # [14:14]', 'TCE': 'State.EFER # [15:15]'}
 cs_accessRightsDict = {'Type': 'State.cs_accessRights # [11:8]', 'S': 'State.cs_accessRights # [7:7]', 'DPL': 'State.cs_accessRights # [6:5]', 'P': 'State.cs_accessRights # [4:4]', 'AVL': 'State.cs_accessRights # [3:3]', 'L': 'State.cs_accessRights # [2:2]', 'D': 'State.cs_accessRights # [1:1]', 'B': 'State.cs_accessRights # [1:1]', 'G': 'State.cs_accessRights # [0:0]'}#, "SELECTOR": "State.cs_selector", "BASE": "State.cs_base", "LIMIT": "State.cs_limit"}
 ss_accessRightsDict = {'Type': 'State.ss_accessRights # [11:8]', 'S': 'State.ss_accessRights # [7:7]', 'DPL': 'State.ss_accessRights # [6:5]', 'P': 'State.ss_accessRights # [4:4]', 'AVL': 'State.ss_accessRights # [3:3]', 'L': 'State.ss_accessRights # [2:2]', 'D': 'State.ss_accessRights # [1:1]', 'B': 'State.ss_accessRights # [1:1]', 'G': 'State.ss_accessRights # [0:0]'}#, "SELECTOR": "State.ss_selector", "BASE": "State.ss_base", "LIMIT": "State.ss_limit"}
-AMDDict = {'REAL_MODE': 'PE == 0', 'PROTECTED_MODE': '((PE == 1) && (VM == 0))','VIRTUAL_MODE': '((PE == 1) && (VM == 1))', 'LEGACY_MODE': '(LMA == 0)', 'LONG_MODE': '(LMA == 1)', '64BIT_MODE': '((LMA==1) && (cs_L == 1) && (cs_D == 0))','COMPATIBILITY_MODE': '(LMA == 1) && (cs_L == 0)', 'PAGING_ENABLED': '(PG == 1)', 'ALIGNMENT_CHECK_ENABLED': '((AM == 1) && (AC == 1) && (CPL == 3))'}
-AMDrflagsDict ={'RFLAGS.CF': 'State.rflags # [0:0]', 'RFLAGS.PF': 'State.rflags # [1:1]', 'RFLAGS.AF': 'State.rflags # [4:4]', 'RFLAGS.ZF': 'State.rflags # [6:6]', 'RFLAGS.SF': 'State.rflags # [7:7]', 'RFLAGS.TF': 'State.rflags # [8:8]', 'RFLAGS.IF': 'State.rflags # [9:9]', 'RFLAGS.DF': 'State.rflags # [10:10]', 'RFLAGS.OF': 'State.rflags # [11:11]', 'RFLAGS.IOPL': 'State.rflags # [13:12]', 'RFLAGS.NT': 'State.rflags # [14:14]', 'RFLAGS.RF': 'State.rflags # [16:16]', 'RFLAGS.VM': 'State.rflags # [17:17]', 'RFLAGS.AC': 'State.rflags # [18:18]', 'RFLAGS.VIF': 'State.rflags # [19:19]', 'RFLAGS.VIP': 'State.rflags # [20:20]', 'RFLAGS.ID': 'State.rflags # [21:21]'}
-accessRights = set(["ss_type", "ss_s", "ss_dpl", "ss_p", "ss_avl", "ss_g", "ss_l", "ss_d","ss_b", "cs_type", "cs_s", "cs_dpl", "cs_p", "cs_avl", "cs_g", "cs_l", "cs_d","cs_b"])
 
 class fileConverter():
 
@@ -120,96 +117,7 @@ class fileConverter():
                     numSpaces -= 4
         return outfile
 
-    #removes AMD's shorthand
-    def AMDshorthand(self, line):
-        newLine = ''
-        i = 0
-        while line[i] == " " or line[i] ==["\t"]:
-            newLine += line[i]
-            i += 1
-        for word in line.split():
-            # if word in AMDDict:
-            #     word = AMDDict[word]
-            newLine += word
-        return newLine
-
-    #AMD sometimes seperates conditionals across two lines
-    #but if it does there are unmatching parens e.g. ((( ))
-    #lparens += 1 & rparens -= 1
-    def hasOddParens(self, line):
-        parens = 0
-        for char in line:
-            if char == "(":
-                parens += 1
-            if char == ")":
-                parens -= 1
-        if parens > 0:
-            return True
-        return False
-
-    #converts AMD's psuedocode into python-esque syntax
-    def convertAMD(self, filename):
-        readFile = open(filename)
-        outfile = filename.split(".")[0] + "Python.txt"
-        writeFile = open(outfile, 'w+')
-        numSpaces = 0
-        doubleLine = ""
-        comment = ""
-        for line in readFile:
-            if doubleLine != "":
-                line = doubleLine + line
-                if comment != "":
-                    line += ": " + comment
-                    comment = ""
-                else:
-                    line +=":"
-                doubleLine = ""
-
-          
-
-            if "(" in line:
-                line = line.replace("(", "( ")
-                line = line.replace(")", " )")
-            line = AMDshorthand(line)
-            if "ELSE" in line:
-                line = line.replace("ELSE", "else")
-                line += ":"
-            if "&&" in line:
-                line = line.replace("&&", "and")
-            if "||" in line:
-                line = line.replace("||", "or")
-            if "{" in line or "}" in line or line.strip() == "\n":
-                continue
-            if "EXCEPTION[" in line:
-                line = line.replace("EXCEPTION[#", "exitStatus = ")
-                line = line.replace("(0)]", "")
-            if "ELSIF" in line:
-                line = line.replace("ELSIF", "elif")
-                if hasOddParens(line):
-                    if "//" in line:
-                        line = line.split("//")
-                        comment += "#" + line[1]
-                        line = line[0]
-                    doubleLine += line
-                    continue
-                else:
-                    line += ":"
-            if line.lstrip().startswith("IF"):
-                line = line.replace("IF", "if")
-                if hasOddParens(line):
-                    if "//" in line:
-                        line = line.split("//")
-                        comment += "#" + line[1]
-                        line = line[0]
-                    doubleLine += line
-                    continue
-                else:
-                    line += ":"
-            if line == "":
-                continue
-            writeFile.write(line+"\n")
-        return outfile
-
+   
 #traverses the ast pushing all the vars into varDict in the 
 #form key -> var = next[var] value -> case
 class astVisit(ast.NodeVisitor):
@@ -241,13 +149,25 @@ class astVisit(ast.NodeVisitor):
             elif "SS." in var:
                 ss = True
         if cs:
-                self.varDict["cs_accessRights0"] = [["(CS.TYPE) @ (CS.S) @ (CS.DPL) @ (CS.P) @ (CS.AVL) @ (CS.L) @ (CS.D) @ (CS.B) @ (CS.G)", None, self.currentNode]]
-                self.assignedToNode["cs_accessRights"] = [self.currentNode]
+                self.varDict["cs_accessRights0"] = [["( CS.TYPE ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G )", None, self.currentNode]]
+                if "cs_accessRights" in self.assignedToNode:
+                    self.assignedToNode["cs_accessRights"].append(self.currentNode)
+                else:
+                    self.assignedToNode["cs_accessRights"] = [self.currentNode]
                 self.assigned["cs_accessRights"] = 2
+                for var in self.varDict:
+                    if var[:3] == "CS." and var[3:] in cs_accessRightsDict:
+                        self.assignedToNode[var[:-1]].append(self.currentNode)
         if ss:
-                self.varDict["ss_accessRights0"] = [["(SS.TYPE) @ (SS.S) @ (SS.DPL) @ (SS.P) @ (SS.AVL) @ (SS.L) @ (SS.D) @ (SS.B) @ (SS.G)", None, self.currentNode]]
-                self.assignedToNode["ss_accessRights"] = [self.currentNode]
+                self.varDict["ss_accessRights0"] = [["( SS.TYPE ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G )", None, self.currentNode]]
+                if "ss_accessRights" in self.assignedToNode:
+                    self.assignedToNode["ss_accessRights"].append(self.currentNode)
+                else:
+                    self.assignedToNode["ss_accessRights"] = [self.currentNode]
                 self.assigned["ss_accessRights"] = 2
+                for var in self.varDict:
+                    if var[:3] == "CS." and var[3:] in cs_accessRightsDict:
+                        self.assignedToNode[var[:-1]].append(self.currentNode)
 
     def visit(self, node, conditional = None):
         """Visit a node."""
@@ -403,9 +323,7 @@ class astVisit(ast.NodeVisitor):
             self.visit(nodes, comparison)
         #pushes the negation of the condition down the else/elif of the if block
         if condition != None:
-            # print condition, comparison
             comparison = "!!(" + comparison +" && " + copy + ")"
-            # print condition, comparison
 
         if len(node.orelse) > 0:
             self.currentNode += 1
@@ -510,8 +428,6 @@ class astVisit(ast.NodeVisitor):
 
     def phi(self):
         DF = self.dominanceFrontier()
-        print DF
-
         phi = {}
         for var in self.varDict:
             if self.assigned[var[0:-1]] < 2:
@@ -524,6 +440,19 @@ class astVisit(ast.NodeVisitor):
             AlreadyHasPhiFunc = set()
             for n in self.assignedToNode[var]:
                 WorkList.add(n)
+            if var == 'cs_accessRights':
+                for var2 in cs_accessRightsDict:
+                    var2 = "CS." + var2
+                    if var2 in self.assignedToNode:
+                        for n in self.assignedToNode[var2]:
+                            WorkList.add(n)
+            if var == 'ss_accessRights':
+                for var3 in ss_accessRightsDict:
+                    var3 = "SS." + var3
+                    if var3 in self.assignedToNode:
+                        for n in self.assignedToNode[var3]:
+                            WorkList.add(n)
+            #try to add to n by looking at where flags are assinged
             EverOnWorkList = WorkList.copy()
             while WorkList:
                 n = WorkList.pop()               
@@ -542,7 +471,6 @@ class astVisit(ast.NodeVisitor):
                             if d in DF:
                                 WorkList.add(d)
                             EverOnWorkList.add(d)
-
         return phi
          
     #finds the node where var was last written
@@ -574,34 +502,52 @@ class astVisit(ast.NodeVisitor):
 
         #[lhs : [rhs, condtion, nodeWrittenTo]]
 
+    def inSomeDict(self, word):
+        temp = word
+        if "." in word:
+            word = word.split(".")[1]
+            if word.upper() in rflagsDict:
+                return True
+            if word.upper() in CR0Dict:
+                return True
+            if word.upper() in CR4Dict:
+                return True
+            if word.upper() in EFERDict:
+                return True
+            if word in cs_accessRightsDict or word[3:] in cs_accessRightsDict:
+                return True      
+        return False
+
     def unSSA(self):
         phi = self.phiInput()
         newVD = {}
         phiDict = {}
+        #creating a dict without the ssa encodings
         for var in self.varDict:
-            #if the var is in the right hand side and after the phi function for this var
-            if (var[0:-1] + " ") in self.varDict[var][0][0] and var[0:-1] in phi and self.varDict[var][0][2] >= phi[var[0:-1]][0][0]:
-                #need to loop through newVD to find the assigns that determine the phi function
-                write = self.varDict[var][0][2]
-                inputs = self.varDict[var]
-                inputLoc = phi[var[0:-1]]
-                for i in range(0, len(newVD[var[0:-1]])):
-                    if newVD[var[0:-1]][i][2] in inputLoc[0][1]:
-                        inputs.append(newVD[var[0:-1]][i])
-                if var[0:-1] in phiDict:
-                    phiDict[var[0:-1]].append(inputs)
-                else:
-                    phiDict[var[0:-1]] = [inputs]
-                #delete data in vardict
-                del newVD[var[0:-1]]
-                # add new data
-                newVD[var[0:-1]] = [[var[0:-1]+"_n", None, write]]
-            elif var[3:-1] in cs_accessRightsDict or var[3:-1] in ss_accessRightsDict:
-                continue
-            elif var[0:-1] in newVD:
+            if var[0:-1] in newVD:
                 newVD[var[0:-1]].append(self.varDict[var][0])
             else:
                 newVD[var[0:-1]] = self.varDict[var]
+        #setting up the defines 
+        #fragile to multiple phi functions
+        #probably going to break
+        for var in self.varDict:
+            if var[:-1] in phi and self.varDict[var][0][2] in phi[var[:-1]][0][1]:
+                if var[0:-1] in phiDict:
+                    phiDict[var[0:-1]][0].append(self.varDict[var][0])
+                else:
+                    phiDict[var[0:-1]] = [[self.varDict[var][0]]]
+                #delete data in vardict
+                if var[:-1] in newVD:
+                    del newVD[var[0:-1]]
+            if self.inSomeDict(var[:-1]):
+                if var[:-1] in newVD:
+                    del newVD[var[:-1]]
+        #changes the assigns to reference the new defines
+        for var in newVD:
+            for newVar in phiDict:
+                print newVD[var][0][0], newVD[var][0][0].replace(" " + newVar + " ", newVar + "_n")
+                newVD[var][0][0] = newVD[var][0][0].replace(" " + newVar + " ", newVar + "_n")
         self.varDict = newVD
         self.phiDict = phiDict
 
@@ -634,7 +580,7 @@ class modulePrint():
         self.defines.add("b1 := 0x1 # [0:0];")
         for line in file:
             line = re.sub(r'\b[0-9]+', "", line)
-            line = re.sub(r'\b[A-F]+H', "", line)
+            line = re.sub(r'hex?([0-9]*[A-F]*)*', "", line)
             line = line.replace("exitStatus", "")
             line = line.replace("GP", "")
             line = line.replace("!", "")
@@ -653,6 +599,7 @@ class modulePrint():
             line = line.replace("<", (" "))
             line = line.replace("=", (" "))
             line = line.replace(">", (" "))
+            line = line.replace("|", " ")
             line = line.replace("+", (" "))
             line = line.replace("[]", "")
             if "#" in line:
@@ -661,14 +608,10 @@ class modulePrint():
             #     line = line.split("=")[1]
             for word in line.split():
                 word = word.strip()
-                if word in AMDDict:
-                    self.defines.add(word + " := " + AMDDict[word])
-                elif word.upper() in rflagsDict:
+            
+                if word.upper() in rflagsDict:
                     self.inputs.add("rflags")
                     self.defines.add(word + " := " + rflagsDict[word.upper()])
-                elif word in AMDrflagsDict:
-                    self.inputs.add("rflags")
-                    self.defines.add(word + " := " + AMDrflagsDict[word])
                 elif "EFER" in word or word in EFERDict:
                     self.inputs.add("EFER")
                     self.defines.add(word + " := " + EFERDict[word.replace("EFER", "").replace("IA32_.", "")])
@@ -714,22 +657,25 @@ class modulePrint():
         print 
         #{var : [[phiVar, inputVar, inputVar...]+]}
         #var -> [rhs, condtion, nodeWrittenTo]]
+        print self.phi
         for var in self.phi:
             count = 0
             groupCount = 0
             for group in self.phi[var]:
+                # print "group: " + str(group)
                 temp = ""
                 for inputs in group:
-                    #need to save the first as it needs to be printed after
-                    if inputs == [group][groupCount][0]:
-                        temp = [group][groupCount][0]
+                    # print "input: " + str(inputs)
+                    # #need to save the first as it needs to be printed after
+                    # if inputs == [group][groupCount][0]:
+                    #     temp = [group][groupCount][0]
                     #the first needs to set up the case statement
-                    elif inputs == [group][groupCount][1]:
+                    if inputs == [group][groupCount][0]:
                         print var + str(count) + " := case"
-                        print "    " + [group][groupCount][1][1] + " : " + [group][groupCount][1][0] + ";"
+                        print "    " + inputs[1] + " : " + inputs[0] + ";"
                     #the last needs to close the case state
                     elif inputs == [group][groupCount][-1]:
-                        print "    " + [group][groupCount][-1][1] + " : " + [group][groupCount][-1][0] + ";"
+                        print "    " + inputs[1] + " : " + inputs[0] + ";"
                         print "    default : State." + var
                         print "esac;"
                     #regular part of the case
@@ -739,10 +685,10 @@ class modulePrint():
                 #if it's the last time we will call it var_n so the assign section can reference
                 #otherwise it's just given a number
                 if group == self.phi[var][-1]:
-                    print var + "_n := " + temp[0].replace(var, var + str(count)) + ";"
+                    print var + "_n := " + var + str(groupCount) + ";"
                     print
                 else:
-                    print var + str(count+1)+  " := " +temp[0].replace(var, var + str(count)) + ";"
+                    print var + str(count+1)+  " := "+ var + str(groupCount) +  ";"
                     print
                     count += 2
             groupCount += 1
@@ -764,19 +710,19 @@ class modulePrint():
         for var in self.cvd:
             if "SS" in var:
                 var = var.replace(".", "_").lower()
-                if var in accessRights:
+                if var[3:] in ss_accessRightsDict:
                     if ss:
                         ss = False
                         print "ss_accessRights : [12];"
-                    continue
-            elif "CS" in var:
+                        continue
+            if "CS" in var:
                 var = var.replace(".", "_").lower()
-                if var in accessRights:
+                if var[3:] in cs_accessRightsDict:
                     if cs:
                         cs = False
                         print "cs_accessRights : [12];"
-                    continue 
-            elif var == 'exitStatus':
+                        continue 
+            if var == 'exitStatus':
                 continue
             elif var == 'DEST':
                 print "DEST : [64];" 
@@ -786,34 +732,6 @@ class modulePrint():
                     print "rflags : [64];"
             else:
                 print str(var) + " : [" + str(stateVars[var]) + "];"
-
-    def printCS(self, cs):
-        B = True
-        csDict = {'TYPE': '(State.cs_accessRights # [11:8])', 'S': '(State.cs_accessRights # [7:7])', 'DPL': '(State.cs_accessRights # [6:5])', 'P': '(State.cs_accessRights # [4:4])', 'AVL': '(State.cs_accessRights # [3:3])', 'L': '(State.cs_accessRights # [2:2])', 'D': '(State.cs_accessRights # [1:1])', 'B': '(State.cs_accessRights # [1:1])', 'G': '(State.cs_accessRights # [0:0])'}
-        for assign in cs:
-            if assign[0][3:] == "D":
-                B = False
-            csDict[assign[0][3:].upper()] = "(next[" + assign[0] + "])"
-        if B:
-            sentence = str(csDict['TYPE']) + " @ " +  str(csDict['S']) + " @ " + str(csDict['DPL']) + " @ " + str(csDict['P']) + " @ " + str(csDict['AVL']) + " @ " + str(csDict['L']) + " @ " + str(csDict['B']) + " @ " + str(csDict['G']) + ";"
-        else:
-            sentence = str(csDict['TYPE']) + " @ " +  str(csDict['S']) + " @ " + str(csDict['DPL']) + " @ " + str(csDict['P']) + " @ " + str(csDict['AVL']) + " @ " + str(csDict['L']) + " @ " + str(csDict['D']) + " @ " + str(csDict['G']) + ";"
-        print "init[cs_accessRights] := 0;"
-        print "next[cs_accessRights] := " + sentence;
-
-    def printSS(self, ss):
-        B = True
-        ssDict = {'TYPE': '(State.ss_accessRights # [11:8])', 'S': '(State.ss_accessRights # [7:7])', 'DPL': '(State.ss_accessRights # [6:5])', 'P': '(State.ss_accessRights # [4:4])', 'AVL': '(State.ss_accessRights # [3:3])', 'L': '(State.ss_accessRights # [2:2])', 'D': '(State.ss_accessRights # [1:1])', 'B': '(State.ss_accessRights # [1:1])', 'G': '(State.ss_accessRights # [0:0])'}
-        for assign in ss:
-            if assign[0][3:] == "D":
-                B = False
-            ssDict[assign[0][3:].upper()] = "(next[" + assign[0] + "])"
-        if B:
-            sentence = str(ssDict['TYPE']) + " @ " +  str(ssDict['S']) + " @ " + str(ssDict['DPL']) + " @ " + str(ssDict['P']) + " @ " + str(ssDict['AVL']) + " @ " + str(ssDict['L']) + " @ " + str(ssDict['B']) + " @ " + str(ssDict['G']) + ";"
-        else:
-            sentence = str(ssDict['TYPE']) + " @ " +  str(ssDict['S']) + " @ " + str(ssDict['DPL']) + " @ " + str(ssDict['P']) + " @ " + str(ssDict['AVL']) + " @ " + str(ssDict['L']) + " @ " + str(ssDict['D']) + " @ " + str(ssDict['G']) + ";"
-        print "init[ss_accessRights] := 0;"
-        print "next[ss_accessRights] := " + sentence;
 
     def inSomeDict(self, word):
         temp = word
@@ -833,28 +751,7 @@ class modulePrint():
                 return ss_accessRightsDict[word.upper()]
         return temp
 
-    def connectState(self, rhsCombo):
-        # print var
-        rhs = rhsCombo[0]
-        cond = rhsCombo[1]
-        temp = []
-        for token in rhs.split(" "):
-            if token in stateVars:
-                temp.append("State." + token)
-            else:
-                temp.append(self.inSomeDict(token))
-            rhs = (" ".join(temp))
-        if cond != None:
-            temp = []
-            for token in cond.split(" "):
-                if token in stateVars:
-                    temp.append("State." + token)
-                else:
-                    temp.append(self.inSomeDict(token))
-            cond = (" ".join(temp))
-        
-        # print var[0], var1, var2
-        return [rhs, cond]
+
 
    
 
@@ -881,11 +778,6 @@ class modulePrint():
                 init = 0
                 default = "State." + var
             # var = self.connectState(var)
-            if var.lower() in accessRights:
-                if "cs" in var[:3].lower():
-                    cs.append(var)
-                else:
-                    ss.append(var)
             #unconditionally assigning a value aka no condition
             if len(rhsCond) == 1 and rhsCond[0][1] == None and exit == False:
                 print "init[" + var + "] := 0;"
@@ -902,12 +794,6 @@ class modulePrint():
                 print "esac;"
                 print
 
-        if cs != []:
-            print "uyaausd"
-            self.printCS(cs)
-            print
-        if ss != []:
-            self.printSS(ss)
 
     def write(self):
         if "/" in self.filename:
@@ -936,7 +822,6 @@ if __name__ == "__main__":
     fc = fileConverter(filename = args.filename)
     #fc = fileConverter(filename = "psuedocode/sysret.txt")
     filename = fc.convert()
-    print filename
     f = open(filename, 'r')
     fstr = f.read()
     f.close()
@@ -948,8 +833,9 @@ if __name__ == "__main__":
 
     # nx.draw_shell(nx.convert_node_labels_to_integers(v.cfg),  with_labels=True)
     # plt.show()
-    # writer = modulePrint(varDict = v.varDict, filename = filename, phi = v.phiDict)
-    # writer.write()
+    #print v.phiDict
+    writer = modulePrint(varDict = v.varDict, filename = filename, phi = v.phiDict)
+    writer.write()
     if not args.keep:
         os.system("rm " + filename)
    
