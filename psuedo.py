@@ -17,7 +17,6 @@ if __name__ == "__main__":
 
 
     fc = fileConvert.fileConverter(filename = args.filename)
-    #fc = fileConverter(filename = "psuedocode/sysret.txt")
     filename = fc.convert()
     f = open(filename, 'r')
     fstr = f.read()
@@ -25,13 +24,7 @@ if __name__ == "__main__":
     if args.interPrint:
         print fstr
     v = astTransform.astVisit(ast.parse(fstr, filename=filename))
-
-    # print list(v.cfg.predecessors(7))
-
-    # nx.draw_shell(nx.convert_node_labels_to_integers(v.cfg),  with_labels=True)
-    # plt.show()
-    #print v.phiDict
-    writer = uclidPrint.modulePrint(varDict = v.varDict, filename = filename, phi = v.phiDict)
+    writer = uclidPrint.modulePrint(varDict = v.varDict, filename = filename, phi = v.phiDict, CS_SS = v.CS_SS)
     writer.write()
     if not args.keep:
         os.system("rm " + filename)

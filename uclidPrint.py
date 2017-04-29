@@ -11,13 +11,14 @@ ss_accessRightsDict = {'Type': 'State.ss_accessRights # [11:8]', 'S': 'State.ss_
            
 class modulePrint():
 
-    def __init__(self, filename, varDict, phi):
+    def __init__(self, filename, varDict, phi, CS_SS):
         self.filename = filename
         self.inputs = set()
         self.constants = set()
         self.defines = set()
         self.cvd = varDict
         self.phi = phi
+        self.CS_SS = CS_SS
     
     def findInputs(self):
         file = open(self.filename)
@@ -30,6 +31,7 @@ class modulePrint():
             line = line.replace("exitStatus", "")
             line = line.replace("GP", "")
             line = line.replace("!", "")
+            line = line.replace("-", "")
             line = line.replace("&", "")
             line = line.replace("~", "")
             line = line.replace("UD", "")
@@ -40,6 +42,7 @@ class modulePrint():
             line = line.replace(" or ", " ")
             line = line.replace(")", (" "))
             line = line.replace("if(", "")
+            line = line.replace("if (", "")
             line = line.replace("(", " ")
             line = line.replace(")", (" "))
             line = line.replace("<", (" "))
@@ -48,16 +51,16 @@ class modulePrint():
             line = line.replace("|", " ")
             line = line.replace("+", (" "))
             line = line.replace("[]", "")
+            line = line.replace(" if ", "")
+            if line.lstrip()[:3] == "if ":
+                line = line.replace("if", "")
             if "#" in line:
                 line = line.split("#")[0]
-            # print line
-            # print
             for word in line.split():
                 word = word.strip()
-                
-                if word.upper() in rflagsDict:
+                if word[7:].upper() in rflagsDict:
                     self.inputs.add("rflags")
-                    self.defines.add(word + " := " + rflagsDict[word.upper()])
+                    self.defines.add(word + " := " + rflagsDict[word[7:].upper()])
                 elif "EFER" in word or word in EFERDict:
                     self.inputs.add("EFER")
                     self.defines.add(word + " := " + EFERDict[word.replace("EFER", "").replace("IA32_.", "")])
@@ -87,6 +90,11 @@ class modulePrint():
                     self.inputs.add(word.upper())
                 elif word.lower() in stateVars:
                     self.inputs.add(word.lower())
+                      #Handling the register bitpacking
+                elif len(word) == 3 and "X" == word[2]:
+                    self.defines.add(word + " := State.R" + word[1:] + " # [31:0];" )
+                elif len(word) == 2 and "X" == word[1]:
+                    self.defines.add(word + " := State.R" + word[1:] + " # [15:0];" )
                 else:
                     self.constants.add(word)
 
@@ -101,6 +109,11 @@ class modulePrint():
         print
         print "DEFINE"
         print 
+        for define in self.defines:
+            print define
+        for define in self.CS_SS:
+            print define
+        print
         #{var : [[phiVar, inputVar, inputVar...]+]}
         #var -> [rhs, condtion, nodeWrittenTo]]
 
@@ -112,9 +125,6 @@ class modulePrint():
                 temp = ""
                 for inputs in group:
                     # print "input: " + str(inputs)
-                    # #need to save the first as it needs to be printed after
-                    # if inputs == [group][groupCount][0]:
-                    #     temp = [group][groupCount][0]
                     #the first needs to set up the case statement
                     if inputs == [group][groupCount][0]:
                         print var + str(count) + " := case"
@@ -125,7 +135,10 @@ class modulePrint():
                         if self.inSomeDict(var) != var:
                             print "    default : " + self.inSomeDict(var)
                         else:
-                            print "    default : State." + var
+                            if var != "exitStatus":
+                                print "    default : State." + var.lower().replace(".", "_")
+                            else:
+                                print "    default : Normal;"
                         print "esac;"
                     #regular part of the case
                     else:
@@ -141,14 +154,15 @@ class modulePrint():
                     print
                     count += 2
             groupCount += 1
-        for define in self.defines:
-            print define
 
     def printConsts(self):
         print
         print "CONST"
         for con in self.constants:
-            print con + ": BITVEC[64];"
+            if "_is_" in con:
+                 print con + ": BITVEC[1];"
+            else:
+                print con + ": BITVEC[64];"
 
     def printVar(self):
         rflags = True
@@ -175,7 +189,7 @@ class modulePrint():
                 continue
             elif var == 'DEST':
                 print "DEST : [64];" 
-            elif var.startswith("RFLAGS") or var in rflagsDict:
+            elif var.upper().startswith("RFLAGS") or var in rflagsDict:
                 if rflags:
                     rflags = False
                     print "rflags : [64];"
@@ -200,49 +214,38 @@ class modulePrint():
                 return ss_accessRightsDict[word.upper()]
         return temp
 
-
-
-   
-
     #[lhs : [rhs, condtion, nodeWrittenTo]]
     def printAssign(self):
-        printed = set()
-        ss = []
-        cs = []
         print
-        tab = "    "
         print "ASSIGN"
         print
         for var in self.cvd:
-            if(var in printed):
-                continue
-            else:
-                printed.add(var)
             lhs = var
             rhsCond = self.cvd[lhs]
+            #handling the cs. or ss.
+            if "." in lhs:
+                lhs = lhs.lower().replace(".", "_")
             if var == "exitStatus":
                 default = "normal" 
                 init = "normal"
             else:
-                init = 0
-                default = "State." + var
-            # var = self.connectState(var)
+                init = "0"
+                default = "State." + lhs
             #unconditionally assigning a value aka no condition
             if len(rhsCond) == 1 and rhsCond[0][1] == None:
-                print "init[" + var + "] := "+ init + ";"
-                print "next[" + var + "] := " + str(rhsCond[0][0]) + ";"
+                print "init[" + lhs + "] := "+ init + ";"
+                print "next[" + lhs + "] := " + str(rhsCond[0][0]) + ";"
                 print
             #otherwise there must at least one condition/rhs combo
             else:
-                print "init[" + var + "] := 0;"
-                print "next[" + var + "] := case"
+                print "init[" + lhs + "] := 0;"
+                print "next[" + lhs + "] := case"
                 for rhsCondCombo in rhsCond:
                     # rhsCondCombo = self.connectState(rhsCondCombo)
-                    print tab + rhsCondCombo[1] + " : " + rhsCondCombo[0].replace(" 3", " b1@b1").replace("hex", "") + ";"
-                print tab + "default : " + default + ";"
+                    print "    " + rhsCondCombo[1] + " : " + rhsCondCombo[0].replace("hex", "") + ";"
+                print "    " + "default : " + default + ";"
                 print "esac;"
                 print
-
 
     def write(self):
         if "/" in self.filename:

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
+
+rflagsDict ={'CF': 'State.rflags # [0:0]', 'PF': 'State.rflags # [1:1]', 'AF': 'State.rflags # [4:4]', 'ZF': 'State.rflags # [6:6]', 'SF': 'State.rflags # [7:7]', 'TF': 'State.rflags # [8:8]', 'IF': 'State.rflags # [9:9]', 'DF': 'State.rflags # [10:10]', 'OF': 'State.rflags # [11:11]', 'IOPL': 'State.rflags # [13:12]', 'NT': 'State.rflags # [14:14]', 'RF': 'State.rflags # [16:16]', 'VM': 'State.rflags # [17:17]', 'AC': 'State.rflags # [18:18]', 'VIF': 'State.rflags # [19:19]', 'VIP': 'State.rflags # [20:20]', 'ID': 'State.rflags # [21:21]'}
+
 class fileConverter():
 
     def __init__(self, filename):
@@ -10,6 +13,21 @@ class fileConverter():
         file = self.indentationConvert(file)
         file = self.conditionalConvert(file)
         return file
+
+    def englishWords(self, line):
+        if " and " in line:
+            return " and ".join(map(lambda x: self.englishWords(x), line.split(" and ")))
+        elif " or " in line:
+            return " or ".join(map(lambda x: self.englishWords(x), line.split(" or ")))
+        if " & " in line:
+            return " & ".join(map(lambda x: self.englishWords(x), line.split(" & ")))
+        elif " | " in line:
+            return " | ".join(map(lambda x: self.englishWords(x), line.split(" | ")))
+        else:
+            if "=" not in line and ">" not in line and "<" not in line:
+                return line.strip().replace(" ", "_")
+            return line
+
 
     #basic conversion of keywords such as IF -> if
     def intermediateConvert(self, filename):
@@ -24,30 +42,26 @@ class fileConverter():
             if r != None:
                 replace = r.group().replace("H", "")
                 line = re.sub(r'\b[0-9A-F_]+H', ("hex"+replace), line)
-            if "≥" in line:
-                line = line.replace("≥", ">=")
-            if "=" in line: 
-                line = line.replace(" = ", ' == ')
-            if "←" in line:
-                line = line.replace("←", "=")
-            if "≠" in line:
-                line = line.replace("≠", "!=")
-            if "-" in line:
-                line = line.replace("-", "_")
-            if ";" in line:
-                line = line.replace(";", "")
-            if "NOT" in line:
-                line = line.replace("NOT", "~")
-            if "AND" in line:
-                line = line.replace("AND", "&")
-            if "OR" in line:
-                line = line.replace("OR", "|")
-            if "ELSE IF" in line:
-                line = line.replace("ELSE IF", "elif")
-            if "IF" in line:
-                line = line.replace("IF", "if")
-            if "ELSE" in line:
-                line = line.replace("ELSE", "else:")
+            line = line.replace("≥", ">=")
+            line = line.replace(" = ", ' == ')
+            if "VIF" not in line:
+                line = line.replace("IF ←", "rflags_if =")
+            line = line.replace("←", "=")
+            line = line.replace("EFLAGS.", "")
+            line = line.replace("≠", "!=")
+            line = line.replace("-", "_")
+            line = line.replace(";", "")
+            line = line.replace("NOT", "~")
+            line = line.replace("AND", "&")       
+            line = line.replace("OR", "|")        
+            line = line.replace("ELSE IF", "elif")        
+            line = line.replace("IF", "if")        
+            line = line.replace("ELSE", "else:")
+            line = line.replace("Vif", "VIF")
+            line = line.replace("–", "-")
+            for var in rflagsDict:
+                line = line.replace(var+" " , "rflags_"+var.lower())
+                line = line.replace(" " + var , "rflags_"+var.lower())
             if "#" in line:
                 if "if" in line and "THEN" in line:
                     line = line.split("THEN")
@@ -85,7 +99,7 @@ class fileConverter():
             if line.split("#")[0].strip() == "THEN":
                 thenLoc.append(self.findPrecedingNumSpaces(line))
                 continue
-            if line.strip() == "FI" or line.strip() == "END":
+            if line.strip() in ["FI", "END", "FI)"]:
                 continue 
             elif len(thenLoc) > 0 and self.findPrecedingNumSpaces(line) < thenLoc[-1]:
                 del thenLoc[-1]
@@ -112,9 +126,7 @@ class fileConverter():
                     conditional = line.split("if")[1]
                     line = line.split("if")[0] + "if"
                 conditional = conditional.strip()
-                if "=" not in conditional:
-                    conditional = conditional.replace(" ", "_")
-                conditional = " " + conditional
+                conditional = " " + self.englishWords(conditional)
                 writeFile.write(line + conditional + ":" + comment + "\n")
             else:
                 writeFile.write(line)

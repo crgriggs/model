@@ -16,3 +16,34 @@ SYSCALL
 sysret
 	intel syntax varies to say the least  if - then - fi on same line
 	python doesn't like hex because it assumes a variable that starts with a number 
+Define
+	✔cs.selector only considering one round of defines
+	✔access rights are trying to get state access State.cs.L
+	✔exit status doesn't have state
+	✔ss_accessRights and cs_accessRights not assigned
+Const
+	✔first part of english word booleans being seperated
+	✔ECX? not rcx
+	✔wrong size bit vectors
+	✔"rcx is not canonical" is correct python
+Assign
+	✔exit status
+		because you assigned ten
+	✔wrong capitlization and punctuation
+Var
+	names don't equal assign names
+✔Module Name
+
+sti
+
+File convert
+	✔uses if to talk about rflags.if 
+		python ast doesn't like
+Boolean
+	✔negate leaves in A B C form
+		also looks incorrect
+✔handling rflags like cs/ss_selector
+
+CLAC/CLC
+	one line instruction on rflags doesn't let rflags update
+	doesn't have any rflags defined

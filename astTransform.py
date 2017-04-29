@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import ast
+import ast, re
 import networkx as nx
 # import matplotlib.pyplot as plt
 from sympy.abc import *
@@ -33,6 +33,7 @@ class astVisit(ast.NodeVisitor):
         self.assigned = {}
         self.phiDict = {}
         self.assignedToNode = {}
+        self.CS_SS = []
         self.visit(node)
         self.selectorHandle()
         self.unSSA()
@@ -44,11 +45,15 @@ class astVisit(ast.NodeVisitor):
     def selectorHandle(self):
         cs = False
         ss = False
+        rflags = False
         for var in self.varDict:
+
             if "CS." in var:
                 cs = True
             elif "SS." in var:
                 ss = True
+            elif "rflags_" in var:
+                rflags = True
         if cs:
                 self.varDict["cs_accessRights0"] = [["( CS.TYPE ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G )", None, self.currentNode]]
                 if "cs_accessRights" in self.assignedToNode:
@@ -67,7 +72,18 @@ class astVisit(ast.NodeVisitor):
                     self.assignedToNode["ss_accessRights"] = [self.currentNode]
                 self.assigned["ss_accessRights"] = 2
                 for var in self.varDict:
-                    if var[:3] == "CS." and var[3:] in cs_accessRightsDict:
+                    if var[:3] == "SS." and var[3:] in cs_accessRightsDict:
+                        self.assignedToNode[var[:-1]].append(self.currentNode)
+        if rflags:
+                self.varDict["rflags0"] = [["( 0 # [41:0] ) @ ( rflags_id ) @ ( rflags_vip ) @ ( rflags_vif ) @ ( rflags_ac ) @ ( rflags_vm ) @ ( rflags_rf ) @ ( b0 ) @ ( rflags_iopl ) @ ( rflags_of ) @ ( rflags_df ) @ ( rflags_if ) @ ( rflags_tf ) @ ( rflags_sf ) @ ( rflags_zf ) @ ( b0 ) @ ( rflags_af )@ ( b0 ) @ ( rflags_pf ) @ ( b0 ) @ ( rflags_cf )", None, self.currentNode]]
+                self.assigned["rflags"] = 2
+                if "rflags" in self.assignedToNode:
+                    self.assignedToNode["rflags"].append(self.currentNode)
+                else:
+                    self.assignedToNode["rflags"] = [self.currentNode]
+                self.assigned["rflags"] = 2
+                for var in self.varDict:
+                    if var[:-1] in rflagsDict:
                         self.assignedToNode[var[:-1]].append(self.currentNode)
 
     def visit(self, node, conditional = None):
@@ -170,7 +186,7 @@ class astVisit(ast.NodeVisitor):
         for value in node.values:
             op.append(self.visit(value))
         # print op, node.op
-        return "( " + str(" " +self.visit(node.op)+ " ").join(op) + " )"
+        return str(" " +self.visit(node.op)+ " ").join(op)
 
     def visit_Attribute(self, node):
         return self.visit(node.value) + "." + node.attr
@@ -178,26 +194,23 @@ class astVisit(ast.NodeVisitor):
     def negate(self, comp):
         if len(comp.split()) < 4:
             if "== 1" in comp and "CPL" not in comp and "IOPL" not in comp:
-                return comp.replace("== 1", "== 0")
+                return comp.replace(" == 1", " == 0")
             if "== 0" in comp and "CPL" not in comp and "IOPL" not in comp:
-                return comp.replace("== 0", "== 1")
-            if ">"  in comp:
-                return comp.replace(">", "<=")
-            if "<"  in comp:
-                return comp.replace("<", ">=")
-            if ">="  in comp:
-                return comp.replace(">=", "<")
-            if "<="  in comp:
-                return comp.replace("<=", ">")
+                return comp.replace(" == 0", " == 1")
+            if " > "  in comp:
+                return comp.replace(" > ", " <= ")
+            if " < "  in comp:
+                return comp.replace(" < ", " >= ")
+            if " >= "  in comp:
+                return comp.replace(" >= ", " < ")
+            if " <= "  in comp:
+                return comp.replace(" <= ", " > ")
             if "==" in comp:
-                return comp.replace("==", "!=")
+                return comp.replace(" == ", " != ")
             if "== 3" in comp and ("CPL" in comp or "IOPL" in comp):
                 return comp.replace("==", "<")
-            if "== 0" in comp and ("CPL" in comp or "IOPL" in comp):
-                return comp.replace("==", ">")
         return comp
-
-        
+       
     def printBool(self, boo):
         parenCount = index = 0
         lis = []
@@ -210,8 +223,6 @@ class astVisit(ast.NodeVisitor):
             index = 3
         for runner in range(0, len(boo)):
             if "And" not in boo[index:] and "Or" not in boo[index:] and index <= 4:
-                # print boo
-                #print op.join(boo[index:].replace("(", "").replace(")", "").replace(",", "").split())
                 return op.join(boo[index:].replace("(", "").replace(")", "").replace(",", "").split())
             elif "And" not in boo[index:] and "Or" not in boo[index:]:
                 lis.append(boo[index:].replace("(", "").replace(")", "").replace(",", ""))
@@ -227,11 +238,9 @@ class astVisit(ast.NodeVisitor):
                 index = runner + 2
         return op.join(lis)        
 
-
     #negates boolean algebra
     def negateBool(self, comp):
-        print comp
-        regex = r"([A-Za-z])* [=<>]* [0-9]*"
+        regex = r"([A-Za-z_])* [=<>!]* ([0-9A-Z_]*)*"
         matches = re.finditer(regex, comp)
         matchDict = {}
         negDict = {}
@@ -245,16 +254,23 @@ class astVisit(ast.NodeVisitor):
             if match.group() not in matchDict:
                 matchDict[match.group()] = chr(matchNum)
                 matchNum = matchNum + 1
-            print match.group()
         dictMatch = {}
+        # print comp
         for var in matchDict:
             comp = comp.replace(var, matchDict[var])
             dictMatch[matchDict[var]] = var
+        # print comp
+        # print self.printBool(str(simplify_logic(comp)))
         boo =  simplify_logic("~(" + comp + ")")
         neg = self.printBool(str(boo)) +  " "
+        # print neg
+        # print dictMatch
         for var in dictMatch:
+            neg  = neg.replace("NotNot" + var + " ", var + " ")
             neg  = neg.replace("Not" + var + " ", self.negate(dictMatch[var]) + " ")
-        return comp
+        # print neg
+        # print
+        return neg[:-1]
 
     #elif clauses don’t have a special representation in the AST, but rather appear as 
     #extra If nodes within the orelse section of the previous one.
@@ -277,7 +293,8 @@ class astVisit(ast.NodeVisitor):
             self.visit(nodes, comparison)
         #pushes the negation of the condition down the else/elif of the if block
         if condition != None:
-            comparison = self.negateBool(comparison) +" & " + copy + ")"
+            # print comparison, condition, self.negateBool(comparison)
+            comparison = self.negateBool(copy) +" & (" + condition + ")"
 
         if len(node.orelse) > 0:
             self.currentNode += 1
@@ -298,7 +315,6 @@ class astVisit(ast.NodeVisitor):
             self.cfg.add_edge(ifNode, self.currentNode)
             self.cfg.add_edge(parent, self.currentNode)
 
-
     def visit_Compare(self, node, conditional = None):
         comparison = ''
         comparison += str(self.visit(node.left))
@@ -307,7 +323,6 @@ class astVisit(ast.NodeVisitor):
             # print node.comparators
             comparison += " " + str(self.visit(node.comparators[i]))
         return comparison
-
 
     def visit_Num(self, node):
         return node.__dict__['n']
@@ -480,6 +495,8 @@ class astVisit(ast.NodeVisitor):
         phiDict = {}
         #creating a dict without the ssa encodings
         for var in self.varDict:
+            if var.startswith("rflags_"):
+                continue
             if var[0:-1] in newVD:
                 newVD[var[0:-1]].append(self.varDict[var][0][:])
             else:
@@ -487,7 +504,8 @@ class astVisit(ast.NodeVisitor):
         #setting up the defines 
         #fragile to multiple phi functions
         #probably going to break
-
+        #@todo make this more robust
+        #maybe somehow use the descendants
         for var in self.varDict:
             if var[:-1] in phi and (self.varDict[var][0][2] in phi[var[:-1]][0][1]):            
                 if var[0:-1] in phiDict:
@@ -505,6 +523,8 @@ class astVisit(ast.NodeVisitor):
                                 newVD[var[0:-1]] = [[var[:-1]+"_n", None, wt]]
                             break
             if self.inSomeDict(var[:-1]):
+                if self.varDict[var][0][1] == None:
+                    self.CS_SS.append(var[:-1] + " := " + self.varDict[var][0][0])
                 if var[:-1] in newVD:
                     del newVD[var[:-1]]
         #changes the assigns to reference the new defines
