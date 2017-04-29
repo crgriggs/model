@@ -1,0 +1,15 @@
+if (PE == 0) or (PE == 1 and ((VM == 0) or ((VM == 1) and (IOPL == 3))))
+# Real-Address Mode, Protected mode, or Virtual-8086 mode with IOPL equal to 3 
+    if OperandSize == 32
+        push (EFLAGS & hex00FCFFFF)
+        # VM and RF EFLAG bits are cleared in image stored on the stack 
+    else:
+        push (EFLAGS) # Lower 16 bits only 
+elif 64-bit MODE # In 64-bit Mode 
+    if OperandSize == 64
+        push (RFLAGS & hex00000000_00FCFFFF)
+        # VM and RF RFLAG bits are cleared in image stored on the stack 
+    else:
+        push (EFLAGS) # Lower 16 bits only 
+else: # In Virtual-8086 Mode with IOPL less than 3 
+    exitStatus = GP # Trap to virtual-8086 monitor 
