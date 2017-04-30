@@ -1,0 +1,23 @@
+MODULE mov
+
+INPUT
+
+
+VAR
+DEST : [64];
+
+CONST
+DEST: BITVEC[64];
+SRC: BITVEC[64];
+
+DEFINE
+
+b0 := 0x0 # [0:0];
+b1 := 0x1 # [0:0];
+
+
+ASSIGN
+
+init[DEST] := 0;
+next[DEST] := SRC;
+

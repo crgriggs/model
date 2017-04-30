@@ -1,0 +1,56 @@
+(* ----- CONTROL MODULE ----- *)
+CONTROL
+
+EXTVAR
+(* Controlling values at each step:
+ * A variable must be declared here with a type and default value in order to
+ * control its value at each step. Then, in the EXEC section, set the value for
+ * a simulation step like this:
+ *     var[0] := value;
+ *)
+
+STOREVAR
+
+VAR
+
+CONST
+
+DEFINE
+
+EXEC
+(* To keep output clean and to keep test and assertions from interfering with
+ * eachother, only uncomment one of the blocks below:
+ *)
+
+(* Test the case statement for cs_selector *)
+(*
+instruction_opcode[0] := syscall;
+instruction_opcode[1] := sysret;
+simulate(1);
+decide(State.cs_selector = syscallInst.cs_selector);
+simulate(1);
+decide(State.cs_selector = sysretInst.cs_selector);
+*)
+
+(* Make sure exception_raised forces the next instruction to "exception" *)
+(*
+simulate(1);
+simulate(1);
+decide(State.prev_exception_raised => State.instruction_opcode = exception);
+*)
+
+(* Privileged exception handlers must run with ring0 stack.
+ * This is the OS expectation that exposed the sysret bug.
+ *)
+simulate(1);
+simulate(1);
+simulate(1);
+decide(
+    (
+     (State.IA32_EFER_LMA = 1) &
+     (State.IA32_EFER_SCE = 1) &
+     (State.cs_l = 1) &
+     (State.prev_prev_cpl = sys) &
+     (State.prev_instruction_opcode = exception))
+    => State.rsp = sys
+);

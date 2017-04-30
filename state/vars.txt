@@ -1,0 +1,34 @@
+MODULE State
+
+INPUT
+
+VAR
+ss_limit : BITVEC[20];
+ss_selector : BITVEC[16];
+rax : BITVEC[64];
+rbx : BITVEC[64];
+rcx : BITVEC[64];
+rdx : BITVEC[64];
+rflags : BITVEC[64];
+r11 : BITVEC[64];
+ss_base : BITVEC[32];
+ss_accessRights : BITVEC[12];
+EFER : BITVEC[64];
+cs_base : BITVEC[32];
+RIP : BITVEC[64];
+cs_selector : BITVEC[16];
+cs_limit : BITVEC[20];
+CPL : BITVEC[2];
+cs_accessRights : BITVEC[12];
+CR0 : BITVEC[64];
+CR4 : BITVEC[64];
+currentReg : register;
+
+CONST
+
+DEFINE
+
+ASSIGN
+
+init[currentReg] := {rax, rbx, rcx, rdx};
+next[currentReg] :={rax, rbx, rcx, rdx};

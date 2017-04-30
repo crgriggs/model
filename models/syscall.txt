@@ -1,4 +1,4 @@
-MODULE psuedocode\syscall
+MODULE syscall
 
 INPUT
 
