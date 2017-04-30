@@ -16,7 +16,7 @@ Requirements
 
 
 Usage: 
-     psuedo.py [-h] [-k] [-ip] filename
+    python psuedo.py [-h] [-k] [-ip] filename
 
     positional arguments:
 
@@ -32,3 +32,9 @@ Usage:
   
 
 Above is the basic input format which will attempt to create a model for UCLID and print to that model to the command line
+	
+	python createState.py models/
+
+creates the overall model for state that includes all off the modeled instructions
+
+
