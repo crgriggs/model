@@ -51,6 +51,7 @@ class modulePrint():
             line = line.replace("|", " ")
             line = line.replace("+", (" "))
             line = line.replace("[]", "")
+            line = line.replace("DEST", "")
             line = line.replace(" if ", "")
             if line.lstrip()[:3] == "if ":
                 line = line.replace("if", "")
@@ -60,10 +61,10 @@ class modulePrint():
                 word = word.strip()
                 if word[7:].upper() in rflagsDict:
                     self.inputs.add("rflags")
-                    self.defines.add(word + " := " + rflagsDict[word[7:].upper()])
+                    self.defines.add(word + " := " + rflagsDict[word[7:].upper()] + ";")
                 elif "EFER" in word or word in EFERDict:
                     self.inputs.add("EFER")
-                    self.defines.add(word + " := " + EFERDict[word.replace("EFER", "").replace("IA32_.", "")])
+                    self.defines.add(word + " := " + EFERDict[word.replace("EFER", "").replace("IA32_.", "")] + ";")
                 elif word.startswith("cs_") or word.startswith("CS.") or word in cs_accessRightsDict:
                     #removing the cs_ or CS. and capitilizing the rest
                     if word not in cs_accessRightsDict:
@@ -82,10 +83,10 @@ class modulePrint():
                     self.inputs.add("ss_accessRights")
                 elif word in CR0Dict or "CR0" in word:
                     self.inputs.add("CR0")
-                    self.defines.add(word + " := " + CR0Dict[word.replace("CR0.", "")])
+                    self.defines.add(word + " := " + CR0Dict[word.replace("CR0.", "")] + ";")
                 elif word in CR4Dict or "CR4" in word:
                     self.inputs.add("CR4")
-                    self.defines.add(word + " := " + CR4Dict[word.replace("CR4.", "")])
+                    self.defines.add(word + " := " + CR4Dict[word.replace("CR4.", "")] + ";")
                 elif word.upper() in stateVars:
                     self.inputs.add(word.upper())
                 elif word.lower() in stateVars:
@@ -112,7 +113,7 @@ class modulePrint():
         for define in self.defines:
             print define
         for define in self.CS_SS:
-            print define
+            print define  + ";"
         print
         #{var : [[phiVar, inputVar, inputVar...]+]}
         #var -> [rhs, condtion, nodeWrittenTo]]
@@ -136,7 +137,7 @@ class modulePrint():
                             print "    default : " + self.inSomeDict(var)
                         else:
                             if var != "exitStatus":
-                                print "    default : State." + var.lower().replace(".", "_")
+                                print "    default : State." + var.lower().replace(".", "_")  + ";"
                             else:
                                 print "    default : Normal;"
                         print "esac;"
@@ -176,25 +177,25 @@ class modulePrint():
                 if var[3:] in ss_accessRightsDict:
                     if ss:
                         ss = False
-                        print "ss_accessRights : [12];"
+                        print "ss_accessRights : BITVEC[12];"
                         continue
             if "CS" in var:
                 var = var.replace(".", "_").lower()
                 if var[3:] in cs_accessRightsDict:
                     if cs:
                         cs = False
-                        print "cs_accessRights : [12];"
+                        print "cs_accessRights : BITVEC[12];"
                         continue 
             if var == 'exitStatus':
                 continue
             elif var == 'DEST':
-                print "DEST : [64];" 
+                print "DEST : BITVEC[64];" 
             elif var.upper().startswith("RFLAGS") or var in rflagsDict:
                 if rflags:
                     rflags = False
-                    print "rflags : [64];"
+                    print "rflags : BITVEC[64];"
             else:
-                print str(var) + " : [" + str(stateVars[var]) + "];"
+                print str(var) + " : BITVEC[" + str(stateVars[var]) + "];"
 
     def inSomeDict(self, word):
         temp = word
@@ -250,9 +251,11 @@ class modulePrint():
     def write(self):
         if "/" in self.filename:
             filename = self.filename.split("/")[-1]
+        elif "\\" in self.filename:
+            filename = self.filename.split("\\")[-1]
         else:
             filename = self.filename
-        print "MODULE "+ filename.replace("intermediateindentinter.txt", "")
+        print "MODULE "+ filename.replace("intermediateindentinter.txt", "Instr")
         self.findInputs()
         self.printInput()
         self.printVar()

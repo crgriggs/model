@@ -1,0 +1,102 @@
+MODULE State
+
+INPUT
+
+VAR
+instruction_opcode : OPCODE;
+prev_instruction_opcode : OPCODE;
+
+exception_raised : TRUTH;
+prev_exception_raised : TRUTH;
+cs_selector : BITVEC[16];
+cs_l : BITVEC[1];
+cpl : USER_OR_SYS;
+rflags_if : BITVEC[1];
+prev_cpl : USER_OR_SYS;
+prev_prev_cpl : USER_OR_SYS;
+rsp : USER_OR_SYS;
+IA32_EFER_LMA : BITVEC[1];
+IA32_EFER_SCE : BITVEC[1];
+IA32_FMASK_IF : BITVEC[1];
+IA32_STAR: BITVEC[64];
+
+CONST
+init_IA32_STAR : BITVEC[64];
+
+DEFINE
+
+ASSIGN
+
+init[instruction_opcode] := other;
+next[instruction_opcode] := case
+    State.exception_raised : exception;
+    State.rflags_if = 1 : {other, exception, syscall, sysret};
+    default : {other, syscall, sysret};
+esac;
+
+init[prev_instruction_opcode] := other;
+next[prev_instruction_opcode] := instruction_opcode;
+
+init[prev_exception_raised] := false;
+next[prev_exception_raised] := exception_raised;
+
+init[exception_raised] := false;
+next[exception_raised] := case
+  next[instruction_opcode] = sysret : next[sysretInst.exception_raised];
+  (* next[instruction_opcode] = syscall : next[syscallInst.exception_raised]; *)
+  (* next[instruction_opcode] = exception : next[exceptionInst.exception_raised]; *)
+  default : false;
+esac;
+
+init[rflags_if] := {0, 1};
+next[rflags_if] := case
+  (* next[instruction_opcode] = sysret : next[sysretInst.rflags_if]; *)
+  next[instruction_opcode] = syscall : next[syscallInst.rflags_if];
+  (* next[instruction_opcode] = exception : next[exceptionInst.rflags_if]; *)
+  default : rflags_if;
+esac;
+
+init[cs_selector] := 0x000F;
+next[cs_selector] := case
+  next[instruction_opcode] = sysret : next[sysretInst.cs_selector];
+  next[instruction_opcode] = syscall : next[syscallInst.cs_selector];
+  (* next[instruction_opcode] = exception : next[exceptionInst.cs_selector]; *)
+  default : cs_selector;
+esac;
+
+init[cpl] := {user, sys};
+next[cpl] := case
+  (* next[instruction_opcode] = sysret : next[sysretInst.cpl]; *)
+  (* next[instruction_opcode] = syscall : next[syscallInst.cpl]; *)
+  next[instruction_opcode] = exception : next[exceptionInst.cpl];
+  default : cpl;
+esac;
+
+init[prev_cpl] := {user, sys};
+next[prev_cpl] := cpl;
+
+init[prev_prev_cpl] := {user, sys};
+next[prev_prev_cpl] := prev_cpl;
+
+init[rsp] := {user, sys};
+next[rsp] := case
+  (* next[instruction_opcode] = sysret : next[sysretInst.rsp]; *)
+  (* next[instruction_opcode] = syscall : next[syscallInst.rsp]; *)
+  next[instruction_opcode] = exception : next[exceptionInst.rsp];
+  default : rsp;
+esac;
+
+init[cs_l] := {0, 1};
+next[cs_l] := cs_l;
+
+init[IA32_EFER_LMA] := {0, 1};
+next[IA32_EFER_LMA] := IA32_EFER_LMA;
+
+init[IA32_EFER_SCE] := {0, 1};
+next[IA32_EFER_SCE] := IA32_EFER_SCE;
+
+init[IA32_FMASK_IF] := {0, 1};
+next[IA32_FMASK_IF] := IA32_FMASK_IF;
+
+init[IA32_STAR] := init_IA32_STAR;  (* WARNING: This kind of initialization didn't work for IA32_EFER_*, make sure that this can take on values other than 0. *)
+next[IA32_STAR] := IA32_STAR;

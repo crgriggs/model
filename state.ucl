@@ -1,20 +1,20 @@
 MODEL StateModel
 
-typedef opcode : enum{mov, syscall, sysret};
+typedef opcode : enum{movInstr, syscallInstr, sysretInstr};
 typedef exitStatus : enum {gp, ud, normal};
 typedef register : enum {rax, rbx, rcx, rdx};
 
-CONST(*----- ./models//mov.txt -----*)
-MODULE mov
+CONST
+(*----- ./models//mov.txt -----*)
+MODULE movInstr
 
 INPUT
 
 
 VAR
-DEST : [64];
+DEST : BITVEC[64];
 
 CONST
-DEST: BITVEC[64];
 SRC: BITVEC[64];
 
 DEFINE
@@ -30,7 +30,7 @@ next[DEST] := SRC;
 
 
 (*----- ./models//syscall.txt -----*)
-MODULE syscall
+MODULE syscallInstr
 
 INPUT
 
@@ -50,19 +50,19 @@ State.CPL : BITVEC[2];
 State.cs_accessRights : BITVEC[12];
 
 VAR
-ss_base : [32];
-RCX : [64];
-R11 : [64];
-ss_limit : [20];
-cs_selector : [16];
-ss_accessRights : [12];
-RIP : [64];
-cs_accessRights : [12];
-cs_base : [32];
-cs_limit : [20];
-CPL : [2];
-ss_selector : [16];
-rflags : [64];
+ss_base : BITVEC[32];
+RCX : BITVEC[64];
+R11 : BITVEC[64];
+ss_limit : BITVEC[20];
+cs_selector : BITVEC[16];
+ss_accessRights : BITVEC[12];
+RIP : BITVEC[64];
+cs_accessRights : BITVEC[12];
+cs_base : BITVEC[32];
+cs_limit : BITVEC[20];
+CPL : BITVEC[2];
+ss_selector : BITVEC[16];
+rflags : BITVEC[64];
 
 CONST
 IA32_FMASK: BITVEC[64];
@@ -179,7 +179,7 @@ esac;
 
 
 (*----- ./models//sysret.txt -----*)
-MODULE sysret
+MODULE sysretInstr
 
 INPUT
 
@@ -199,17 +199,17 @@ State.RCX : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
 VAR
-ss_base : [32];
-CPL : [2];
-ss_limit : [20];
-cs_selector : [16];
-ss_accessRights : [12];
-RIP : [64];
-cs_accessRights : [12];
-cs_base : [32];
-cs_limit : [20];
-ss_selector : [16];
-rflags : [64];
+ss_base : BITVEC[32];
+CPL : BITVEC[2];
+ss_limit : BITVEC[20];
+cs_selector : BITVEC[16];
+ss_accessRights : BITVEC[12];
+RIP : BITVEC[64];
+cs_accessRights : BITVEC[12];
+cs_base : BITVEC[32];
+cs_limit : BITVEC[20];
+ss_selector : BITVEC[16];
+rflags : BITVEC[64];
 
 CONST
 IA32_STAR: BITVEC[64];

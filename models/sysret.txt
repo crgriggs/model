@@ -1,4 +1,4 @@
-MODULE sysret
+MODULE sysretInstr
 
 INPUT
 
@@ -18,17 +18,17 @@ State.RCX : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
 VAR
-ss_base : [32];
-CPL : [2];
-ss_limit : [20];
-cs_selector : [16];
-ss_accessRights : [12];
-RIP : [64];
-cs_accessRights : [12];
-cs_base : [32];
-cs_limit : [20];
-ss_selector : [16];
-rflags : [64];
+ss_base : BITVEC[32];
+CPL : BITVEC[2];
+ss_limit : BITVEC[20];
+cs_selector : BITVEC[16];
+ss_accessRights : BITVEC[12];
+RIP : BITVEC[64];
+cs_accessRights : BITVEC[12];
+cs_base : BITVEC[32];
+cs_limit : BITVEC[20];
+ss_selector : BITVEC[16];
+rflags : BITVEC[64];
 
 CONST
 IA32_STAR: BITVEC[64];
@@ -37,22 +37,22 @@ operand_size_is_64_bit: BITVEC[1];
 
 DEFINE
 
-IA32_EFER.LMA := State.EFER # [10:10]
+IA32_EFER.LMA := State.EFER # [10:10];
+IA32_EFER.SCE := State.EFER # [0:0];
 b0 := 0x0 # [0:0];
-ECX := State.RCX # [31:0];
 b1 := 0x1 # [0:0];
-IA32_EFER.SCE := State.EFER # [0:0]
-CS.G := 1
-SS.DPL := 3
-SS.G := 1
-SS.P := 1
-CS.P := 1
-CS.Type := 11
-SS.S := 1
-CS.DPL := 3
-SS.Type := 3
-SS.B := 1
-CS.S := 1
+ECX := State.RCX # [31:0];
+CS.G := 1;
+SS.DPL := 3;
+SS.G := 1;
+SS.P := 1;
+CS.P := 1;
+CS.Type := 11;
+SS.S := 1;
+CS.DPL := 3;
+SS.Type := 3;
+SS.B := 1;
+CS.S := 1;
 
 CS.L0 := case
     operand_size_is_64_bit : 0;
@@ -81,7 +81,7 @@ exitStatus_n := exitStatus0;
 RIP0 := case
     operand_size_is_64_bit : ECX;
     operand_size_is_64_bit : RCX;
-    default : State.rip
+    default : State.rip;
 esac;
 
 RIP_n := RIP0;
@@ -89,7 +89,7 @@ RIP_n := RIP0;
 CS.Selector0 := case
     operand_size_is_64_bit : IA32_STAR[63:48];
     operand_size_is_64_bit : IA32_STAR[63:48] + 16;
-    default : State.cs_selector
+    default : State.cs_selector;
 esac;
 
 CS.Selector_n := CS.Selector0;

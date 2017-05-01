@@ -47,3 +47,8 @@ Boolean
 CLAC/CLC
 	one line instruction on rflags doesn't let rflags update
 	doesn't have any rflags defined
+
+
+State
+	module names need "Instr" appended for some reason?
+	vars need bitvector description 

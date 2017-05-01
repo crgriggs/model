@@ -47,14 +47,14 @@ def main():
         #        Exception instruction added seperately
         opcodes = []
         for filename in os.listdir("./" + str(propType)):
-            opcodes.append(filename.replace(".txt", ""))
+            opcodes.append(filename.replace(".txt", "Instr"))
         f.write("MODEL StateModel\n")
         f.write("\n")
         f.write("typedef opcode : enum{" + ", ".join(opcodes) + "};\n")
         f.write("typedef exitStatus : enum {gp, ud, normal};\n")
         f.write("typedef register : enum {rax, rbx, rcx, rdx};\n")
         f.write("\n")
-        f.write("CONST")
+        f.write("CONST\n")
         for filename in os.listdir("./" + str(propType)):
             if filename.endswith(".txt"):
                 append_file(f, "./" + str(propType)+"/"+filename)
