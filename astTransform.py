@@ -55,7 +55,7 @@ class astVisit(ast.NodeVisitor):
             elif "rflags_" in var:
                 rflags = True
         if cs:
-                self.varDict["cs_accessRights0"] = [["( CS.TYPE ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G )", None, self.currentNode]]
+                self.varDict["cs_accessRights0"] = [["( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G )", None, self.currentNode]]
                 if "cs_accessRights" in self.assignedToNode:
                     self.assignedToNode["cs_accessRights"].append(self.currentNode)
                 else:
@@ -65,7 +65,7 @@ class astVisit(ast.NodeVisitor):
                     if var[:3] == "CS." and var[3:] in cs_accessRightsDict:
                         self.assignedToNode[var[:-1]].append(self.currentNode)
         if ss:
-                self.varDict["ss_accessRights0"] = [["( SS.TYPE ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G )", None, self.currentNode]]
+                self.varDict["ss_accessRights0"] = [["( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G )", None, self.currentNode]]
                 if "ss_accessRights" in self.assignedToNode:
                     self.assignedToNode["ss_accessRights"].append(self.currentNode)
                 else:
@@ -182,10 +182,8 @@ class astVisit(ast.NodeVisitor):
 
     def visit_BoolOp(self, node, condition = None):
         op = []
-        # print node.op, node.values
         for value in node.values:
             op.append(self.visit(value))
-        # print op, node.op
         return str(" " +self.visit(node.op)+ " ").join(op)
 
     def visit_Attribute(self, node):
@@ -240,7 +238,7 @@ class astVisit(ast.NodeVisitor):
 
     #negates boolean algebra
     def negateBool(self, comp):
-        regex = r"([A-Za-z_])* [=<>!]* ([0-9A-Z_]*)*"
+        regex = r"([A-Za-z_])* [=<>!]* ([0-9A-Z_]*)*|[_A-Za-z]+"
         matches = re.finditer(regex, comp)
         matchDict = {}
         negDict = {}
@@ -278,6 +276,7 @@ class astVisit(ast.NodeVisitor):
         parent = self.currentNode
         comparison = self.visit(node.test, condition)
         copy = comparison
+        
         if condition != None:
             # print condition, comparison
             comparison = comparison + " & " + condition

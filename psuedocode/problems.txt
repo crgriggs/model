@@ -51,4 +51,12 @@ CLAC/CLC
 
 State
 	module names need "Instr" appended for some reason?
+		i think enum can't have the same name as a module?
 	vars need bitvector description 
+	no semicolon on default
+	boolean's are better as TRUTH than BITVEC[1]
+	random use of OR, or, |
+	some variables are referenced before they are written to so they should access that state var but how to  accurately determine this
+		right now if it's after the phi function than it's reference by var_n so I think one round is fine
+	inputs need to be linked to code
+	enums can't match var names

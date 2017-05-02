@@ -24,7 +24,7 @@ def findInstrVars(stateVars, gprs, propType):
                     stateVars[var].append(filename.replace(".txt", ""))
                 if var == "DEST":
                     for gpr in gprs:
-                        stateVars[gpr].append(filename.replace(".txt", ""))
+                        stateVars["r"+gpr+"x"].append(filename.replace(".txt", ""))
 
 
 
@@ -47,33 +47,38 @@ def main():
         #        Exception instruction added seperately
         opcodes = []
         for filename in os.listdir("./" + str(propType)):
-            opcodes.append(filename.replace(".txt", "Instr"))
+            opcodes.append(filename.replace(".txt", ""))
         f.write("MODEL StateModel\n")
         f.write("\n")
-        f.write("typedef opcode : enum{" + ", ".join(opcodes) + "};\n")
-        f.write("typedef exitStatus : enum {gp, ud, normal};\n")
-        f.write("typedef register : enum {rax, rbx, rcx, rdx};\n")
+        f.write("typedef opcodes : enum{" + ", ".join(opcodes) + "};\n")
+        f.write("typedef exitCase : enum {GP, UD, Normal};\n")
+        f.write("typedef register : enum {a, b, c, d};\n")
         f.write("\n")
         f.write("CONST\n")
         for filename in os.listdir("./" + str(propType)):
             if filename.endswith(".txt"):
                 append_file(f, "./" + str(propType)+"/"+filename)
-        stateVars = {'ss_limit' : [], 'ss_selector' : [], 'currentReg' : [], 'rax' : [], 'rbx' : [], 'rcx' : [], 'rdx' : [], 'rflags' : [], 'R11' : [], 'ss_base' : [], 'ss_accessRights' : [], 'EFER' : [], 'cs_base' : [], 'RIP' : [], 'cs_selector' : [], 'cs_limit' : [], 'CPL' : [], 'cs_accessRights' : [], 'CR0' : [], 'CR4' : [] }
-        gprs = {'rax', 'rbx', 'rcx', 'rdx'}
+        stateVars = {'ss_limit' : [], 'ss_selector' : [],  'rax' : [], 'rbx' : [], 'rcx' : [], 'rdx' : [], 'rflags' : [], 'r11' : [], 'ss_base' : [], 'ss_accessRights' : [], 'EFER' : [], 'cs_base' : [], 'rip' : [], 'cs_selector' : [], 'cs_limit' : [], 'cpl' : [], 'cs_accessRights' : [], 'CR0' : [], 'CR4' : [] }
+        gprs = {'a', 'b', 'c', 'd'}
         #as of now an unpriviliged instruction can write to a single gpr during any one execution step
         unpriv = {"mov"}
         append_file(f, "state/vars.txt")
         findInstrVars(stateVars, gprs, propType)
+
         for var in stateVars:
             f.write("\n")
             f.write("init["+var+"] := 0;\n")
+            if stateVars[var] == []:
+                f.write("next["+var+"] := " + var + ";\n")
+                f.write("\n")
+                continue
             f.write("next["+var+"] := case\n")
             for op in stateVars[var]:
-                if op in unpriv and var in gprs:
-                    f.write("    opcode = " + op +" & currentReg = " + var + " : " + op + "."  + var + ";\n")
+                if op in unpriv and var[1] in gprs:
+                    f.write("    opcode = " + op +" & currentReg = " + var[1] + " : " + op + "Instr.DEST;\n")
                 else:
-                    f.write("    opcode = " + op +" : " + op + "."  + var + ";\n")
-            f.write("    default = " + var + "\n")
+                    f.write("    opcode = " + op +" : " + op + "Instr."  + var + ";\n")
+            f.write("    default : " + var + ";\n")
             f.write("esac;\n")
         f.write("\n")
         append_file(f, "state/control.txt")

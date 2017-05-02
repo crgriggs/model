@@ -24,8 +24,6 @@ EXEC
 
 (* Test the case statement for cs_selector *)
 (*
-instruction_opcode[0] := syscall;
-instruction_opcode[1] := sysret;
 simulate(1);
 decide(State.cs_selector = syscallInst.cs_selector);
 simulate(1);
@@ -45,12 +43,3 @@ decide(State.prev_exception_raised => State.instruction_opcode = exception);
 simulate(1);
 simulate(1);
 simulate(1);
-decide(
-    (
-     (State.IA32_EFER_LMA = 1) &
-     (State.IA32_EFER_SCE = 1) &
-     (State.cs_l = 1) &
-     (State.prev_prev_cpl = sys) &
-     (State.prev_instruction_opcode = exception))
-    => State.rsp = sys
-);

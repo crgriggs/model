@@ -52,7 +52,9 @@ class fileConverter():
             line = line.replace("-", "_")
             line = line.replace(";", "")
             line = line.replace("NOT", "~")
-            line = line.replace("AND", "&")       
+            line = line.replace("AND", "&")
+            if "IF" in line and "OR" in line:
+                line = line.replace("OR", "or")     
             line = line.replace("OR", "|")        
             line = line.replace("ELSE IF", "elif")        
             line = line.replace("IF", "if")        

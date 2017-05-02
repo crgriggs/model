@@ -15,14 +15,15 @@ ss_base : BITVEC[32];
 ss_accessRights : BITVEC[12];
 EFER : BITVEC[64];
 cs_base : BITVEC[32];
-RIP : BITVEC[64];
+rip : BITVEC[64];
 cs_selector : BITVEC[16];
 cs_limit : BITVEC[20];
-CPL : BITVEC[2];
+cpl : BITVEC[2];
 cs_accessRights : BITVEC[12];
 CR0 : BITVEC[64];
 CR4 : BITVEC[64];
 currentReg : register;
+opcode : opcodes;
 
 CONST
 
@@ -30,5 +31,5 @@ DEFINE
 
 ASSIGN
 
-init[currentReg] := {rax, rbx, rcx, rdx};
-next[currentReg] :={rax, rbx, rcx, rdx};
+init[currentReg] := {a, b, c, d};
+next[currentReg] := {a, b, c, d};

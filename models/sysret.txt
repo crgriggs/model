@@ -4,26 +4,27 @@ INPUT
 
 State.ss_limit : BITVEC[20];
 State.ss_selector : BITVEC[16];
-State.CPL : BITVEC[2];
+State.cpl : BITVEC[2];
 State.rflags : BITVEC[64];
 State.R11 : BITVEC[64];
 State.ss_base : BITVEC[32];
 State.ss_accessRights : BITVEC[12];
 State.EFER : BITVEC[64];
 State.cs_base : BITVEC[32];
-State.RIP : BITVEC[64];
+State.rip : BITVEC[64];
 State.cs_selector : BITVEC[16];
 State.cs_limit : BITVEC[20];
-State.RCX : BITVEC[64];
+State.rcx : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
 VAR
 ss_base : BITVEC[32];
-CPL : BITVEC[2];
+exitStatus: exitCase;
+cpl : BITVEC[2];
 ss_limit : BITVEC[20];
 cs_selector : BITVEC[16];
 ss_accessRights : BITVEC[12];
-RIP : BITVEC[64];
+rip : BITVEC[64];
 cs_accessRights : BITVEC[12];
 cs_base : BITVEC[32];
 cs_limit : BITVEC[20];
@@ -32,16 +33,22 @@ rflags : BITVEC[64];
 
 CONST
 IA32_STAR: BITVEC[64];
-RCX_is_not_canonical: BITVEC[1];
-operand_size_is_64_bit: BITVEC[1];
+RCX_is_not_canonical: TRUTH;
+operand_size_is_64_bit: TRUTH;
 
 DEFINE
 
-IA32_EFER.LMA := State.EFER # [10:10];
-IA32_EFER.SCE := State.EFER # [0:0];
+RFLAGS := State.rflags;
 b0 := 0x0 # [0:0];
+RCX := State.rcx;
+IA32_EFER.SCE := State.EFER # [0:0];
+CS.L := State.cs_accessRights # [2:2];
 b1 := 0x1 # [0:0];
-ECX := State.RCX # [31:0];
+R11 := State.R11;
+ECX := State.rcx # [31:0];
+CPL := State.cpl;
+IA32_EFER.LMA := State.EFER # [10:10];
+RIP := State.rip;
 CS.G := 1;
 SS.DPL := 3;
 SS.G := 1;
@@ -53,11 +60,17 @@ CS.DPL := 3;
 SS.Type := 3;
 SS.B := 1;
 CS.S := 1;
-
+CS.AVL := State.cs_accessRights # [3:3];
+CS.B := State.cs_accessRights # [1:1];
+CS.D := State.cs_accessRights # [1:1];
+CS.L := State.cs_accessRights # [2:2];
+SS.AVL := State.ss_accessRights # [3:3];
+SS.D := State.ss_accessRights # [1:1];
+SS.L := State.ss_accessRights # [2:2];
 CS.L0 := case
     operand_size_is_64_bit : 0;
     operand_size_is_64_bit : 1;
-    default : State.cs_accessRights # [2:2]
+    default : State.cs_accessRights # [2:2];
 esac;
 
 CS.L_n := CS.L0;
@@ -65,13 +78,13 @@ CS.L_n := CS.L0;
 CS.D0 := case
     operand_size_is_64_bit : 1;
     operand_size_is_64_bit : 0;
-    default : State.cs_accessRights # [1:1]
+    default : State.cs_accessRights # [1:1];
 esac;
 
 CS.D_n := CS.D0;
 
 exitStatus0 := case
-    CPL != 0 || RCX_is_not_canonical : GP;
+    CPL != 0 | RCX_is_not_canonical : GP;
     CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
     default : Normal;
 esac;
@@ -87,8 +100,8 @@ esac;
 RIP_n := RIP0;
 
 CS.Selector0 := case
-    operand_size_is_64_bit : IA32_STAR[63:48];
-    operand_size_is_64_bit : IA32_STAR[63:48] + 16;
+    operand_size_is_64_bit : IA32_STAR # [63:48];
+    operand_size_is_64_bit : IA32_STAR # [63:48] + 16;
     default : State.cs_selector;
 esac;
 
@@ -103,18 +116,18 @@ next[ss_base] := case
     default : State.ss_base;
 esac;
 
-init[exitStatus] := normal;
+init[exitStatus] := Normal;
 next[exitStatus] := exitStatus_n;
 
-init[CPL] := 0;
-next[CPL] := case
+init[cpl] := 0;
+next[cpl] := case
     next[exitStatus] != UD & next[exitStatus] != GP : 3;
-    default : State.CPL;
+    default : State.cpl;
 esac;
 
 init[ss_limit] := 0;
 next[ss_limit] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : FFFFF;
+    next[exitStatus] != UD & next[exitStatus] != GP : 0xFFFFF;
     default : State.ss_limit;
 esac;
 
@@ -126,19 +139,19 @@ esac;
 
 init[ss_accessRights] := 0;
 next[ss_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( SS.TYPE ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
+    next[exitStatus] != UD & next[exitStatus] != GP : ( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
     default : State.ss_accessRights;
 esac;
 
-init[RIP] := 0;
-next[RIP] := case
+init[rip] := 0;
+next[rip] := case
     next[exitStatus] != UD & next[exitStatus] != GP : RIP_n;
-    default : State.RIP;
+    default : State.rip;
 esac;
 
 init[cs_accessRights] := 0;
 next[cs_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( CS.TYPE ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L_n ) @ ( CS.D_n ) @ ( CS.B ) @ ( CS.G );
+    next[exitStatus] != UD & next[exitStatus] != GP : ( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L_n ) @ ( CS.D_n ) @ ( CS.B ) @ ( CS.G );
     default : State.cs_accessRights;
 esac;
 
@@ -150,19 +163,19 @@ esac;
 
 init[cs_limit] := 0;
 next[cs_limit] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : FFFFF;
+    next[exitStatus] != UD & next[exitStatus] != GP : 0xFFFFF;
     default : State.cs_limit;
 esac;
 
 init[ss_selector] := 0;
 next[ss_selector] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : IA32_STAR[63:48] + 8 || 3;
+    next[exitStatus] != UD & next[exitStatus] != GP : IA32_STAR # [63:48] + 8 || 3;
     default : State.ss_selector;
 esac;
 
-init[RFLAGS] := 0;
-next[RFLAGS] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : R11 && 3C7FD7 || 2;
-    default : State.RFLAGS;
+init[rflags] := 0;
+next[rflags] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : R11 && 0x3C7FD7 || 2;
+    default : State.rflags;
 esac;
 
