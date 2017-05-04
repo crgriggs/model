@@ -1,0 +1,62 @@
+smm cache poisoning
+
+	1. The attacker should first modify system MTRR
+	register(s) in order to mark the region of system
+	memory where the SMRAM is located as
+	cacheable with type Write-Back (WB).
+
+		Memory Type and Mnemonic      Encoding in MTRR
+		Writeback (WB)                06H
+
+		Upon entering SMM, the processor switches to a new address space. Because paging is disabled upon entering SMM, this initial address space maps all memory accesses to the low 4 GBytes of the processor's physical address	space. The SMI handler's critical code and data reside in a memory region referred to as system-management RAM (SMRAM). The processor uses a pre-defined region within SMRAM to save the processor's pre-SMI context. SMRAM
+		can also be used to store system management information (such as the system configuration and specific information about powered-down devices) and OEM-specific information. 
+		
+		The default SMRAM size is 64 KBytes beginning at a base physical address in physical memory called the SMBASE(see Figure 34-1). The SMBASE default value following a hardware reset is 30000H. The processor looks for the first instruction of the SMI handler at the address [SMBASE + 8000H]. It stores the processor’s state in the area from [SMBASE + FE00H] to [SMBASE + FFFFH]. See Section 34.4.1 for a description of the mapping of the state save area.
+		The system logic is minimally required to decode the physical address range for the SMRAM from [SMBASE + 8000H] to [SMBASE + FFFFH]. A larger area can be decoded if needed. The size of this SMRAM can be between 32 KBytes and 4 GBytes.
+
+	2. Attacker now generates write accesses to
+	physical addresses corresponding to locations
+	where the SMRAM is located. Those accesses
+	will now be cached, because we have marked
+	this range of physical addresses as WB
+	cacheable. Normally, physical addresses
+	corresponding to the location of SMRAM would
+	be un-cacheable and any write accesses to
+	these addresses would be dropped by the
+	memory controller (chipset).
+
+	3. Finally attacker needs to trigger an SMI5, which
+	will transfer execution to the SMM code. The
+	CPU will start executing the SMM code, but will
+	be fetching the instructions from the cache first,
+	before reading them from DRAM. Because the
+	attacker previously (in point #2) generated write
+	access to SMRAM locations, the CPU will fetch
+	attacker-provided data from the cache and
+	execute them as an SMI handler, with full SMM
+	privileges.
+
+		On Intel chipsets an SMI# can be triggered by executing OUT instruction to port 0xb2
+
+
+	1. Again the attacker first marks the SMRAM as
+	WB cacheable, by manipulating system MTRR
+	registers.
+
+	2. Now the attacker needs to trigger an SMI to
+	cause the original handler to execute, which
+	will have also a side effect of (most of) its
+	instructions being cached.
+	
+	3. Finally, attacker should read the cache,
+	preferably using a non-invasive instruction such
+	as movnti, that will not pollute the cache with
+	any new data.
+
+	MTTR intel volum 3a
+
+	rdmsr
+		Reads the contents of a 64-bit model specific register (MSR) specified in the ECX register into registers EDX:EAX.(On processors that support the Intel 64 architecture, the high-order 32 bits of RCX are ignored.) The EDX register is loaded with the high-order 32 bits of the MSR and the EAX register is loaded with the low-order 32 bits. (On processors that support the Intel 64 architecture, the high-order 32 bits of each of RAX and RDX are cleared.) If fewer than 64 bits are implemented in the MSR being read, the values returned to EDX:EAX in unimplemented bit locations are undefined. This instruction must be executed at privilege level 0 or in real-address mode; otherwise, a general protection exception #GP(0) will be generated
+
+	wrsmr
+		Writes the contents of registers EDX:EAX into the 64-bit model specific register (MSR) specified in the ECX register.(On processors that support the Intel 64 architecture, the high-order 32 bits of RCX are ignored.) The contents of the EDX register are copied to high-order 32 bits of the selected MSR and the contents of the EAX register are copied to low-order 32 bits of the MSR. (On processors that support the Intel 64 architecture, the high-order 32 bits of each of RAX and RDX are ignored.) Undefined or reserved bits in an MSR should be set to values previously read. This instruction must be executed at privilege level 0 or in real-address mode; otherwise, a general protection exception #GP(0) is generated. Specifying a reserved or unimplemented MSR address in ECX will also cause a general protection exception. The processor will also generate a general protection exception if software attempts to write to bits in a reserved MSR. When the WRMSR instruction is used to write to an MTRR, the TLBs are invalidated. This includes global entries (see “Translation Lookaside Buffers (TLBs)” in Chapter 3 of the Intel® 64 and IA-32 Architectures Software Developer’s Manual, Volume 3A).

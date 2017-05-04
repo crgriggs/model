@@ -101,10 +101,10 @@ class fileConverter():
             if line.split("#")[0].strip() == "THEN":
                 thenLoc.append(self.findPrecedingNumSpaces(line))
                 continue
+            if len(thenLoc) > 0 and self.findPrecedingNumSpaces(line) < thenLoc[-1]:
+                del thenLoc[-1]
             if line.strip() in ["FI", "END", "FI)"]:
                 continue 
-            elif len(thenLoc) > 0 and self.findPrecedingNumSpaces(line) < thenLoc[-1]:
-                del thenLoc[-1]
             writeFile.write(line[4*len(thenLoc):])
         return outfile
 

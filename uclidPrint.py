@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
-stateVars = {'r11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'cpl': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'rcx': '64', 'rip': '64'}
+stateVars = {'rsp': '64','r11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'cpl': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'rcx': '64', 'rip': '64'}
 rflagsDict ={'CF': 'State.rflags # [0:0]', 'PF': 'State.rflags # [1:1]', 'AF': 'State.rflags # [4:4]', 'ZF': 'State.rflags # [6:6]', 'SF': 'State.rflags # [7:7]', 'TF': 'State.rflags # [8:8]', 'IF': 'State.rflags # [9:9]', 'DF': 'State.rflags # [10:10]', 'OF': 'State.rflags # [11:11]', 'IOPL': 'State.rflags # [13:12]', 'NT': 'State.rflags # [14:14]', 'RF': 'State.rflags # [16:16]', 'VM': 'State.rflags # [17:17]', 'AC': 'State.rflags # [18:18]', 'VIF': 'State.rflags # [19:19]', 'VIP': 'State.rflags # [20:20]', 'ID': 'State.rflags # [21:21]'}
 CR0Dict = {'PE': 'State.CR0 # [0:0]', 'MP': 'State.CR0 # [1:1]', 'EM': 'State.CR0 # [2:2]', 'TS': 'State.CR0 # [3:3]', 'ET': 'State.CR0 # [4:4]', 'NE': 'State.CR0 # [5:5]', 'WP': 'State.CR0 # [16:16]', 'AM': 'State.CR0 # [18:18]','NW': 'State.CR0 # [29:29]', 'CD': 'State.CR0 # [30:30]', 'PG': 'State.CR0 # [31:31]'}
 CR4Dict = {'VME': 'State.CR4 # [0:0]', 'PVI': 'State.CR4 # [1:1]', 'TSD': 'State.CR4 # [2:2]', 'DE': 'State.CR4 # [3:3]', 'PSE': 'State.CR4 # [4:4]', 'PAE': 'State.CR4 # [5:5]', 'MCE': 'State.CR4 # [6:6]', 'PGE': 'State.CR4 # [7:7]','PCE': 'State.CR4 # [8:8]', 'OSFXSR': 'State.CR4 # [9:9]', 'OSXMMEXCPT': 'State.CR4 # [10:10]', 'VMXE': 'State.CR4 # [13:13]', 'SMXE': 'State.CR4 # [14:14]', 'FSGSBASE': 'State.CR4 # [16:16]', 'PCIDE': 'State.CR4 # [17:17]', 'OSXSAVE': 'State.CR4 # [18:18]', 'SMEP': 'State.CR4 # [20:20]', 'SMAP': 'State.CR4 # [21:21]', 'PKE': 'State.CR4 # [22:22]'}
@@ -28,6 +28,7 @@ class modulePrint():
             # print line
             line = re.sub(r'\b[0-9]+', "", line)
             line = re.sub(r'hex?([0-9]*[A-F]*)*', "", line)
+            line = re.sub(r'Memory\[(.)*\]', "", line)
             line = line.replace("exitStatus", "")
             line = line.replace("GP", "")
             line = line.replace("!", "")
@@ -38,6 +39,7 @@ class modulePrint():
             line = line.replace("else", "")
             line = line.replace(":", "")
             line = line.replace("elif(", "")
+            line = line.replace("elif", "")
             line = line.replace(" and ", " ")
             line = line.replace(" or ", " ")
             line = line.replace(")", (" "))
@@ -97,6 +99,10 @@ class modulePrint():
                     self.inputs.add(word.lower())
                     self.defines.add(word + " := State." + word.lower() + ";")
                       #Handling the register bitpacking
+                elif len(word) == 3 and "sp" == word[1:].lower():
+                    self.defines.add(word + " := State.rsp # [31:0];" )
+                elif len(word) == 2 and "sp" == word.lower():
+                    self.defines.add(word + " := State.rsp # [15:0];" )
                 elif len(word) == 3 and "X" == word[2]:
                     self.defines.add(word + " := State.r" + word[1].lower() + "x # [31:0];" )
                 elif len(word) == 2 and "X" == word[1]:
@@ -117,8 +123,10 @@ class modulePrint():
         print 
         cs = set()
         ss = set()
+        alreadyDef = set()
         for define in self.defines:
             print define
+            alreadyDef.add(define.split(" := ")[0])
         for define in self.CS_SS:
             print define  + ";"
             define = define.split(" := ")[0].strip()
@@ -157,10 +165,13 @@ class modulePrint():
                         if self.inSomeDict(var) != var:
                             print "    default : " + self.inSomeDict(var) + ";"
                         else:
-                            if var != "exitStatus":
-                                print "    default : State." + var.lower().replace(".", "_")  + ";"
-                            else:
+                            if var == "exitStatus":
                                 print "    default : Normal;"
+                            elif var in alreadyDef:
+                                print "    default : " + var + ";"
+                            else:
+                                print "    default : State." + var.lower().replace(".", "_")  + ";"
+
                         print "esac;"
                     #regular part of the case
                     else:
@@ -211,6 +222,8 @@ class modulePrint():
                 print "exitStatus: exitCase;"
             elif var == 'DEST':
                 print "DEST : BITVEC[64];" 
+            elif var == "memory":
+                print "memory : BITVEC[64];" 
             elif var.upper().startswith("RFLAGS") or var in rflagsDict:
                 if rflags:
                     rflags = False
