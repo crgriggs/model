@@ -199,6 +199,8 @@ class astVisit(ast.NodeVisitor):
                 return comp.replace(" > ", " <= ")
             if " < "  in comp:
                 return comp.replace(" < ", " >= ")
+            if " = "  in comp:
+                return comp.replace(" = ", " != ")
             if " >= "  in comp:
                 return comp.replace(" >= ", " < ")
             if " <= "  in comp:
@@ -238,7 +240,7 @@ class astVisit(ast.NodeVisitor):
 
     #negates boolean algebra
     def negateBool(self, comp):
-        regex = r"([A-Za-z_])* [=<>!]* ([0-9A-Z_]*)*|[_A-Za-z]+"
+        regex = r"([A-Za-z_])* [=<>!]* ([0-9A-Za-z_]*)*|[_A-Za-z]+"
         matches = re.finditer(regex, comp)
         matchDict = {}
         negDict = {}
@@ -258,7 +260,7 @@ class astVisit(ast.NodeVisitor):
             comp = comp.replace(var, matchDict[var])
             dictMatch[matchDict[var]] = var
         # print comp
-        # print self.printBool(str(simplify_logic(comp)))
+        print self.printBool(str(simplify_logic(comp)))
         boo =  simplify_logic("~(" + comp + ")")
         neg = self.printBool(str(boo)) +  " "
         # print neg
@@ -275,6 +277,7 @@ class astVisit(ast.NodeVisitor):
     def visit_If(self, node, condition = None):
         parent = self.currentNode
         comparison = self.visit(node.test, condition)
+        comparison = comparison.replace("StackAddrSize ==", "StackAddrSize =").replace("OperandSize ==", "OperandSize =")
         copy = comparison
         
         if condition != None:

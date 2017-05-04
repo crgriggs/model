@@ -194,6 +194,8 @@ class modulePrint():
         for con in self.constants:
             if "_is_" in con:
                  print con + ": TRUTH;"
+            elif con in ['StackAddrSize', 'OperandSize']:
+                print con + ": size;"
             else:
                 print con + ": BITVEC[64];"
 

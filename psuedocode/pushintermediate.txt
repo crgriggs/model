@@ -1,0 +1,45 @@
+if StackAddrSize == bits64
+    THEN
+        
+        if OperandSize == bits64
+            THEN
+                
+                RSP  = RSP - 8
+                Memory[SS:RSP]  = SRC # push quadword 
+        elif OperandSize == bits32
+            THEN
+                
+                RSP  = RSP - 4
+                Memory[SS:RSP]  = SRC # push dword 
+            else: # OperandSize == bits16 
+                RSP  = RSP - 2
+                Memory[SS:RSP]  = SRC # push word 
+        FI
+    elif StackAddrSize == bits32
+        THEN
+            
+            if OperandSize == bits64
+                THEN
+                    
+                    ESP  = ESP - 8
+                    Memory[SS:ESP]  = SRC # push quadword 
+            elif OperandSize == bits32
+                THEN
+                    
+                    ESP  = ESP - 4
+                    Memory[SS:ESP]  = SRC # push dword 
+                else: # OperandSize == bits16 
+                    ESP  = ESP - 2
+                    Memory[SS:ESP]  = SRC # push word 
+        FI
+    else: # StackAddrSize == bits16 
+        if OperandSize == bits32
+            THEN
+                
+                SP  = SP - 4
+                Memory[SS:SP]  = SRC # push dword 
+            else: # OperandSize == bits16 
+                SP  = SP - 2
+                Memory[SS:SP]  = SRC # push word 
+        FI
+FI

@@ -42,8 +42,13 @@ class fileConverter():
             if r != None:
                 replace = r.group().replace("H", "")
                 line = re.sub(r'\b[0-9A-F_]+H', ("hex"+replace), line)
-            line = line.replace("≥", ">=")
+            r = re.search(r'\b[0-9A-F_]+H', line)
             line = line.replace(" = ", ' == ')
+            if "OperandSize" in line:
+                line = line.split('OperandSize == ')[0] + "OperandSize == bits" + line.split('OperandSize == ')[1]
+            if "StackAddrSize" in line:
+                line = line.split('StackAddrSize == ')[0] + "StackAddrSize == bits" + line.split('StackAddrSize == ')[1]
+            line = line.replace("≥", ">=")
             if "VIF" not in line:
                 line = line.replace("IF ←", "rflags_if =")
             line = line.replace("←", "=")
