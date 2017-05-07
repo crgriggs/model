@@ -9,6 +9,8 @@ DEST : BITVEC[64];
 CONST
 SRC: BITVEC[64];
 
+DEST_i : BITVEC[64];
+
 DEFINE
 
 b0 := 0x0 # [0:0];
@@ -16,6 +18,6 @@ b1 := 0x1 # [0:0];
 
 ASSIGN
 
-init[DEST] := 0;
+init[DEST] := DEST_i;
 next[DEST] := SRC;
 

@@ -28,7 +28,7 @@ class modulePrint():
             # print line
             line = re.sub(r'\b[0-9]+', "", line)
             line = re.sub(r'hex?([0-9]*[A-F]*)*', "", line)
-            line = re.sub(r'Memory\[(.)*\]', "", line)
+            line = re.sub(r'Memory\[(.)*\]', "memory", line)
             line = line.replace("exitStatus", "")
             line = line.replace("bits32", "")
             line = line.replace("bits64", "")
@@ -115,6 +115,8 @@ class modulePrint():
                     self.defines.add(word + " := State.r" + word[1].lower() + "x # [31:0];" )
                 elif len(word) == 2 and "X" == word[1]:
                     self.defines.add(word + " := State.r" + word[1].lower() + "x # [15:0];" )
+                elif word in ['StackAddrSize', 'OperandSize']:
+                    self.cvd[word] = [['{bits64, bits32, bits16}'], None, None]
                 else:
                     self.constants.add(word)
 
@@ -167,6 +169,8 @@ class modulePrint():
                     if inputs[0] != None and bool(re.search('[A-Za-z0-9_]+[ ]*[[0-9]+:[0-9]+]', inputs[0])):
                         word = inputs[0].split("[")
                         inputs[0] = word[0] + " # [" + word[1]
+                    if inputs[0] != None and bool(re.search('emory\[(.)*\]', inputs[0])):
+                        inputs[0] = 'State.m' + inputs[0][1:].replace("[", "(").replace("]", ")")
                     if inputs == [group][groupCount][0]:
                         print var + str(count) + " := case"
                         print "    " + inputs[1] + " : " + inputs[0] + ";"
@@ -180,6 +184,10 @@ class modulePrint():
                                 print "    default : Normal;"
                             elif var in alreadyDef:
                                 print "    default : " + var + ";"
+                            elif "memory" in var:
+                                print "    default : State.memory(State.rsp);"
+                            elif "DEST" in var.upper():
+                                print "    default : DEST;"
                             else:
                                 print "    default : State." + var.lower().replace(".", "_")  + ";"
 
@@ -205,10 +213,44 @@ class modulePrint():
         for con in self.constants:
             if "_is_" in con:
                  print con + ": TRUTH;"
-            elif con in ['StackAddrSize', 'OperandSize']:
-                print con + ": size;"
             else:
                 print con + ": BITVEC[64];"
+
+        rflags = True
+        cs = True
+        ss = True
+        print
+        for var in self.cvd:
+            if "SS" in var:
+                var = var.replace(".", "_").lower()
+                if var[3:] in ss_accessRightsDict:
+                    if ss:
+                        ss = False
+                        print "ss_accessRights_i : BITVEC[12];"
+                        continue
+            if "CS" in var:
+                var = var.replace(".", "_").lower()
+                if var[3:] in cs_accessRightsDict:
+                    if cs:
+                        cs = False
+                        print "cs_accessRights_i : BITVEC[12];"
+                        continue 
+            if var == 'exitStatus':
+                continue
+            elif var in ['StackAddrSize', 'OperandSize']:
+                continue
+            elif var == 'DEST':
+                print "DEST_i : BITVEC[64];" 
+            elif var == "memory":
+                print "memory_i : BITVEC[64];" 
+            elif var.upper().startswith("RFLAGS") or var in rflagsDict:
+                if rflags:
+                    rflags = False
+                    print "rflags_i : BITVEC[64];"
+            else:
+                if var not in stateVars:
+                    var = var.lower()
+                print str(var) + "_i : BITVEC[" + str(stateVars[var]) + "];"
 
     def printVar(self):
         rflags = True
@@ -233,6 +275,8 @@ class modulePrint():
                         continue 
             if var == 'exitStatus':
                 print "exitStatus: exitCase;"
+            elif var in ['StackAddrSize', 'OperandSize']:
+                print var + " : size;"
             elif var == 'DEST':
                 print "DEST : BITVEC[64];" 
             elif var == "memory":
@@ -264,14 +308,14 @@ class modulePrint():
                 return ss_accessRightsDict[word.upper()]
         return temp
 
-    #[lhs : [rhs, condtion, nodeWrittenTo]]
+    #lhs : [[rhs, condtion, nodeWrittenTo]]
     def printAssign(self):
         print
         print "ASSIGN"
         print
         for var in self.cvd:
             lhs = var
-            toLower = ["CPL", "RIP", "RFLAGS", "RCX", "R11"]
+            toLower = ["CPL", "RIP", "RFLAGS", "RCX", "R11", "RSP"]
             if lhs in toLower:
                 lhs = lhs.lower()
             rhsCond = self.cvd[var]
@@ -285,8 +329,13 @@ class modulePrint():
                 default = "Normal" 
                 init = "Normal"
             else:
-                init = "0"
+                init = lhs + "_i"
                 default = "State." + lhs
+            if lhs in ['StackAddrSize', 'OperandSize']:
+                print "init[" + lhs + "] := {bits64, bits32, bits16};"
+                print "next[" + lhs + "] := {bits64, bits32, bits16};"
+                print
+                continue
             #unconditionally assigning a value aka no condition
             if len(rhsCond) == 1 and rhsCond[0][1] == None:
                 print "init[" + lhs + "] := "+ init + ";"

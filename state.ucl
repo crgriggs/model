@@ -1,11 +1,290 @@
 MODEL StateModel
 
-typedef opcode : enum{movInstr, syscallInstr, sysretInstr};
-typedef exitStatus : enum {gp, ud, normal};
-typedef register : enum {rax, rbx, rcx, rdx};
+typedef opcodes : enum{sysret, push, mov, pop, syscall};
+typedef exitCase : enum {GP, UD, Normal};
+typedef register : enum {a, b, c, d};
+typedef size : enum {bits64, bits32, bits16};
 
 CONST
-(*----- ./models//mov.txt -----*)
+(*----- ./models/sysret.txt -----*)
+MODULE sysretInstr
+
+INPUT
+
+State.ss_limit : BITVEC[20];
+State.ss_selector : BITVEC[16];
+State.cpl : BITVEC[2];
+State.rflags : BITVEC[64];
+State.r11 : BITVEC[64];
+State.ss_base : BITVEC[32];
+State.ss_accessRights : BITVEC[12];
+State.EFER : BITVEC[64];
+State.cs_base : BITVEC[32];
+State.rip : BITVEC[64];
+State.cs_selector : BITVEC[16];
+State.cs_limit : BITVEC[20];
+State.rcx : BITVEC[64];
+State.cs_accessRights : BITVEC[12];
+
+VAR
+ss_base : BITVEC[32];
+exitStatus: exitCase;
+cpl : BITVEC[2];
+ss_limit : BITVEC[20];
+cs_selector : BITVEC[16];
+ss_accessRights : BITVEC[12];
+rip : BITVEC[64];
+cs_accessRights : BITVEC[12];
+cs_base : BITVEC[32];
+cs_limit : BITVEC[20];
+ss_selector : BITVEC[16];
+rflags : BITVEC[64];
+
+CONST
+IA32_STAR: BITVEC[64];
+RCX_is_not_canonical: TRUTH;
+operand_size_is_64_bit: TRUTH;
+
+ss_base_i : BITVEC[32];
+cpl_i : BITVEC[2];
+ss_limit_i : BITVEC[20];
+cs_selector_i : BITVEC[16];
+ss_accessRights_i : BITVEC[12];
+rip_i : BITVEC[64];
+cs_accessRights_i : BITVEC[12];
+cs_base_i : BITVEC[32];
+cs_limit_i : BITVEC[20];
+ss_selector_i : BITVEC[16];
+rflags_i : BITVEC[64];
+
+DEFINE
+
+RFLAGS := State.rflags;
+b0 := 0x0 # [0:0];
+RCX := State.rcx;
+IA32_EFER.SCE := State.EFER # [0:0];
+CS.L := State.cs_accessRights # [2:2];
+b1 := 0x1 # [0:0];
+R11 := State.r11;
+ECX := State.rcx # [31:0];
+CPL := State.cpl;
+IA32_EFER.LMA := State.EFER # [10:10];
+RIP := State.rip;
+CS.G := 1;
+SS.DPL := 3;
+SS.G := 1;
+SS.P := 1;
+CS.P := 1;
+CS.Type := 11;
+SS.S := 1;
+CS.DPL := 3;
+SS.Type := 3;
+SS.B := 1;
+CS.S := 1;
+CS.AVL := State.cs_accessRights # [3:3];
+CS.B := State.cs_accessRights # [1:1];
+CS.D := State.cs_accessRights # [1:1];
+CS.L := State.cs_accessRights # [2:2];
+SS.AVL := State.ss_accessRights # [3:3];
+SS.D := State.ss_accessRights # [1:1];
+SS.L := State.ss_accessRights # [2:2];
+CS.L0 := case
+    operand_size_is_64_bit : 0;
+    operand_size_is_64_bit : 1;
+    default : State.cs_accessRights # [2:2];
+esac;
+
+CS.L_n := CS.L0;
+
+CS.D0 := case
+    operand_size_is_64_bit : 1;
+    operand_size_is_64_bit : 0;
+    default : State.cs_accessRights # [1:1];
+esac;
+
+CS.D_n := CS.D0;
+
+exitStatus0 := case
+    CPL != 0 | RCX_is_not_canonical : GP;
+    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
+    default : Normal;
+esac;
+
+exitStatus_n := exitStatus0;
+
+RIP0 := case
+    operand_size_is_64_bit : ECX;
+    operand_size_is_64_bit : RCX;
+    default : RIP;
+esac;
+
+RIP_n := RIP0;
+
+CS.Selector0 := case
+    operand_size_is_64_bit : IA32_STAR # [63:48];
+    operand_size_is_64_bit : IA32_STAR # [63:48] + 16;
+    default : State.cs_selector;
+esac;
+
+CS.Selector_n := CS.Selector0;
+
+
+ASSIGN
+
+init[ss_base] := ss_base_i;
+next[ss_base] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : 0;
+    default : State.ss_base;
+esac;
+
+init[exitStatus] := Normal;
+next[exitStatus] := exitStatus_n;
+
+init[cpl] := cpl_i;
+next[cpl] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : 3;
+    default : State.cpl;
+esac;
+
+init[ss_limit] := ss_limit_i;
+next[ss_limit] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : 0xFFFFF;
+    default : State.ss_limit;
+esac;
+
+init[cs_selector] := cs_selector_i;
+next[cs_selector] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : CS.Selector_n || 3;
+    default : State.cs_selector;
+esac;
+
+init[ss_accessRights] := ss_accessRights_i;
+next[ss_accessRights] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
+    default : State.ss_accessRights;
+esac;
+
+init[rip] := rip_i;
+next[rip] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : RIP_n;
+    default : State.rip;
+esac;
+
+init[cs_accessRights] := cs_accessRights_i;
+next[cs_accessRights] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L_n ) @ ( CS.D_n ) @ ( CS.B ) @ ( CS.G );
+    default : State.cs_accessRights;
+esac;
+
+init[cs_base] := cs_base_i;
+next[cs_base] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : 0;
+    default : State.cs_base;
+esac;
+
+init[cs_limit] := cs_limit_i;
+next[cs_limit] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : 0xFFFFF;
+    default : State.cs_limit;
+esac;
+
+init[ss_selector] := ss_selector_i;
+next[ss_selector] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : IA32_STAR # [63:48] + 8 || 3;
+    default : State.ss_selector;
+esac;
+
+init[rflags] := rflags_i;
+next[rflags] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : R11 && 0x3C7FD7 || 2;
+    default : State.rflags;
+esac;
+
+
+(*----- ./models/push.txt -----*)
+MODULE pushInstr
+
+INPUT
+
+State.rsp : BITVEC[64];
+State.memory : FUNC[1];
+
+VAR
+OperandSize : size;
+StackAddrSize : size;
+rsp : BITVEC[64];
+memory : BITVEC[64];
+
+CONST
+SRC: BITVEC[64];
+
+rsp_i : BITVEC[64];
+memory_i : BITVEC[64];
+
+DEFINE
+
+RSP := State.rsp;
+b0 := 0x0 # [0:0];
+SP := State.rsp # [15:0];
+b1 := 0x1 # [0:0];
+ESP := State.rsp # [31:0];
+SP0 := case
+    OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : SP - 4;
+    OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : SP - 2;
+    default : SP;
+esac;
+
+SP_n := SP0;
+
+RSP0 := case
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : RSP - 4;
+    OperandSize = bits64 & StackAddrSize = bits64 : RSP - 8;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : RSP - 2;
+    default : RSP;
+esac;
+
+RSP_n := RSP0;
+
+ESP0 := case
+    OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : ESP - 8;
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64) : ESP - 4;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64)) : ESP - 2;
+    default : ESP;
+esac;
+
+ESP_n := ESP0;
+
+memory0 := case
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64) : SRC;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64)) : SRC;
+    OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : SRC;
+    OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : SRC;
+    OperandSize = bits64 & StackAddrSize = bits64 : SRC;
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : SRC;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : SRC;
+    OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : SRC;
+    default : State.memory(State.rsp);
+esac;
+
+memory_n := memory0;
+
+
+ASSIGN
+
+init[OperandSize] := {bits64, bits32, bits16};
+next[OperandSize] := {bits64, bits32, bits16};
+
+init[StackAddrSize] := {bits64, bits32, bits16};
+next[StackAddrSize] := {bits64, bits32, bits16};
+
+init[rsp] := rsp_i;
+next[rsp] := RSP_n;
+
+init[memory] := memory_i;
+next[memory] := memory_n;
+
+
+(*----- ./models/mov.txt -----*)
 MODULE movInstr
 
 INPUT
@@ -17,50 +296,130 @@ DEST : BITVEC[64];
 CONST
 SRC: BITVEC[64];
 
+DEST_i : BITVEC[64];
+
 DEFINE
 
 b0 := 0x0 # [0:0];
 b1 := 0x1 # [0:0];
 
-
 ASSIGN
 
-init[DEST] := 0;
+init[DEST] := DEST_i;
 next[DEST] := SRC;
 
 
-(*----- ./models//syscall.txt -----*)
+(*----- ./models/pop.txt -----*)
+MODULE popInstr
+
+INPUT
+
+State.rsp : BITVEC[64];
+State.memory : FUNC[1];
+
+VAR
+DEST : BITVEC[64];
+StackAddrSize : size;
+rsp : BITVEC[64];
+OperandSize : size;
+
+CONST
+
+DEST_i : BITVEC[64];
+rsp_i : BITVEC[64];
+
+DEFINE
+
+RSP := State.rsp;
+b0 := 0x0 # [0:0];
+SP := State.rsp # [15:0];
+b1 := 0x1 # [0:0];
+ESP := State.rsp # [31:0];
+DEST0 := case
+    OperandSize != bits32 & (StackAddrSize = bits32) : State.memory(ESP);
+    OperandSize = bits32 & StackAddrSize = bits32 : State.memory(ESP);
+    OperandSize != bits64 & (StackAddrSize = bits64 & StackAddrSize != bits32) : State.memory(RSP);
+    OperandSize = bits64 & StackAddrSize = bits64 & StackAddrSize != bits32 : State.memory(RSP);
+    OperandSize != bits16 & (StackAddrSize != bits64 & (StackAddrSize != bits32)) : State.memory(SP);
+    OperandSize = bits16 & StackAddrSize != bits64 & (StackAddrSize != bits32) : State.memory(SP);
+    default : DEST;
+esac;
+
+DEST_n := DEST0;
+
+SP0 := case
+    OperandSize = bits16 & StackAddrSize != bits64 & (StackAddrSize != bits32) : SP + 2;
+    OperandSize != bits16 & (StackAddrSize != bits64 & (StackAddrSize != bits32)) : SP + 4;
+    default : SP;
+esac;
+
+SP_n := SP0;
+
+RSP0 := case
+    OperandSize != bits64 & (StackAddrSize = bits64 & StackAddrSize != bits32) : RSP + 2;
+    OperandSize = bits64 & StackAddrSize = bits64 & StackAddrSize != bits32 : RSP + 8;
+    default : RSP;
+esac;
+
+RSP_n := RSP0;
+
+ESP0 := case
+    OperandSize = bits32 & StackAddrSize = bits32 : ESP + 4;
+    OperandSize != bits32 & (StackAddrSize = bits32) : ESP + 2;
+    default : ESP;
+esac;
+
+ESP_n := ESP0;
+
+
+ASSIGN
+
+init[DEST] := DEST_i;
+next[DEST] := DEST_n;
+
+init[StackAddrSize] := {bits64, bits32, bits16};
+next[StackAddrSize] := {bits64, bits32, bits16};
+
+init[rsp] := rsp_i;
+next[rsp] := RSP_n;
+
+init[OperandSize] := {bits64, bits32, bits16};
+next[OperandSize] := {bits64, bits32, bits16};
+
+
+(*----- ./models/syscall.txt -----*)
 MODULE syscallInstr
 
 INPUT
 
 State.ss_limit : BITVEC[20];
 State.ss_selector : BITVEC[16];
-State.RCX : BITVEC[64];
+State.rcx : BITVEC[64];
 State.rflags : BITVEC[64];
-State.R11 : BITVEC[64];
+State.r11 : BITVEC[64];
 State.ss_base : BITVEC[32];
 State.ss_accessRights : BITVEC[12];
 State.EFER : BITVEC[64];
 State.cs_base : BITVEC[32];
-State.RIP : BITVEC[64];
+State.rip : BITVEC[64];
 State.cs_selector : BITVEC[16];
 State.cs_limit : BITVEC[20];
-State.CPL : BITVEC[2];
+State.cpl : BITVEC[2];
 State.cs_accessRights : BITVEC[12];
 
 VAR
 ss_base : BITVEC[32];
-RCX : BITVEC[64];
-R11 : BITVEC[64];
+exitStatus: exitCase;
+rcx : BITVEC[64];
+r11 : BITVEC[64];
 ss_limit : BITVEC[20];
 cs_selector : BITVEC[16];
 ss_accessRights : BITVEC[12];
-RIP : BITVEC[64];
+rip : BITVEC[64];
 cs_accessRights : BITVEC[12];
 cs_base : BITVEC[32];
 cs_limit : BITVEC[20];
-CPL : BITVEC[2];
+cpl : BITVEC[2];
 ss_selector : BITVEC[16];
 rflags : BITVEC[64];
 
@@ -70,281 +429,135 @@ rflags_rfLAGS: BITVEC[64];
 IA32_LSTAR: BITVEC[64];
 IA32_STAR: BITVEC[64];
 
+ss_base_i : BITVEC[32];
+rcx_i : BITVEC[64];
+r11_i : BITVEC[64];
+ss_limit_i : BITVEC[20];
+cs_selector_i : BITVEC[16];
+ss_accessRights_i : BITVEC[12];
+rip_i : BITVEC[64];
+cs_accessRights_i : BITVEC[12];
+cs_base_i : BITVEC[32];
+cs_limit_i : BITVEC[20];
+cpl_i : BITVEC[2];
+ss_selector_i : BITVEC[16];
+rflags_i : BITVEC[64];
+
 DEFINE
 
-IA32_EFER.LMA := State.EFER # [10:10]
+RFLAGS := State.rflags;
 b0 := 0x0 # [0:0];
+RCX := State.rcx;
+IA32_EFER.SCE := State.EFER # [0:0];
+CS.L := State.cs_accessRights # [2:2];
 b1 := 0x1 # [0:0];
-IA32_EFER.SCE := State.EFER # [0:0]
-CS.G := 1
-SS.DPL := 0
-SS.G := 1
-SS.P := 1
-CS.P := 1
-CS.L := 1
-CS.Type := 11
-CS.D := 0
-SS.S := 1
-CS.DPL := 0
-SS.Type := 3
-SS.B := 1
-CS.S := 1
-
+R11 := State.r11;
+CPL := State.cpl;
+IA32_EFER.LMA := State.EFER # [10:10];
+RIP := State.rip;
+CS.G := 1;
+SS.DPL := 0;
+SS.G := 1;
+SS.P := 1;
+CS.P := 1;
+CS.L := 1;
+CS.Type := 11;
+CS.D := 0;
+SS.S := 1;
+CS.DPL := 0;
+SS.Type := 3;
+SS.B := 1;
+CS.S := 1;
+CS.AVL := State.cs_accessRights # [3:3];
+CS.B := State.cs_accessRights # [1:1];
+SS.AVL := State.ss_accessRights # [3:3];
+SS.D := State.ss_accessRights # [1:1];
+SS.L := State.ss_accessRights # [2:2];
 
 ASSIGN
 
-init[ss_base] := 0;
+init[ss_base] := ss_base_i;
 next[ss_base] := case
     next[exitStatus] != UD : 0;
     default : State.ss_base;
 esac;
 
-init[exitStatus] := 0;
+init[exitStatus] := Normal;
 next[exitStatus] := case
-    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
-    default : normal;
-esac;
-
-init[RCX] := 0;
-next[RCX] := case
-    next[exitStatus] != UD : RIP;
-    default : State.RCX;
-esac;
-
-init[R11] := 0;
-next[R11] := case
-    next[exitStatus] != UD : rflags_rfLAGS;
-    default : State.R11;
-esac;
-
-init[ss_limit] := 0;
-next[ss_limit] := case
-    next[exitStatus] != UD : FFFFF;
-    default : State.ss_limit;
-esac;
-
-init[cs_selector] := 0;
-next[cs_selector] := case
-    next[exitStatus] != UD : IA32_STAR[47:32] && FFFC;
-    default : State.cs_selector;
-esac;
-
-init[ss_accessRights] := 0;
-next[ss_accessRights] := case
-    next[exitStatus] != UD : ( SS.TYPE ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
-    default : State.ss_accessRights;
-esac;
-
-init[RIP] := 0;
-next[RIP] := case
-    next[exitStatus] != UD : IA32_LSTAR;
-    default : State.RIP;
-esac;
-
-init[cs_accessRights] := 0;
-next[cs_accessRights] := case
-    next[exitStatus] != UD : ( CS.TYPE ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G );
-    default : State.cs_accessRights;
-esac;
-
-init[cs_base] := 0;
-next[cs_base] := case
-    next[exitStatus] != UD : 0;
-    default : State.cs_base;
-esac;
-
-init[cs_limit] := 0;
-next[cs_limit] := case
-    next[exitStatus] != UD : FFFFF;
-    default : State.cs_limit;
-esac;
-
-init[CPL] := 0;
-next[CPL] := case
-    next[exitStatus] != UD : 0;
-    default : State.CPL;
-esac;
-
-init[ss_selector] := 0;
-next[ss_selector] := case
-    next[exitStatus] != UD : IA32_STAR[47:32] + 8;
-    default : State.ss_selector;
-esac;
-
-init[RFLAGS] := 0;
-next[RFLAGS] := case
-    next[exitStatus] != UD : rflags_rfLAGS && !!IA32_FMASK;
-    default : State.RFLAGS;
-esac;
-
-
-(*----- ./models//sysret.txt -----*)
-MODULE sysretInstr
-
-INPUT
-
-State.ss_limit : BITVEC[20];
-State.ss_selector : BITVEC[16];
-State.CPL : BITVEC[2];
-State.rflags : BITVEC[64];
-State.R11 : BITVEC[64];
-State.ss_base : BITVEC[32];
-State.ss_accessRights : BITVEC[12];
-State.EFER : BITVEC[64];
-State.cs_base : BITVEC[32];
-State.RIP : BITVEC[64];
-State.cs_selector : BITVEC[16];
-State.cs_limit : BITVEC[20];
-State.RCX : BITVEC[64];
-State.cs_accessRights : BITVEC[12];
-
-VAR
-ss_base : BITVEC[32];
-CPL : BITVEC[2];
-ss_limit : BITVEC[20];
-cs_selector : BITVEC[16];
-ss_accessRights : BITVEC[12];
-RIP : BITVEC[64];
-cs_accessRights : BITVEC[12];
-cs_base : BITVEC[32];
-cs_limit : BITVEC[20];
-ss_selector : BITVEC[16];
-rflags : BITVEC[64];
-
-CONST
-IA32_STAR: BITVEC[64];
-RCX_is_not_canonical: BITVEC[1];
-operand_size_is_64_bit: BITVEC[1];
-
-DEFINE
-
-IA32_EFER.LMA := State.EFER # [10:10]
-b0 := 0x0 # [0:0];
-ECX := State.RCX # [31:0];
-b1 := 0x1 # [0:0];
-IA32_EFER.SCE := State.EFER # [0:0]
-CS.G := 1
-SS.DPL := 3
-SS.G := 1
-SS.P := 1
-CS.P := 1
-CS.Type := 11
-SS.S := 1
-CS.DPL := 3
-SS.Type := 3
-SS.B := 1
-CS.S := 1
-
-CS.L0 := case
-    operand_size_is_64_bit : 0;
-    operand_size_is_64_bit : 1;
-    default : State.cs_accessRights # [2:2]
-esac;
-
-CS.L_n := CS.L0;
-
-CS.D0 := case
-    operand_size_is_64_bit : 1;
-    operand_size_is_64_bit : 0;
-    default : State.cs_accessRights # [1:1]
-esac;
-
-CS.D_n := CS.D0;
-
-exitStatus0 := case
-    CPL != 0 || RCX_is_not_canonical : GP;
     CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
     default : Normal;
 esac;
 
-exitStatus_n := exitStatus0;
-
-RIP0 := case
-    operand_size_is_64_bit : ECX;
-    operand_size_is_64_bit : RCX;
-    default : State.rip
+init[rcx] := rcx_i;
+next[rcx] := case
+    next[exitStatus] != UD : RIP;
+    default : State.rcx;
 esac;
 
-RIP_n := RIP0;
-
-CS.Selector0 := case
-    operand_size_is_64_bit : IA32_STAR[63:48];
-    operand_size_is_64_bit : IA32_STAR[63:48] + 16;
-    default : State.cs_selector
+init[r11] := r11_i;
+next[r11] := case
+    next[exitStatus] != UD : rflags_rfLAGS;
+    default : State.r11;
 esac;
 
-CS.Selector_n := CS.Selector0;
-
-
-ASSIGN
-
-init[ss_base] := 0;
-next[ss_base] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 0;
-    default : State.ss_base;
-esac;
-
-init[exitStatus] := normal;
-next[exitStatus] := exitStatus_n;
-
-init[CPL] := 0;
-next[CPL] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 3;
-    default : State.CPL;
-esac;
-
-init[ss_limit] := 0;
+init[ss_limit] := ss_limit_i;
 next[ss_limit] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : FFFFF;
+    next[exitStatus] != UD : 0xFFFFF;
     default : State.ss_limit;
 esac;
 
-init[cs_selector] := 0;
+init[cs_selector] := cs_selector_i;
 next[cs_selector] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : CS.Selector_n || 3;
+    next[exitStatus] != UD : IA32_STAR # [47:32] && 0xFFFC;
     default : State.cs_selector;
 esac;
 
-init[ss_accessRights] := 0;
+init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( SS.TYPE ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
+    next[exitStatus] != UD : ( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
     default : State.ss_accessRights;
 esac;
 
-init[RIP] := 0;
-next[RIP] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : RIP_n;
-    default : State.RIP;
+init[rip] := rip_i;
+next[rip] := case
+    next[exitStatus] != UD : IA32_LSTAR;
+    default : State.rip;
 esac;
 
-init[cs_accessRights] := 0;
+init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( CS.TYPE ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L_n ) @ ( CS.D_n ) @ ( CS.B ) @ ( CS.G );
+    next[exitStatus] != UD : ( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G );
     default : State.cs_accessRights;
 esac;
 
-init[cs_base] := 0;
+init[cs_base] := cs_base_i;
 next[cs_base] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 0;
+    next[exitStatus] != UD : 0;
     default : State.cs_base;
 esac;
 
-init[cs_limit] := 0;
+init[cs_limit] := cs_limit_i;
 next[cs_limit] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : FFFFF;
+    next[exitStatus] != UD : 0xFFFFF;
     default : State.cs_limit;
 esac;
 
-init[ss_selector] := 0;
+init[cpl] := cpl_i;
+next[cpl] := case
+    next[exitStatus] != UD : 0;
+    default : State.cpl;
+esac;
+
+init[ss_selector] := ss_selector_i;
 next[ss_selector] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : IA32_STAR[63:48] + 8 || 3;
+    next[exitStatus] != UD : IA32_STAR # [47:32] + 8;
     default : State.ss_selector;
 esac;
 
-init[RFLAGS] := 0;
-next[RFLAGS] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : R11 && 3C7FD7 || 2;
-    default : State.RFLAGS;
+init[rflags] := rflags_i;
+next[rflags] := case
+    next[exitStatus] != UD : rflags_rfLAGS && !!IA32_FMASK;
+    default : State.rflags;
 esac;
 
 
@@ -366,150 +579,194 @@ ss_base : BITVEC[32];
 ss_accessRights : BITVEC[12];
 EFER : BITVEC[64];
 cs_base : BITVEC[32];
-RIP : BITVEC[64];
+rip : BITVEC[64];
 cs_selector : BITVEC[16];
 cs_limit : BITVEC[20];
-CPL : BITVEC[2];
+cpl : BITVEC[2];
 cs_accessRights : BITVEC[12];
 CR0 : BITVEC[64];
 CR4 : BITVEC[64];
 currentReg : register;
+opcode : opcodes;
+memory : FUNC[1];
+rsp : BITVEC[64];
 
 CONST
+
+i : TERM;
+m0 : FUNC[1];
+addr  : BITVEC[64];
+SRC : BITVEC[64];
+
+ss_limit_i : BITVEC[20];
+ss_selector_i : BITVEC[16];
+rax_i : BITVEC[64];
+rbx_i : BITVEC[64];
+rcx_i : BITVEC[64];
+rdx_i : BITVEC[64];
+rflags_i : BITVEC[64];
+r11_i : BITVEC[64];
+ss_base_i : BITVEC[32];
+ss_accessRights_i : BITVEC[12];
+EFER_i : BITVEC[64];
+cs_base_i : BITVEC[32];
+rip_i : BITVEC[64];
+cs_selector_i : BITVEC[16];
+cs_limit_i : BITVEC[20];
+cpl_i : BITVEC[2];
+cs_accessRights_i : BITVEC[12];
+CR0_i : BITVEC[64];
+CR4_i : BITVEC[64];
+rsp_i : BITVEC[64];
 
 DEFINE
 
 ASSIGN
 
-init[currentReg] := {rax, rbx, rcx, rdx};
-next[currentReg] :={rax, rbx, rcx, rdx};
+init[currentReg] := {a, b, c, d};
+next[currentReg] := {a, b, c, d};
+
+init[memory] := Lambda(i). m0(i);
+next[memory] := Lambda(i).
+(* at each step, write "data" into the address "addr" *)
+	case
+		addr = next[pushInstr.rsp] & opcode = push : SRC; (* only change the content of "addr" *)
+		default : memory(i); (* content of other addr remains unchanged *)
+	esac;
 
 
-init[ss_limit] := 0;
+init[opcode] := {sysret, push, mov, pop, syscall};
+next[opcode] := {sysret, push, mov, pop, syscall};
+
+init[ss_limit] := ss_limit_i;
 next[ss_limit] := case
-    opcode = syscall : syscall.ss_limit;
-    opcode = sysret : sysret.ss_limit;
-    default = ss_limit
+    opcode = sysret : next[sysretInstr.ss_limit];
+    opcode = syscall : next[syscallInstr.ss_limit];
+    default : ss_limit;
 esac;
 
-init[ss_accessRights] := 0;
+init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    opcode = syscall : syscall.ss_accessRights;
-    opcode = sysret : sysret.ss_accessRights;
-    default = ss_accessRights
+    opcode = sysret : next[sysretInstr.ss_accessRights];
+    opcode = syscall : next[syscallInstr.ss_accessRights];
+    default : ss_accessRights;
 esac;
 
-init[rcx] := 0;
+init[rcx] := rcx_i;
 next[rcx] := case
-    opcode = mov & currentReg = rcx : mov.rcx;
-    default = rcx
+    opcode = mov & currentReg = c : next[movInstr.DEST];
+    opcode = pop & currentReg = c : next[popInstr.DEST];
+    opcode = syscall : next[syscallInstr.rcx];
+    default : rcx;
 esac;
 
-init[cs_accessRights] := 0;
+init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    opcode = syscall : syscall.cs_accessRights;
-    opcode = sysret : sysret.cs_accessRights;
-    default = cs_accessRights
+    opcode = sysret : next[sysretInstr.cs_accessRights];
+    opcode = syscall : next[syscallInstr.cs_accessRights];
+    default : cs_accessRights;
 esac;
 
-init[CR4] := 0;
-next[CR4] := case
-    default = CR4
-esac;
+init[CR4] := CR4_i;
+next[CR4] := CR4;
 
-init[rbx] := 0;
+
+init[rbx] := rbx_i;
 next[rbx] := case
-    opcode = mov & currentReg = rbx : mov.rbx;
-    default = rbx
+    opcode = mov & currentReg = b : next[movInstr.DEST];
+    opcode = pop & currentReg = b : next[popInstr.DEST];
+    default : rbx;
 esac;
 
-init[ss_base] := 0;
+init[ss_base] := ss_base_i;
 next[ss_base] := case
-    opcode = syscall : syscall.ss_base;
-    opcode = sysret : sysret.ss_base;
-    default = ss_base
+    opcode = sysret : next[sysretInstr.ss_base];
+    opcode = syscall : next[syscallInstr.ss_base];
+    default : ss_base;
 esac;
 
-init[cs_base] := 0;
+init[cs_base] := cs_base_i;
 next[cs_base] := case
-    opcode = syscall : syscall.cs_base;
-    opcode = sysret : sysret.cs_base;
-    default = cs_base
+    opcode = sysret : next[sysretInstr.cs_base];
+    opcode = syscall : next[syscallInstr.cs_base];
+    default : cs_base;
 esac;
 
-init[R11] := 0;
-next[R11] := case
-    opcode = syscall : syscall.R11;
-    default = R11
+init[r11] := r11_i;
+next[r11] := case
+    opcode = syscall : next[syscallInstr.r11];
+    default : r11;
 esac;
 
-init[EFER] := 0;
-next[EFER] := case
-    default = EFER
-esac;
+init[EFER] := EFER_i;
+next[EFER] := EFER;
 
-init[ss_selector] := 0;
+
+init[ss_selector] := ss_selector_i;
 next[ss_selector] := case
-    opcode = syscall : syscall.ss_selector;
-    opcode = sysret : sysret.ss_selector;
-    default = ss_selector
+    opcode = sysret : next[sysretInstr.ss_selector];
+    opcode = syscall : next[syscallInstr.ss_selector];
+    default : ss_selector;
 esac;
 
-init[RIP] := 0;
-next[RIP] := case
-    opcode = syscall : syscall.RIP;
-    opcode = sysret : sysret.RIP;
-    default = RIP
+init[rip] := rip_i;
+next[rip] := case
+    opcode = sysret : next[sysretInstr.rip];
+    opcode = syscall : next[syscallInstr.rip];
+    default : rip;
 esac;
 
-init[currentReg] := 0;
-next[currentReg] := case
-    default = currentReg
-esac;
-
-init[cs_limit] := 0;
-next[cs_limit] := case
-    opcode = syscall : syscall.cs_limit;
-    opcode = sysret : sysret.cs_limit;
-    default = cs_limit
-esac;
-
-init[rdx] := 0;
+init[rdx] := rdx_i;
 next[rdx] := case
-    opcode = mov & currentReg = rdx : mov.rdx;
-    default = rdx
+    opcode = mov & currentReg = d : next[movInstr.DEST];
+    opcode = pop & currentReg = d : next[popInstr.DEST];
+    default : rdx;
 esac;
 
-init[cs_selector] := 0;
+init[cs_limit] := cs_limit_i;
+next[cs_limit] := case
+    opcode = sysret : next[sysretInstr.cs_limit];
+    opcode = syscall : next[syscallInstr.cs_limit];
+    default : cs_limit;
+esac;
+
+init[cs_selector] := cs_selector_i;
 next[cs_selector] := case
-    opcode = syscall : syscall.cs_selector;
-    opcode = sysret : sysret.cs_selector;
-    default = cs_selector
+    opcode = sysret : next[sysretInstr.cs_selector];
+    opcode = syscall : next[syscallInstr.cs_selector];
+    default : cs_selector;
 esac;
 
-init[CR0] := 0;
-next[CR0] := case
-    default = CR0
+init[CR0] := CR0_i;
+next[CR0] := CR0;
+
+
+init[cpl] := cpl_i;
+next[cpl] := case
+    opcode = sysret : next[sysretInstr.cpl];
+    opcode = syscall : next[syscallInstr.cpl];
+    default : cpl;
 esac;
 
-init[CPL] := 0;
-next[CPL] := case
-    opcode = syscall : syscall.CPL;
-    opcode = sysret : sysret.CPL;
-    default = CPL
+init[rsp] := rsp_i;
+next[rsp] := case
+    opcode = push : next[pushInstr.rsp];
+    opcode = pop : next[popInstr.rsp];
+    default : rsp;
 esac;
 
-init[rflags] := 0;
+init[rflags] := rflags_i;
 next[rflags] := case
-    opcode = syscall : syscall.rflags;
-    opcode = sysret : sysret.rflags;
-    default = rflags
+    opcode = sysret : next[sysretInstr.rflags];
+    opcode = syscall : next[syscallInstr.rflags];
+    default : rflags;
 esac;
 
-init[rax] := 0;
+init[rax] := rax_i;
 next[rax] := case
-    opcode = mov & currentReg = rax : mov.rax;
-    default = rax
+    opcode = mov & currentReg = a : next[movInstr.DEST];
+    opcode = pop & currentReg = a : next[popInstr.DEST];
+    default : rax;
 esac;
 
 (*----- state/control.txt -----*)
@@ -538,20 +795,17 @@ EXEC
  *)
 
 (* Test the case statement for cs_selector *)
-(*
-instruction_opcode[0] := syscall;
-instruction_opcode[1] := sysret;
+
 simulate(1);
-decide(State.cs_selector = syscallInst.cs_selector);
+decide(State.cs_selector = syscallInstr.cs_selector);
 simulate(1);
-decide(State.cs_selector = sysretInst.cs_selector);
-*)
+decide(State.cs_selector = sysretInstr.cs_selector);
+
 
 (* Make sure exception_raised forces the next instruction to "exception" *)
 (*
 simulate(1);
 simulate(1);
-decide(State.prev_exception_raised => State.instruction_opcode = exception);
 *)
 
 (* Privileged exception handlers must run with ring0 stack.
@@ -560,12 +814,4 @@ decide(State.prev_exception_raised => State.instruction_opcode = exception);
 simulate(1);
 simulate(1);
 simulate(1);
-decide(
-    (
-     (State.IA32_EFER_LMA = 1) &
-     (State.IA32_EFER_SCE = 1) &
-     (State.cs_l = 1) &
-     (State.prev_prev_cpl = sys) &
-     (State.prev_instruction_opcode = exception))
-    => State.rsp = sys
-);
+

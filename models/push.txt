@@ -3,15 +3,19 @@ MODULE pushInstr
 INPUT
 
 State.rsp : BITVEC[64];
+State.memory : FUNC[1];
 
 VAR
+OperandSize : size;
+StackAddrSize : size;
 rsp : BITVEC[64];
 memory : BITVEC[64];
 
 CONST
 SRC: BITVEC[64];
-StackAddrSize: size;
-OperandSize: size;
+
+rsp_i : BITVEC[64];
+memory_i : BITVEC[64];
 
 DEFINE
 
@@ -55,7 +59,7 @@ memory0 := case
     OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : SRC;
     OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : SRC;
     OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : SRC;
-    default : State.memory;
+    default : State.memory(State.rsp);
 esac;
 
 memory_n := memory0;
@@ -63,9 +67,15 @@ memory_n := memory0;
 
 ASSIGN
 
-init[RSP] := 0;
-next[RSP] := RSP_n;
+init[OperandSize] := {bits64, bits32, bits16};
+next[OperandSize] := {bits64, bits32, bits16};
 
-init[memory] := 0;
+init[StackAddrSize] := {bits64, bits32, bits16};
+next[StackAddrSize] := {bits64, bits32, bits16};
+
+init[rsp] := rsp_i;
+next[rsp] := RSP_n;
+
+init[memory] := memory_i;
 next[memory] := memory_n;
 

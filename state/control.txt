@@ -23,18 +23,17 @@ EXEC
  *)
 
 (* Test the case statement for cs_selector *)
-(*
+
 simulate(1);
-decide(State.cs_selector = syscallInst.cs_selector);
+decide(State.cs_selector = syscallInstr.cs_selector);
 simulate(1);
-decide(State.cs_selector = sysretInst.cs_selector);
-*)
+decide(State.cs_selector = sysretInstr.cs_selector);
+
 
 (* Make sure exception_raised forces the next instruction to "exception" *)
 (*
 simulate(1);
 simulate(1);
-decide(State.prev_exception_raised => State.instruction_opcode = exception);
 *)
 
 (* Privileged exception handlers must run with ring0 stack.
