@@ -1,8 +1,32 @@
-IF StackAddrSize  = 32
-	THEN
-		IF OperandSize  =  32
-			THEN
-				DEST ← SS:ESP; (* Copy a doubleword *)
-				ESP ← ESP + 4;
-			ELSE (* OperandSize  = 16*)
-				DEST ← SS:ESP; (* Copy a word *)
+IF StackAddrSize = 32
+    THEN
+        IF OperandSize = 32
+            THEN
+                DEST ← SS:ESP; (* Copy a doubleword *)
+                ESP ← ESP + 4;
+            ELSE (* OperandSize  = 16*)
+                DEST ← SS:ESP; (* Copy a word *)
+                ESP ← ESP + 2;
+        FI;
+    ELSE IF StackAddrSize = 64
+        THEN
+            IF OperandSize = 64
+                THEN
+                    DEST ← SS:RSP; (* Copy quadword *)
+                    RSP ← RSP + 8;
+                ELSE (* OperandSize = 16*)
+                    DEST ← SS:RSP; (* Copy a word *)
+                    RSP ← RSP + 2;
+            FI;
+        FI;
+ELSE (*StackAddrSize = 16*)
+    THEN
+        IF OperandSize = 16
+            THEN
+                DEST ← SS:SP; (* Copy a word *)
+                SP ← SP + 2;
+            ELSE (* OperandSize = 32 *)
+                DEST ← SS:SP; (* Copy a doubleword *)
+                SP ← SP + 4;
+        FI;
+FI;

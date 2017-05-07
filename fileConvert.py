@@ -19,7 +19,7 @@ class fileConverter():
             return " and ".join(map(lambda x: self.englishWords(x), line.split(" and ")))
         elif " or " in line:
             return " or ".join(map(lambda x: self.englishWords(x), line.split(" or ")))
-        if " & " in line:
+        elif " & " in line:
             return " & ".join(map(lambda x: self.englishWords(x), line.split(" & ")))
         elif " | " in line:
             return " | ".join(map(lambda x: self.englishWords(x), line.split(" | ")))
@@ -44,14 +44,20 @@ class fileConverter():
                 line = re.sub(r'\b[0-9A-F_]+H', ("hex"+replace), line)
             r = re.search(r'\b[0-9A-F_]+H', line)
             line = line.replace(" = ", ' == ')
-            if "OperandSize" in line:
+            if "OperandSize =" in line:
                 line = line.split('OperandSize == ')[0] + "OperandSize == bits" + line.split('OperandSize == ')[1]
-            if "StackAddrSize" in line:
+            if "StackAddrSize =" in line:
                 line = line.split('StackAddrSize == ')[0] + "StackAddrSize == bits" + line.split('StackAddrSize == ')[1]
             line = line.replace("≥", ">=")
             if "VIF" not in line:
                 line = line.replace("IF ←", "rflags_if =")
             line = line.replace("←", "=")
+            if "= SS:" in line:
+                comment = ""
+                if "(*" in line:
+                    comment = "(* " + line.split("(*")[1]
+                    line = line.split("(*")[0]
+                line = line.replace("= SS:", "= memory[")[:-1] + "]; " + comment + "\n"
             line = line.replace("EFLAGS.", "")
             line = line.replace("≠", "!=")
             line = line.replace("-", "_")
@@ -103,13 +109,20 @@ class fileConverter():
         writeFile = open(outfile, 'w+')
         thenLoc = []
         for line in readFile:
+            if line == "\n":
+                continue
             if line.split("#")[0].strip() == "THEN":
                 thenLoc.append(self.findPrecedingNumSpaces(line))
                 continue
             if len(thenLoc) > 0 and self.findPrecedingNumSpaces(line) < thenLoc[-1]:
-                del thenLoc[-1]
+                while len(thenLoc) > 0 and self.findPrecedingNumSpaces(line) < thenLoc[-1]:
+                    del thenLoc[-1]
             if line.strip() in ["FI", "END", "FI)"]:
                 continue 
+            # print line
+            # print 4*len(thenLoc), thenLoc
+            # print line[4*len(thenLoc):]
+            # print
             writeFile.write(line[4*len(thenLoc):])
         return outfile
 

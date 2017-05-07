@@ -260,7 +260,7 @@ class astVisit(ast.NodeVisitor):
             comp = comp.replace(var, matchDict[var])
             dictMatch[matchDict[var]] = var
         # print comp
-        print self.printBool(str(simplify_logic(comp)))
+        # print self.printBool(str(simplify_logic(comp)))
         boo =  simplify_logic("~(" + comp + ")")
         neg = self.printBool(str(boo)) +  " "
         # print neg

@@ -24,8 +24,12 @@ CR0 : BITVEC[64];
 CR4 : BITVEC[64];
 currentReg : register;
 opcode : opcodes;
+memory : FUNC[1];
 
 CONST
+
+i : TERM;
+m0 : FUNC[1];
 
 DEFINE
 
@@ -33,3 +37,11 @@ ASSIGN
 
 init[currentReg] := {a, b, c, d};
 next[currentReg] := {a, b, c, d};
+
+init[memory] := Lambda(i). m0(i);
+next[memory] := Lambda(i).
+(* at each step, write "data" into the address "addr" *)
+	case
+		addr = push.rsp & opcode = push : push.memory; (* only change the content of "addr" *)
+		default : memory(i); (* content of other addr remains unchanged *)
+	esac;

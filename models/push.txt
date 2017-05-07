@@ -1,0 +1,71 @@
+MODULE pushInstr
+
+INPUT
+
+State.rsp : BITVEC[64];
+
+VAR
+rsp : BITVEC[64];
+memory : BITVEC[64];
+
+CONST
+SRC: BITVEC[64];
+StackAddrSize: size;
+OperandSize: size;
+
+DEFINE
+
+RSP := State.rsp;
+b0 := 0x0 # [0:0];
+SP := State.rsp # [15:0];
+b1 := 0x1 # [0:0];
+ESP := State.rsp # [31:0];
+SP0 := case
+    OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : SP - 4;
+    OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : SP - 2;
+    default : SP;
+esac;
+
+SP_n := SP0;
+
+RSP0 := case
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : RSP - 4;
+    OperandSize = bits64 & StackAddrSize = bits64 : RSP - 8;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : RSP - 2;
+    default : RSP;
+esac;
+
+RSP_n := RSP0;
+
+ESP0 := case
+    OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : ESP - 8;
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64) : ESP - 4;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64)) : ESP - 2;
+    default : ESP;
+esac;
+
+ESP_n := ESP0;
+
+memory0 := case
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64) : SRC;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64)) : SRC;
+    OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : SRC;
+    OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : SRC;
+    OperandSize = bits64 & StackAddrSize = bits64 : SRC;
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : SRC;
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : SRC;
+    OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : SRC;
+    default : State.memory;
+esac;
+
+memory_n := memory0;
+
+
+ASSIGN
+
+init[RSP] := 0;
+next[RSP] := RSP_n;
+
+init[memory] := 0;
+next[memory] := memory_n;
+

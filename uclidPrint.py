@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
-stateVars = {'rsp': '64','r11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'cpl': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'rcx': '64', 'rip': '64'}
+stateVars = {'memory' : '1', 'rsp': '64','r11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'cpl': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'rcx': '64', 'rip': '64'}
 rflagsDict ={'CF': 'State.rflags # [0:0]', 'PF': 'State.rflags # [1:1]', 'AF': 'State.rflags # [4:4]', 'ZF': 'State.rflags # [6:6]', 'SF': 'State.rflags # [7:7]', 'TF': 'State.rflags # [8:8]', 'IF': 'State.rflags # [9:9]', 'DF': 'State.rflags # [10:10]', 'OF': 'State.rflags # [11:11]', 'IOPL': 'State.rflags # [13:12]', 'NT': 'State.rflags # [14:14]', 'RF': 'State.rflags # [16:16]', 'VM': 'State.rflags # [17:17]', 'AC': 'State.rflags # [18:18]', 'VIF': 'State.rflags # [19:19]', 'VIP': 'State.rflags # [20:20]', 'ID': 'State.rflags # [21:21]'}
 CR0Dict = {'PE': 'State.CR0 # [0:0]', 'MP': 'State.CR0 # [1:1]', 'EM': 'State.CR0 # [2:2]', 'TS': 'State.CR0 # [3:3]', 'ET': 'State.CR0 # [4:4]', 'NE': 'State.CR0 # [5:5]', 'WP': 'State.CR0 # [16:16]', 'AM': 'State.CR0 # [18:18]','NW': 'State.CR0 # [29:29]', 'CD': 'State.CR0 # [30:30]', 'PG': 'State.CR0 # [31:31]'}
 CR4Dict = {'VME': 'State.CR4 # [0:0]', 'PVI': 'State.CR4 # [1:1]', 'TSD': 'State.CR4 # [2:2]', 'DE': 'State.CR4 # [3:3]', 'PSE': 'State.CR4 # [4:4]', 'PAE': 'State.CR4 # [5:5]', 'MCE': 'State.CR4 # [6:6]', 'PGE': 'State.CR4 # [7:7]','PCE': 'State.CR4 # [8:8]', 'OSFXSR': 'State.CR4 # [9:9]', 'OSXMMEXCPT': 'State.CR4 # [10:10]', 'VMXE': 'State.CR4 # [13:13]', 'SMXE': 'State.CR4 # [14:14]', 'FSGSBASE': 'State.CR4 # [16:16]', 'PCIDE': 'State.CR4 # [17:17]', 'OSXSAVE': 'State.CR4 # [18:18]', 'SMEP': 'State.CR4 # [20:20]', 'SMAP': 'State.CR4 # [21:21]', 'PKE': 'State.CR4 # [22:22]'}
@@ -30,6 +30,12 @@ class modulePrint():
             line = re.sub(r'hex?([0-9]*[A-F]*)*', "", line)
             line = re.sub(r'Memory\[(.)*\]', "", line)
             line = line.replace("exitStatus", "")
+            line = line.replace("bits32", "")
+            line = line.replace("bits64", "")
+            line = line.replace("bits16", "")
+            line = line.replace("[SP]", "")
+            line = line.replace("[RSP]", "")
+            line = line.replace("[ESP]", "")
             line = line.replace("GP", "")
             line = line.replace("!", "")
             line = line.replace("-", "")
@@ -58,6 +64,8 @@ class modulePrint():
                 word = word.strip()
                 if word == "if":
                     continue
+                elif word == "memory":
+                    self.inputs.add("memory")
                 elif word.startswith("cs_") or word.startswith("CS.") or word in cs_accessRightsDict:
                     if word not in cs_accessRightsDict:
                         word = word[3:].upper()
@@ -115,7 +123,10 @@ class modulePrint():
         print "INPUT"
         print
         for key in self.inputs:
-            print "State." + str(key) + " : BITVEC[" + str(stateVars[key]) +"];"
+            if key == 'memory':
+                print "State." + str(key) + " : FUNC[" + str(stateVars[key]) +"];"
+            else:
+                print "State." + str(key) + " : BITVEC[" + str(stateVars[key]) +"];"
 
     def printDefine(self):
         print
