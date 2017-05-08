@@ -25,7 +25,8 @@ class fileConverter():
             return " | ".join(map(lambda x: self.englishWords(x), line.split(" | ")))
         else:
             if "=" not in line and ">" not in line and "<" not in line:
-                return line.strip().replace(" ", "_")
+                line = line.strip().replace(" ", "_")
+                return line.replace("RCX_is_not_canonical", "isCanonical")
             return line
 
 

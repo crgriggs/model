@@ -117,8 +117,8 @@ class modulePrint():
                     self.defines.add(word + " := State.r" + word[1].lower() + "x # [15:0];" )
                 elif word in ['StackAddrSize', 'OperandSize']:
                     self.cvd[word] = [['{bits64, bits32, bits16}'], None, None]
-                elif word == "RCX_is_not_canonical":
-                    self.inputs.add("isCanonical")
+                elif word == "isCanonical":
+                    self.inputs.add(word)
                 else:
                     self.constants.add(word)
 
@@ -130,7 +130,7 @@ class modulePrint():
             if key == 'memory':
                 print "State." + str(key) + " : FUNC[" + str(stateVars[key]) +"];"
             elif key == "isCanonical":
-                print key + " : PRED[1];"
+                print key + " : TRUTH;"
             else:
                 print "State." + str(key) + " : BITVEC[" + str(stateVars[key]) +"];"
 

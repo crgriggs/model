@@ -14,7 +14,7 @@ State.cs_base : BITVEC[32];
 State.rip : BITVEC[64];
 State.cs_selector : BITVEC[16];
 State.cs_limit : BITVEC[20];
-isCanonical : PRED[1];
+isCanonical : TRUTH;
 State.rcx : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
@@ -96,7 +96,7 @@ esac;
 CS.D_n := CS.D0;
 
 exitStatus0 := case
-    CPL != 0 | RCX_is_not_canonical : GP;
+    CPL != 0 | isCanonical : GP;
     CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
     default : Normal;
 esac;
