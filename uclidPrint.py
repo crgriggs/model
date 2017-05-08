@@ -41,14 +41,86 @@ ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
 ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
 """
 
+    def correctBits(self, numBits, word):
+        if numBits == "1":
+            if word == "0":
+                return "b0"
+            return "b1"
+        if numBits == "2":
+            if word == "0":
+                return "(b0)@(b0)"
+            elif word == "1":
+                return "(b0)@(b1)"
+            elif word == "2":
+                return "(b1)@(b0)"
+            else:
+                return "(b1)@(b1)"
+        numZeros = (int(numBits) - len(word) * 4)/4
+        return "0"*numZeros + word 
+
     def cleanRHS(self, var, rhs):
+        numBits = 0
         if var[:-1] in stateVars:
             var = var[:-1]
-        if var not in stateVars:
+        elif var.lower() in stateVars:
+            var = var.lower()
+        elif var.replace(".", "_").lower() in stateVars:
+            var = var.replace(".", "_").lower()
+        elif var[3:] in cs_accessRightsDict:
+            var = var[3:]
+            if var == "Type":
+                numBits = "4"
+            elif var == "DPL":
+                numBits = "2"
+            else:
+                numBits = "1"
+        elif var not in stateVars:
             return rhs
-        numBits = stateVars[var]
+        if numBits == 0:
+            numBits = stateVars[var]
+        hexDict = {"0" : "ucl_hex_0", "1" : "ucl_hex_1", "2" : "ucl_hex_2", "3" : "ucl_hex_3", "4" : "ucl_hex_4", "5" : "ucl_hex_5", "6" : "ucl_hex_6", "7" : "ucl_hex_7", "8" : "ucl_hex_8", "9" : "ucl_hex_9", "A" : "ucl_hex_a", "B" : "ucl_hex_b", "C" : "ucl_hex_c", "D" : "ucl_hex_d", "E" : "ucl_hex_e", "F" : "ucl_hex_f"}
         rhs = rhs.replace("+", "+_" + numBits).replace("-", "-_" + numBits).replace("*", "*_" + numBits).replace("/", "/_" + numBits)
-        return rhs
+        temp = []
+        bitSelect = False
+        for word in rhs.split():
+            if word in ["#"]:
+                temp.pop(-1)
+                temp.append(word)
+                bitSelect = True
+                continue
+            if word[:1] in ["+", "-", "*", "/"]:
+                temp.append(word)
+                continue
+            if word in ["&&", "||", "|", "&", "(", ")", "@"]:
+                temp.append(word)
+                continue
+            if not bitSelect:
+                temp.append("(")
+            bitSelect = False
+            if word.isdigit() and int(numBits) > 3:
+                word = hex(int(word))
+                word = word.upper().replace("0X", "hex")
+            if word.startswith("hex"):
+                word = self.correctBits(numBits, word[3:])
+                hexTemp = []
+                for char in word:
+                    hexTemp.append("(" + hexDict[char] + ")")
+                temp.append(" @ ".join(hexTemp))
+            elif word in hexDict:
+                word = self.correctBits(numBits, word)
+                if word not in hexDict and int(numBits) > 3:
+                    hexTemp = []
+                    for char in word:
+                        hexTemp.append("(" + hexDict[char] + ")")
+                    temp.append(" @ ".join(hexTemp))
+                elif word not in hexDict and int(numBits) < 4:
+                    temp.append(word)
+                else:
+                    temp.append(hexDict[word])
+            else:
+                temp.append(word)
+            temp.append(")")
+        return " ".join(temp)
 
     def findInputs(self):
         file = open(self.filename)
@@ -174,7 +246,8 @@ ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
             print define
             alreadyDef.add(define.split(" := ")[0])
         for define in self.CS_SS:
-            print define  + ";"
+            rhs = self.cleanRHS(define.split(" := ")[0], define.split(" := ")[1])
+            print define.split(" := ")[0].strip()  + " := " + rhs
             define = define.split(" := ")[0].strip()
             if define[0:3] == "CS.":
                 cs.add(define[3:])
@@ -197,8 +270,8 @@ ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
                 # print "group: " + str(group)
                 temp = ""
                 for inputs in group:
-                    # print "input: " + str(inputs)
                     #the first needs to set up the case statement
+                    inputs[0] = self.cleanRHS(var, inputs[0])
                     if inputs[0] != None and bool(re.search('[A-Za-z0-9_]+[ ]*[[0-9]+:[0-9]+]', inputs[0])):
                         word = inputs[0].split("[")
                         inputs[0] = word[0] + " # [" + word[1]
@@ -380,7 +453,7 @@ ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
                 print "next[" + lhs + "] := case"
                 for rhsCondCombo in rhsCond:
                     rhs = self.cleanRHS(lhs, rhsCondCombo[0])
-                    print "    " + rhsCondCombo[1] + " : " + rhsCondCombo[0] + ";"
+                    print "    " + rhsCondCombo[1] + " : " + rhs + ";"
                 print "    " + "default : " + default + ";"
                 print "esac;"
                 print
@@ -398,4 +471,4 @@ ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
         self.printVar()
         self.printConsts()
         self.printDefine()
-        self.printAssign()
+        # self.printAssign()

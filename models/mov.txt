@@ -13,11 +13,22 @@ DEST_i : BITVEC[64];
 
 DEFINE
 
-b0 := 0x0 # [0:0];
-b1 := 0x1 # [0:0];
-
-ASSIGN
-
-init[DEST] := DEST_i;
-next[DEST] := SRC;
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
 

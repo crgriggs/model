@@ -55,118 +55,48 @@ rflags_i : BITVEC[64];
 
 DEFINE
 
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+
 RFLAGS := State.rflags;
-b0 := 0x0 # [0:0];
 RCX := State.rcx;
 IA32_EFER.SCE := State.EFER # [0:0];
 CS.L := State.cs_accessRights # [2:2];
-b1 := 0x1 # [0:0];
 R11 := State.r11;
 CPL := State.cpl;
 IA32_EFER.LMA := State.EFER # [10:10];
 RIP := State.rip;
-CS.G := 1;
-SS.DPL := 0;
-SS.G := 1;
-SS.P := 1;
-CS.P := 1;
-CS.L := 1;
-CS.Type := 11;
-CS.D := 0;
-SS.S := 1;
-CS.DPL := 0;
-SS.Type := 3;
-SS.B := 1;
-CS.S := 1;
+CS.G := ( b1 )
+SS.DPL := ( (b0)@(b0) )
+SS.G := ( b1 )
+SS.P := ( b1 )
+CS.P := ( b1 )
+CS.L := ( b1 )
+CS.Type := ( (ucl_hex_b) )
+CS.D := ( b0 )
+SS.S := ( b1 )
+CS.DPL := ( (b0)@(b0) )
+SS.Type := ( (ucl_hex_3) )
+SS.B := ( b1 )
+CS.S := ( b1 )
 CS.AVL := State.cs_accessRights # [3:3];
 CS.B := State.cs_accessRights # [1:1];
 SS.AVL := State.ss_accessRights # [3:3];
 SS.D := State.ss_accessRights # [1:1];
 SS.L := State.ss_accessRights # [2:2];
-
-ASSIGN
-
-init[ss_base] := ss_base_i;
-next[ss_base] := case
-    next[exitStatus] != UD : 0;
-    default : State.ss_base;
-esac;
-
-init[exitStatus] := Normal;
-next[exitStatus] := case
-    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
-    default : Normal;
-esac;
-
-init[rcx] := rcx_i;
-next[rcx] := case
-    next[exitStatus] != UD : RIP;
-    default : State.rcx;
-esac;
-
-init[r11] := r11_i;
-next[r11] := case
-    next[exitStatus] != UD : rflags_rfLAGS;
-    default : State.r11;
-esac;
-
-init[ss_limit] := ss_limit_i;
-next[ss_limit] := case
-    next[exitStatus] != UD : 0xFFFFF;
-    default : State.ss_limit;
-esac;
-
-init[cs_selector] := cs_selector_i;
-next[cs_selector] := case
-    next[exitStatus] != UD : IA32_STAR # [47:32] && 0xFFFC;
-    default : State.cs_selector;
-esac;
-
-init[ss_accessRights] := ss_accessRights_i;
-next[ss_accessRights] := case
-    next[exitStatus] != UD : ( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
-    default : State.ss_accessRights;
-esac;
-
-init[rip] := rip_i;
-next[rip] := case
-    next[exitStatus] != UD : IA32_LSTAR;
-    default : State.rip;
-esac;
-
-init[cs_accessRights] := cs_accessRights_i;
-next[cs_accessRights] := case
-    next[exitStatus] != UD : ( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G );
-    default : State.cs_accessRights;
-esac;
-
-init[cs_base] := cs_base_i;
-next[cs_base] := case
-    next[exitStatus] != UD : 0;
-    default : State.cs_base;
-esac;
-
-init[cs_limit] := cs_limit_i;
-next[cs_limit] := case
-    next[exitStatus] != UD : 0xFFFFF;
-    default : State.cs_limit;
-esac;
-
-init[cpl] := cpl_i;
-next[cpl] := case
-    next[exitStatus] != UD : 0;
-    default : State.cpl;
-esac;
-
-init[ss_selector] := ss_selector_i;
-next[ss_selector] := case
-    next[exitStatus] != UD : IA32_STAR # [47:32] + 8;
-    default : State.ss_selector;
-esac;
-
-init[rflags] := rflags_i;
-next[rflags] := case
-    next[exitStatus] != UD : rflags_rfLAGS && !!IA32_FMASK;
-    default : State.rflags;
-esac;
-

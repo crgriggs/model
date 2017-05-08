@@ -6,7 +6,7 @@ typedef register : enum {a, b, c, d};
 typedef size : enum {bits64, bits32, bits16};
 
 CONST
-(*----- ./models/sysret.txt -----*)
+(*----- ./models//sysret.txt -----*)
 MODULE sysretInstr
 
 INPUT
@@ -59,28 +59,45 @@ rflags_i : BITVEC[64];
 
 DEFINE
 
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+
 RFLAGS := State.rflags;
-b0 := 0x0 # [0:0];
 RCX := State.rcx;
 IA32_EFER.SCE := State.EFER # [0:0];
 CS.L := State.cs_accessRights # [2:2];
-b1 := 0x1 # [0:0];
 R11 := State.r11;
 ECX := State.rcx # [31:0];
 CPL := State.cpl;
 IA32_EFER.LMA := State.EFER # [10:10];
 RIP := State.rip;
-CS.G := 1;
-SS.DPL := 3;
-SS.G := 1;
-SS.P := 1;
-CS.P := 1;
-CS.Type := 11;
-SS.S := 1;
-CS.DPL := 3;
-SS.Type := 3;
-SS.B := 1;
-CS.S := 1;
+CS.G := ( b1 )
+SS.DPL := ( (b1)@(b1) )
+SS.G := ( b1 )
+SS.P := ( b1 )
+CS.P := ( b1 )
+CS.Type := ( (ucl_hex_b) )
+SS.S := ( b1 )
+CS.DPL := ( (b1)@(b1) )
+SS.Type := ( (ucl_hex_3) )
+SS.B := ( b1 )
+CS.S := ( b1 )
 CS.AVL := State.cs_accessRights # [3:3];
 CS.B := State.cs_accessRights # [1:1];
 CS.D := State.cs_accessRights # [1:1];
@@ -89,16 +106,16 @@ SS.AVL := State.ss_accessRights # [3:3];
 SS.D := State.ss_accessRights # [1:1];
 SS.L := State.ss_accessRights # [2:2];
 CS.L0 := case
-    operand_size_is_64_bit : 0;
-    operand_size_is_64_bit : 1;
+    operand_size_is_64_bit : ( b0 );
+    operand_size_is_64_bit : ( b1 );
     default : State.cs_accessRights # [2:2];
 esac;
 
 CS.L_n := CS.L0;
 
 CS.D0 := case
-    operand_size_is_64_bit : 1;
-    operand_size_is_64_bit : 0;
+    operand_size_is_64_bit : ( b1 );
+    operand_size_is_64_bit : ( b0 );
     default : State.cs_accessRights # [1:1];
 esac;
 
@@ -113,95 +130,23 @@ esac;
 exitStatus_n := exitStatus0;
 
 RIP0 := case
-    operand_size_is_64_bit : ECX;
-    operand_size_is_64_bit : RCX;
+    operand_size_is_64_bit : ( ECX );
+    operand_size_is_64_bit : ( RCX );
     default : RIP;
 esac;
 
 RIP_n := RIP0;
 
 CS.Selector0 := case
-    operand_size_is_64_bit : IA32_STAR # [63:48];
-    operand_size_is_64_bit : IA32_STAR # [63:48] + 16;
+    operand_size_is_64_bit : ( IA32_STAR # [63:48] );
+    operand_size_is_64_bit : ( IA32_STAR # [63:48] ) +_16 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_1) @ (ucl_hex_0) );
     default : State.cs_selector;
 esac;
 
 CS.Selector_n := CS.Selector0;
 
 
-ASSIGN
-
-init[ss_base] := ss_base_i;
-next[ss_base] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 0;
-    default : State.ss_base;
-esac;
-
-init[exitStatus] := Normal;
-next[exitStatus] := exitStatus_n;
-
-init[cpl] := cpl_i;
-next[cpl] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 3;
-    default : State.cpl;
-esac;
-
-init[ss_limit] := ss_limit_i;
-next[ss_limit] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 0xFFFFF;
-    default : State.ss_limit;
-esac;
-
-init[cs_selector] := cs_selector_i;
-next[cs_selector] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : CS.Selector_n || 3;
-    default : State.cs_selector;
-esac;
-
-init[ss_accessRights] := ss_accessRights_i;
-next[ss_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
-    default : State.ss_accessRights;
-esac;
-
-init[rip] := rip_i;
-next[rip] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : RIP_n;
-    default : State.rip;
-esac;
-
-init[cs_accessRights] := cs_accessRights_i;
-next[cs_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L_n ) @ ( CS.D_n ) @ ( CS.B ) @ ( CS.G );
-    default : State.cs_accessRights;
-esac;
-
-init[cs_base] := cs_base_i;
-next[cs_base] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 0;
-    default : State.cs_base;
-esac;
-
-init[cs_limit] := cs_limit_i;
-next[cs_limit] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : 0xFFFFF;
-    default : State.cs_limit;
-esac;
-
-init[ss_selector] := ss_selector_i;
-next[ss_selector] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : IA32_STAR # [63:48] + 8 || 3;
-    default : State.ss_selector;
-esac;
-
-init[rflags] := rflags_i;
-next[rflags] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : R11 && 0x3C7FD7 || 2;
-    default : State.rflags;
-esac;
-
-
-(*----- ./models/push.txt -----*)
+(*----- ./models//push.txt -----*)
 MODULE pushInstr
 
 INPUT
@@ -223,11 +168,28 @@ memory_i : BITVEC[64];
 
 DEFINE
 
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+
 RSP := State.rsp;
-b0 := 0x0 # [0:0];
-SP := State.rsp # [15:0];
-b1 := 0x1 # [0:0];
 ESP := State.rsp # [31:0];
+SP := State.rsp # [15:0];
 SP0 := case
     OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : SP - 4;
     OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : SP - 2;
@@ -237,9 +199,9 @@ esac;
 SP_n := SP0;
 
 RSP0 := case
-    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : RSP - 4;
-    OperandSize = bits64 & StackAddrSize = bits64 : RSP - 8;
-    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : RSP - 2;
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : ( RSP ) -_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_4) );
+    OperandSize = bits64 & StackAddrSize = bits64 : ( RSP ) -_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_8) );
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : ( RSP ) -_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_2) );
     default : RSP;
 esac;
 
@@ -255,36 +217,21 @@ esac;
 ESP_n := ESP0;
 
 memory0 := case
-    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64) : SRC;
-    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64)) : SRC;
-    OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : SRC;
-    OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : SRC;
-    OperandSize = bits64 & StackAddrSize = bits64 : SRC;
-    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : SRC;
-    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : SRC;
-    OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : SRC;
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64) : ( SRC );
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits32 & StackAddrSize != bits64)) : ( SRC );
+    OperandSize = bits32 & StackAddrSize != bits32 & (StackAddrSize != bits64) : ( SRC );
+    OperandSize != bits32 & (StackAddrSize != bits32 & (StackAddrSize != bits64)) : ( SRC );
+    OperandSize = bits64 & StackAddrSize = bits64 : ( SRC );
+    OperandSize = bits32 & OperandSize != bits64 & (StackAddrSize = bits64) : ( SRC );
+    OperandSize != bits32 & (OperandSize != bits64 & (StackAddrSize = bits64)) : ( SRC );
+    OperandSize = bits64 & StackAddrSize = bits32 & StackAddrSize != bits64 : ( SRC );
     default : State.memory(State.rsp);
 esac;
 
 memory_n := memory0;
 
 
-ASSIGN
-
-init[OperandSize] := {bits64, bits32, bits16};
-next[OperandSize] := {bits64, bits32, bits16};
-
-init[StackAddrSize] := {bits64, bits32, bits16};
-next[StackAddrSize] := {bits64, bits32, bits16};
-
-init[rsp] := rsp_i;
-next[rsp] := RSP_n;
-
-init[memory] := memory_i;
-next[memory] := memory_n;
-
-
-(*----- ./models/mov.txt -----*)
+(*----- ./models//mov.txt -----*)
 MODULE movInstr
 
 INPUT
@@ -300,16 +247,27 @@ DEST_i : BITVEC[64];
 
 DEFINE
 
-b0 := 0x0 # [0:0];
-b1 := 0x1 # [0:0];
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
 
-ASSIGN
 
-init[DEST] := DEST_i;
-next[DEST] := SRC;
-
-
-(*----- ./models/pop.txt -----*)
+(*----- ./models//pop.txt -----*)
 MODULE popInstr
 
 INPUT
@@ -330,11 +288,28 @@ rsp_i : BITVEC[64];
 
 DEFINE
 
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+
 RSP := State.rsp;
-b0 := 0x0 # [0:0];
-SP := State.rsp # [15:0];
-b1 := 0x1 # [0:0];
 ESP := State.rsp # [31:0];
+SP := State.rsp # [15:0];
 DEST0 := case
     OperandSize != bits32 & (StackAddrSize = bits32) : State.memory(ESP);
     OperandSize = bits32 & StackAddrSize = bits32 : State.memory(ESP);
@@ -356,8 +331,8 @@ esac;
 SP_n := SP0;
 
 RSP0 := case
-    OperandSize != bits64 & (StackAddrSize = bits64 & StackAddrSize != bits32) : RSP + 2;
-    OperandSize = bits64 & StackAddrSize = bits64 & StackAddrSize != bits32 : RSP + 8;
+    OperandSize != bits64 & (StackAddrSize = bits64 & StackAddrSize != bits32) : ( RSP ) +_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_2) );
+    OperandSize = bits64 & StackAddrSize = bits64 & StackAddrSize != bits32 : ( RSP ) +_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_8) );
     default : RSP;
 esac;
 
@@ -372,22 +347,7 @@ esac;
 ESP_n := ESP0;
 
 
-ASSIGN
-
-init[DEST] := DEST_i;
-next[DEST] := DEST_n;
-
-init[StackAddrSize] := {bits64, bits32, bits16};
-next[StackAddrSize] := {bits64, bits32, bits16};
-
-init[rsp] := rsp_i;
-next[rsp] := RSP_n;
-
-init[OperandSize] := {bits64, bits32, bits16};
-next[OperandSize] := {bits64, bits32, bits16};
-
-
-(*----- ./models/syscall.txt -----*)
+(*----- ./models//syscall.txt -----*)
 MODULE syscallInstr
 
 INPUT
@@ -445,121 +405,51 @@ rflags_i : BITVEC[64];
 
 DEFINE
 
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+
 RFLAGS := State.rflags;
-b0 := 0x0 # [0:0];
 RCX := State.rcx;
 IA32_EFER.SCE := State.EFER # [0:0];
 CS.L := State.cs_accessRights # [2:2];
-b1 := 0x1 # [0:0];
 R11 := State.r11;
 CPL := State.cpl;
 IA32_EFER.LMA := State.EFER # [10:10];
 RIP := State.rip;
-CS.G := 1;
-SS.DPL := 0;
-SS.G := 1;
-SS.P := 1;
-CS.P := 1;
-CS.L := 1;
-CS.Type := 11;
-CS.D := 0;
-SS.S := 1;
-CS.DPL := 0;
-SS.Type := 3;
-SS.B := 1;
-CS.S := 1;
+CS.G := ( b1 )
+SS.DPL := ( (b0)@(b0) )
+SS.G := ( b1 )
+SS.P := ( b1 )
+CS.P := ( b1 )
+CS.L := ( b1 )
+CS.Type := ( (ucl_hex_b) )
+CS.D := ( b0 )
+SS.S := ( b1 )
+CS.DPL := ( (b0)@(b0) )
+SS.Type := ( (ucl_hex_3) )
+SS.B := ( b1 )
+CS.S := ( b1 )
 CS.AVL := State.cs_accessRights # [3:3];
 CS.B := State.cs_accessRights # [1:1];
 SS.AVL := State.ss_accessRights # [3:3];
 SS.D := State.ss_accessRights # [1:1];
 SS.L := State.ss_accessRights # [2:2];
-
-ASSIGN
-
-init[ss_base] := ss_base_i;
-next[ss_base] := case
-    next[exitStatus] != UD : 0;
-    default : State.ss_base;
-esac;
-
-init[exitStatus] := Normal;
-next[exitStatus] := case
-    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
-    default : Normal;
-esac;
-
-init[rcx] := rcx_i;
-next[rcx] := case
-    next[exitStatus] != UD : RIP;
-    default : State.rcx;
-esac;
-
-init[r11] := r11_i;
-next[r11] := case
-    next[exitStatus] != UD : rflags_rfLAGS;
-    default : State.r11;
-esac;
-
-init[ss_limit] := ss_limit_i;
-next[ss_limit] := case
-    next[exitStatus] != UD : 0xFFFFF;
-    default : State.ss_limit;
-esac;
-
-init[cs_selector] := cs_selector_i;
-next[cs_selector] := case
-    next[exitStatus] != UD : IA32_STAR # [47:32] && 0xFFFC;
-    default : State.cs_selector;
-esac;
-
-init[ss_accessRights] := ss_accessRights_i;
-next[ss_accessRights] := case
-    next[exitStatus] != UD : ( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G );
-    default : State.ss_accessRights;
-esac;
-
-init[rip] := rip_i;
-next[rip] := case
-    next[exitStatus] != UD : IA32_LSTAR;
-    default : State.rip;
-esac;
-
-init[cs_accessRights] := cs_accessRights_i;
-next[cs_accessRights] := case
-    next[exitStatus] != UD : ( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G );
-    default : State.cs_accessRights;
-esac;
-
-init[cs_base] := cs_base_i;
-next[cs_base] := case
-    next[exitStatus] != UD : 0;
-    default : State.cs_base;
-esac;
-
-init[cs_limit] := cs_limit_i;
-next[cs_limit] := case
-    next[exitStatus] != UD : 0xFFFFF;
-    default : State.cs_limit;
-esac;
-
-init[cpl] := cpl_i;
-next[cpl] := case
-    next[exitStatus] != UD : 0;
-    default : State.cpl;
-esac;
-
-init[ss_selector] := ss_selector_i;
-next[ss_selector] := case
-    next[exitStatus] != UD : IA32_STAR # [47:32] + 8;
-    default : State.ss_selector;
-esac;
-
-init[rflags] := rflags_i;
-next[rflags] := case
-    next[exitStatus] != UD : rflags_rfLAGS && !!IA32_FMASK;
-    default : State.rflags;
-esac;
-
 
 (*----- state/vars.txt -----*)
 MODULE State

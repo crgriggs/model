@@ -18,11 +18,28 @@ rsp_i : BITVEC[64];
 
 DEFINE
 
+zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+
 RSP := State.rsp;
-b0 := 0x0 # [0:0];
-SP := State.rsp # [15:0];
-b1 := 0x1 # [0:0];
 ESP := State.rsp # [31:0];
+SP := State.rsp # [15:0];
 DEST0 := case
     OperandSize != bits32 & (StackAddrSize = bits32) : State.memory(ESP);
     OperandSize = bits32 & StackAddrSize = bits32 : State.memory(ESP);
@@ -44,8 +61,8 @@ esac;
 SP_n := SP0;
 
 RSP0 := case
-    OperandSize != bits64 & (StackAddrSize = bits64 & StackAddrSize != bits32) : RSP + 2;
-    OperandSize = bits64 & StackAddrSize = bits64 & StackAddrSize != bits32 : RSP + 8;
+    OperandSize != bits64 & (StackAddrSize = bits64 & StackAddrSize != bits32) : ( RSP ) +_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_2) );
+    OperandSize = bits64 & StackAddrSize = bits64 & StackAddrSize != bits32 : ( RSP ) +_64 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_8) );
     default : RSP;
 esac;
 
@@ -58,19 +75,4 @@ ESP0 := case
 esac;
 
 ESP_n := ESP0;
-
-
-ASSIGN
-
-init[DEST] := DEST_i;
-next[DEST] := DEST_n;
-
-init[StackAddrSize] := {bits64, bits32, bits16};
-next[StackAddrSize] := {bits64, bits32, bits16};
-
-init[rsp] := rsp_i;
-next[rsp] := RSP_n;
-
-init[OperandSize] := {bits64, bits32, bits16};
-next[OperandSize] := {bits64, bits32, bits16};
 
