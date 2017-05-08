@@ -1,1 +1,12 @@
 *.pyc
+StateModel.cnf
+StateModel.cnf_log
+StateModel.cnf_minisat
+StateModel.cnf_result
+StateModel.map
+StateModel.tmp
+UCLID_RESULTS_FILE
+deb.txt
+g_0.dty
+g_1.dty
+g_2.dty
