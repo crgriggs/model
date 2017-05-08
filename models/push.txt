@@ -19,24 +19,24 @@ memory_i : BITVEC[64];
 
 DEFINE
 
-zero_bit := ( 0 # [0:0] );
-one_bit := ( 1 # [0:0] );
-ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
-ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
-ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
-ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
-ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
-ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
-ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
-ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
-ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
-ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
-ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
-ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
-ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
-ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
-ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
-ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+b0 := ( 0 # [0:0] );
+b1 := ( 1 # [0:0] );
+ucl_hex_0 := ( b0 @ b0 @ b0 @ b0);
+ucl_hex_1 := ( b0 @ b0 @ b0 @ b1);
+ucl_hex_2 := ( b0 @ b0 @ b1 @ b0);
+ucl_hex_3 := ( b0 @ b0 @ b1 @ b1);
+ucl_hex_4 := ( b0 @ b1 @ b0 @ b0);
+ucl_hex_5 := ( b0 @ b1 @ b0 @ b1);
+ucl_hex_6 := ( b0 @ b1 @ b1 @ b0);
+ucl_hex_7 := ( b0 @ b1 @ b1 @ b1);
+ucl_hex_8 := ( b1 @ b0 @ b0 @ b0);
+ucl_hex_9 := ( b1 @ b0 @ b0 @ b1);
+ucl_hex_a := ( b1 @ b0 @ b1 @ b0);
+ucl_hex_b := ( b1 @ b0 @ b1 @ b1);
+ucl_hex_c := ( b1 @ b1 @ b0 @ b0);
+ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
+ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
+ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
 
 RSP := State.rsp;
 ESP := State.rsp # [31:0];
