@@ -11,19 +11,25 @@ EXTVAR
 
 
 STOREVAR
+
 sysret_rcx : BITVEC[64]; (* RCX before sysret/pop *)
 syscall_rcx : BITVEC[64]; (* RCX after syscall/push *)
 syscall_rsp : BITVEC[64]; (*RSP before syscall*)
 sysret_rsp : BITVEC[64]; (*RSP after sysret*)
 sysret_cpl : BITVEC[64]; (*CPL after sysret*)
+
 CONST
+
 isCanonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
 isUserControlled: PRED[1]; (* Predicate to decide whether stack is user controlled *)
+
 DEFINE
+
 setIsCanonical : case
 	isCanonical(sysret_rcx) : True;
 	default : false;
 esac;
+
 (* Statements begin *)
 EXEC
 (*----------------------------------------------------------------*)
