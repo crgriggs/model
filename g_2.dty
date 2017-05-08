@@ -1,2 +1,0 @@
-digraph Combined {
- g[label = "Combined", shape = plaintext]
