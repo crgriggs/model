@@ -78,17 +78,17 @@ ECX := State.rcx # [31:0];
 CPL := State.cpl;
 IA32_EFER.LMA := State.EFER # [10:10];
 RIP := State.rip;
-CS.G := ( b1 )
-SS.DPL := ( (b1)@(b1) )
-SS.G := ( b1 )
-SS.P := ( b1 )
-CS.P := ( b1 )
-CS.Type := ( (ucl_hex_b) )
-SS.S := ( b1 )
-CS.DPL := ( (b1)@(b1) )
-SS.Type := ( (ucl_hex_3) )
-SS.B := ( b1 )
-CS.S := ( b1 )
+CS.G := ( b1 );
+SS.DPL := ( (b1)@(b1) );
+SS.G := ( b1 );
+SS.P := ( b1 );
+CS.P := ( b1 );
+CS.Type := ( (ucl_hex_b) );
+SS.S := ( b1 );
+CS.DPL := ( (b1)@(b1) );
+SS.Type := ( (ucl_hex_3) );
+SS.B := ( b1 );
+CS.S := ( b1 );
 CS.AVL := State.cs_accessRights # [3:3];
 CS.B := State.cs_accessRights # [1:1];
 CS.D := State.cs_accessRights # [1:1];
@@ -135,4 +135,76 @@ CS.Selector0 := case
 esac;
 
 CS.Selector_n := CS.Selector0;
+
+
+ASSIGN
+
+init[ss_base] := ss_base_i;
+next[ss_base] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) );
+    default : State.ss_base;
+esac;
+
+init[exitStatus] := Normal;
+next[exitStatus] := exitStatus_n;
+
+init[cpl] := cpl_i;
+next[cpl] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( (b1)@(b1) );
+    default : State.cpl;
+esac;
+
+init[ss_limit] := ss_limit_i;
+next[ss_limit] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( (ucl_hex_f) @ (ucl_hex_f) @ (ucl_hex_f) @ (ucl_hex_f) @ (ucl_hex_f) );
+    default : State.ss_limit;
+esac;
+
+init[cs_selector] := cs_selector_i;
+next[cs_selector] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( CS.Selector_n ) || ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_3) );
+    default : State.cs_selector;
+esac;
+
+init[ss_accessRights] := ss_accessRights_i;
+next[ss_accessRights] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.D ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
+    default : State.ss_accessRights;
+esac;
+
+init[rip] := rip_i;
+next[rip] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( RIP_n );
+    default : State.rip;
+esac;
+
+init[cs_accessRights] := cs_accessRights_i;
+next[cs_accessRights] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D_n ) ) @ ( ( CS.B ) ) @ ( ( CS.G ) );
+    default : State.cs_accessRights;
+esac;
+
+init[cs_base] := cs_base_i;
+next[cs_base] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) );
+    default : State.cs_base;
+esac;
+
+init[cs_limit] := cs_limit_i;
+next[cs_limit] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( (ucl_hex_f) @ (ucl_hex_f) @ (ucl_hex_f) @ (ucl_hex_f) @ (ucl_hex_f) );
+    default : State.cs_limit;
+esac;
+
+init[ss_selector] := ss_selector_i;
+next[ss_selector] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( IA32_STAR # [63:48] ) +_16 ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_8) ) || ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_3) );
+    default : State.ss_selector;
+esac;
+
+init[rflags] := rflags_i;
+next[rflags] := case
+    next[exitStatus] != UD & next[exitStatus] != GP : ( R11 ) && ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_3) @ (ucl_hex_c) @ (ucl_hex_7) @ (ucl_hex_f) @ (ucl_hex_d) @ (ucl_hex_7) ) || ( (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_0) @ (ucl_hex_2) );
+    default : State.rflags;
+esac;
 

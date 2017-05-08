@@ -76,3 +76,18 @@ esac;
 
 ESP_n := ESP0;
 
+
+ASSIGN
+
+init[DEST] := DEST_i;
+next[DEST] := DEST_n;
+
+init[StackAddrSize] := {bits64, bits32, bits16};
+next[StackAddrSize] := {bits64, bits32, bits16};
+
+init[rsp] := rsp_i;
+next[rsp] := RSP_n;
+
+init[OperandSize] := {bits64, bits32, bits16};
+next[OperandSize] := {bits64, bits32, bits16};
+

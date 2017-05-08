@@ -32,3 +32,9 @@ ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
 ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
 ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
 
+
+ASSIGN
+
+init[DEST] := DEST_i;
+next[DEST] := SRC;
+

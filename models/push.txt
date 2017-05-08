@@ -81,3 +81,18 @@ esac;
 
 memory_n := memory0;
 
+
+ASSIGN
+
+init[OperandSize] := {bits64, bits32, bits16};
+next[OperandSize] := {bits64, bits32, bits16};
+
+init[StackAddrSize] := {bits64, bits32, bits16};
+next[StackAddrSize] := {bits64, bits32, bits16};
+
+init[rsp] := rsp_i;
+next[rsp] := RSP_n;
+
+init[memory] := memory_i;
+next[memory] := memory_n;
+

@@ -247,7 +247,7 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
             alreadyDef.add(define.split(" := ")[0])
         for define in self.CS_SS:
             rhs = self.cleanRHS(define.split(" := ")[0], define.split(" := ")[1])
-            print define.split(" := ")[0].strip()  + " := " + rhs
+            print define.split(" := ")[0].strip()  + " := " + rhs +";"
             define = define.split(" := ")[0].strip()
             if define[0:3] == "CS.":
                 cs.add(define[3:])
@@ -471,4 +471,4 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
         self.printVar()
         self.printConsts()
         self.printDefine()
-        # self.printAssign()
+        self.printAssign()
