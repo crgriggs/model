@@ -20,10 +20,38 @@ class modulePrint():
         self.phi = phi
         self.CS_SS = CS_SS
     
+    def printUclidHex(self):
+        print """zero_bit := ( 0 # [0:0] );
+one_bit := ( 1 # [0:0] );
+ucl_hex_0 := ( zero_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_1 := ( zero_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_2 := ( zero_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_3 := ( zero_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_4 := ( zero_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_5 := ( zero_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_6 := ( zero_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_7 := ( zero_bit @ one_bit @ one_bit @ one_bit);
+ucl_hex_8 := ( one_bit @ zero_bit @ zero_bit @ zero_bit);
+ucl_hex_9 := ( one_bit @ zero_bit @ zero_bit @ one_bit);
+ucl_hex_a := ( one_bit @ zero_bit @ one_bit @ zero_bit);
+ucl_hex_b := ( one_bit @ zero_bit @ one_bit @ one_bit);
+ucl_hex_c := ( one_bit @ one_bit @ zero_bit @ zero_bit);
+ucl_hex_d := ( one_bit @ one_bit @ zero_bit @ one_bit);
+ucl_hex_e := ( one_bit @ one_bit @ one_bit @ zero_bit);
+ucl_hex_f := ( one_bit @ one_bit @ one_bit @ one_bit);
+"""
+
+    def cleanRHS(self, var, rhs):
+        if var[:-1] in stateVars:
+            var = var[:-1]
+        if var not in stateVars:
+            return rhs
+        numBits = stateVars[var]
+        rhs = rhs.replace("+", "+_" + numBits).replace("-", "-_" + numBits).replace("*", "*_" + numBits).replace("/", "/_" + numBits)
+        return rhs
+
     def findInputs(self):
         file = open(self.filename)
-        self.defines.add("b0 := 0x0 # [0:0];")
-        self.defines.add("b1 := 0x1 # [0:0];")
         for line in file:
             # print line
             line = re.sub(r'\b[0-9]+', "", line)
@@ -138,6 +166,7 @@ class modulePrint():
         print
         print "DEFINE"
         print 
+        self.printUclidHex()
         cs = set()
         ss = set()
         alreadyDef = set()
@@ -350,8 +379,8 @@ class modulePrint():
                 print "init[" + lhs + "] := "+ init + ";"
                 print "next[" + lhs + "] := case"
                 for rhsCondCombo in rhsCond:
-                    # rhsCondCombo = self.connectState(rhsCondCombo)
-                    print "    " + rhsCondCombo[1] + " : " + rhsCondCombo[0].replace("hex", "0x") + ";"
+                    rhs = self.cleanRHS(lhs, rhsCondCombo[0])
+                    print "    " + rhsCondCombo[1] + " : " + rhsCondCombo[0] + ";"
                 print "    " + "default : " + default + ";"
                 print "esac;"
                 print
