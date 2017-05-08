@@ -65,8 +65,6 @@ def main():
         unpriv = {"mov", 'pop', 'push'}
         append_file(f, "state/vars.txt")
         f.write("\n")
-        f.write("init[opcode] := {" + ", ".join(opcodes) + "};\n")
-        f.write("next[opcode] := {" + ", ".join(opcodes) + "};\n")
         findInstrVars(stateVars, gprs, propType)
         for var in stateVars:
             f.write("\n")

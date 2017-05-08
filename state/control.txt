@@ -31,7 +31,7 @@ simulate(5);
 syscall_rsp := State.rsp; 
 opcode[6] := syscall;                               (*RCX is set to RSP*)
 opcode[7] := push;                                  (*User RSP is sent to the stack*)
-currentRegister[7] := rsp;                          (*Set rsp register to be pushed*)
+(*currentRegister[7] := rsp;*)                          (*Set rsp register to be pushed*)
 simulate(2);
 syscall_rcx := State.rcx;                             (*RCX must implicitly be canonical*)
 (* Simulate some number of simulations *)
@@ -39,11 +39,11 @@ syscall_rcx := State.rcx;                             (*RCX must implicitly be c
 simulate(4);                                          (*RCX must change to force sysret bug*)
 sysret_rcx := State.rcx;
 opcode[11] := pop;                                 (*RSP is set to pushed User RSP*)
-currentRegister[11] := rsp;                        (*Set rsp to recieve popped value*)
+(*currentRegister[11] := rsp;*)                        (*Set rsp to recieve popped value*)
 simulate(1);
 sysret_rsp := State.rsp;
 opcode[12] := sysret;                              (*Will fault if rcx is not not canonical*)
-sysretInstr.isCanonical[x+y+4] := setIsCanonical;
+sysretInstr.isCanonical[12] := setIsCanonical;
 simulate(1);
 sysret_cpl = State.cpl;
 

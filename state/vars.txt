@@ -2,6 +2,8 @@ MODULE State
 
 INPUT
 
+opcode : opcodes;
+
 VAR
 ss_limit : BITVEC[20];
 ss_selector : BITVEC[16];
