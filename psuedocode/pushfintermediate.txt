@@ -2,7 +2,7 @@ if (PE == 0) or (PE == 1 and ((rflags_vm== 0) or ((rflags_vm== 1) and (rflags_io
 # Real_Address Mode, Protected mode, or Virtual_8086 mode with rflags_ioplequal to 3 
     THEN
         
-        if OperandSize == 32
+        if OperandSize == bits32
             THEN
                 
                 push (EFLAGS & hex00FCFFFF)
@@ -11,7 +11,7 @@ if (PE == 0) or (PE == 1 and ((rflags_vm== 0) or ((rflags_vm== 1) and (rflags_io
                 push (EFLAGS) # Lower 16 bits only 
         FI
     elif 64_bit MODE # In 64_bit Mode 
-        if OperandSize == 64
+        if OperandSize == bits64
             THEN
                 
                 push (RFLAGS & hex00000000_00FCFFFF)
