@@ -6,7 +6,7 @@ typedef register : enum {a, b, c, d};
 typedef size : enum {bits64, bits32, bits16};
 
 CONST
-(*----- ./models/sysret.txt -----*)
+(*----- ./models//sysret.txt -----*)
 MODULE sysretInstr
 
 INPUT
@@ -201,7 +201,7 @@ next[rflags] := case
 esac;
 
 
-(*----- ./models/push.txt -----*)
+(*----- ./models//push.txt -----*)
 MODULE pushInstr
 
 INPUT
@@ -284,7 +284,7 @@ init[memory] := memory_i;
 next[memory] := memory_n;
 
 
-(*----- ./models/mov.txt -----*)
+(*----- ./models//mov.txt -----*)
 MODULE movInstr
 
 INPUT
@@ -309,7 +309,7 @@ init[DEST] := DEST_i;
 next[DEST] := SRC;
 
 
-(*----- ./models/pop.txt -----*)
+(*----- ./models//pop.txt -----*)
 MODULE popInstr
 
 INPUT
@@ -387,7 +387,7 @@ init[OperandSize] := {bits64, bits32, bits16};
 next[OperandSize] := {bits64, bits32, bits16};
 
 
-(*----- ./models/syscall.txt -----*)
+(*----- ./models//syscall.txt -----*)
 MODULE syscallInstr
 
 INPUT
@@ -769,18 +769,15 @@ next[rax] := case
     default : rax;
 esac;
 
-(*----- state/control.txt -----*)
 (* ----- CONTROL MODULE ----- *)
+
 CONTROL
 
 EXTVAR
-(* Controlling values at each step:
- * A variable must be declared here with a type and default value in order to
- * control its value at each step. Then, in the EXEC section, set the value for
- * a simulation step like this:
- *     var[0] := value;
- *)
 
+opcode : opcodes := {sysret, push, mov, pop, syscall};
+
+(*----- state/control.txt -----*)
 
 STOREVAR
 

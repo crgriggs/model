@@ -1,14 +1,3 @@
-(* ----- CONTROL MODULE ----- *)
-CONTROL
-
-EXTVAR
-(* Controlling values at each step:
- * A variable must be declared here with a type and default value in order to
- * control its value at each step. Then, in the EXEC section, set the value for
- * a simulation step like this:
- *     var[0] := value;
- *)
-
 
 STOREVAR
 

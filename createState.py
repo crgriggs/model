@@ -84,6 +84,14 @@ def main():
             f.write("    default : " + var + ";\n")
             f.write("esac;\n")
         f.write("\n")
+        f.write("(* ----- CONTROL MODULE ----- *)\n")
+        f.write("\n")
+        f.write("CONTROL\n")
+        f.write("\n")
+        f.write("EXTVAR\n")
+        f.write("\n")
+        f.write("opcode : opcodes := {" + ", ".join(opcodes) + "};\n")
+        f.write("\n")
         append_file(f, "state/control.txt")
         #need to how state vars are assigned
         #    hard part is 
