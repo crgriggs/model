@@ -1,4 +1,4 @@
-sysretInstr.isCanonical : PRED := {true, false};
+isCanonical : TRUTH := {true, false};
 
 STOREVAR
 
@@ -12,15 +12,18 @@ VAR
 
 CONST
 
-isCanonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
+canonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
 isUserControlled: PRED[1]; (* Predicate to decide whether stack is user controlled *)
 
 DEFINE
 
 setIsCanonical := case
-	isCanonical(sysret_rcx) : true;
+	canonical(sysret_rcx) : true;
 	default : false;
 esac;
+
+b0 := 0x0 # [0:0];
+b1 := 0x1 # [0:0];
 
 (* Statements begin *)
 EXEC
@@ -44,10 +47,9 @@ opcode[11] := pop;                                 (*RSP is set to pushed User R
 simulate(1);
 sysret_rsp := State.rsp;
 opcode[12] := sysret;                              (*Will fault if rcx is not not canonical*)
-sysretInstr.isCanonical[12] := setIsCanonical;
+isCanonical[12] := setIsCanonical;
 simulate(1);
-sysret_cpl = State.cpl;
+sysret_cpl := State.cpl;
 
 
-decide((isCanonical(sysret_rcx) & isUserControlled(sycall_rsp) & syscall_rsp == sysret_rsp) => (isUserControlled(sysret_rsp) & sysret_cpl == ((b1)@(b1)))
-
+decide((canonical(sysret_rcx) & isUserControlled(syscall_rsp) & syscall_rsp = sysret_rsp) => (isUserControlled(sysret_rsp) & sysret_cpl = ((b1)@(b1))));
