@@ -18,6 +18,8 @@ syscall_rsp : BITVEC[64]; (*RSP before syscall*)
 sysret_rsp : BITVEC[64]; (*RSP after sysret*)
 sysret_cpl : BITVEC[64]; (*CPL after sysret*)
 
+VAR
+
 CONST
 
 isCanonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
@@ -25,8 +27,8 @@ isUserControlled: PRED[1]; (* Predicate to decide whether stack is user controll
 
 DEFINE
 
-setIsCanonical : case
-	isCanonical(sysret_rcx) : True;
+setIsCanonical := case
+	isCanonical(sysret_rcx) : true;
 	default : false;
 esac;
 

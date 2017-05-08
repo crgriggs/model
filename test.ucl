@@ -1,0 +1,284 @@
+(*----- header.txt -----*)
+MODEL StateModel
+
+typedef OPCODE : enum{other, exception, syscall, sysret};
+typedef USER_OR_SYS : enum{user, sys};
+
+CONST
+
+(*----- ./cs_selector//exception.txt -----*)
+MODULE exceptionInst
+
+INPUT
+State.rsp : USER_OR_SYS;
+
+VAR
+rsp : USER_OR_SYS;
+cpl : USER_OR_SYS;
+
+CONST
+
+DEFINE
+
+ASSIGN
+
+init[rsp] := {user, sys};
+next[rsp] := case
+    cpl = user : sys;  (* Stack Switch *)
+    default: rsp;
+esac;
+
+init[cpl] := sys;  (* We assume dpl in idt is 0 *)
+next[cpl] := sys;
+
+(*----- ./cs_selector//syscall.txt -----*)
+MODULE syscallInst
+
+INPUT
+State.cs_l : BITVEC[1];
+State.cs_selector : BITVEC[16];
+State.IA32_EFER_LMA : BITVEC[64];
+State.IA32_EFER_SCE : BITVEC[64];
+State.IA32_FMASK_IF : BITVEC[64];
+State.IA32_STAR : BITVEC[64];
+State.rflags_if : BITVEC[1];
+
+VAR
+cs_selector : BITVEC[16];
+rflags_if : BITVEC[1];
+
+CONST
+
+DEFINE
+
+ASSIGN
+
+init[cs_selector] := 0x0000;
+next[cs_selector] := case
+    State.cs_l != 1 : State.cs_selector;
+    State.IA32_EFER_LMA != 1 : State.cs_selector;
+    State.IA32_EFER_SCE != 1 : State.cs_selector;
+    default : (State.IA32_STAR # [47:32]) && (0xFFFC);
+esac;
+
+init[rflags_if] := {0, 1};
+next[rflags_if] := State.rflags_if && !!State.IA32_FMASK_IF;
+
+(*----- ./cs_selector//sysret.txt -----*)
+MODULE sysretInst
+
+INPUT
+State.cs_selector : BITVEC[16];
+State.IA32_STAR : BITVEC[64];
+State.cpl : USER_OR_SYS;
+State.IA32_EFER_LMA : BITVEC[1];
+State.IA32_EFER_SCE : BITVEC[1];
+
+VAR
+
+rcx_is_canonical : TRUTH;
+
+(* Operands *)
+ret_to_64_bit : TRUTH;  (* 0: encoding 0F07, 1: encoding REX.W+0F07 *)
+
+(* State *)
+exception_raised : TRUTH;
+cs_selector : BITVEC[16];
+
+CONST
+
+DEFINE
+cs_selector_64 := State.IA32_STAR # [63:48] || 0x3;
+cs_selector_32 := (State.IA32_STAR # [63:48] +_16 0x0010) || 0x3;
+
+ASSIGN
+
+init[ret_to_64_bit] := {true, false};
+next[ret_to_64_bit] := {true, false};
+
+init[rcx_is_canonical] := {true, false};
+next[rcx_is_canonical] := {true, false};
+
+init[cs_selector] := 0x0000;
+next[cs_selector] := case
+	ret_to_64_bit : cs_selector_64;
+	default : cs_selector_32;
+esac;
+
+init[exception_raised] := false;
+next[exception_raised] := case
+
+    (* Not in 64-Bit Mode or SYSCALL/SYSRET not enabled in IA32_EFER *)
+    (* #UD *)
+    State.cs_l != 1 : true;
+    State.IA32_EFER_LMA != 1 : true;
+    State.IA32_EFER_SCE != 1 : true;
+
+    (* #GP *)
+    State.cpl != sys : true;
+    ~rcx_is_canonical : true;
+
+    default: false;
+esac;
+
+(*----- state.txt -----*)
+MODULE State
+
+INPUT
+
+VAR
+instruction_opcode : OPCODE;
+prev_instruction_opcode : OPCODE;
+
+exception_raised : TRUTH;
+prev_exception_raised : TRUTH;
+cs_selector : BITVEC[16];
+cs_l : BITVEC[1];
+cpl : USER_OR_SYS;
+rflags_if : BITVEC[1];
+prev_cpl : USER_OR_SYS;
+prev_prev_cpl : USER_OR_SYS;
+rsp : USER_OR_SYS;
+IA32_EFER_LMA : BITVEC[1];
+IA32_EFER_SCE : BITVEC[1];
+IA32_FMASK_IF : BITVEC[1];
+IA32_STAR: BITVEC[64];
+
+CONST
+init_IA32_STAR : BITVEC[64];
+
+DEFINE
+
+ASSIGN
+
+init[instruction_opcode] := other;
+next[instruction_opcode] := case
+    State.exception_raised : exception;
+    State.rflags_if = 1 : {other, exception, syscall, sysret};
+    default : {other, syscall, sysret};
+esac;
+
+init[prev_instruction_opcode] := other;
+next[prev_instruction_opcode] := instruction_opcode;
+
+init[prev_exception_raised] := false;
+next[prev_exception_raised] := exception_raised;
+
+init[exception_raised] := false;
+next[exception_raised] := case
+  next[instruction_opcode] = sysret : next[sysretInst.exception_raised];
+  (* next[instruction_opcode] = syscall : next[syscallInst.exception_raised]; *)
+  (* next[instruction_opcode] = exception : next[exceptionInst.exception_raised]; *)
+  default : false;
+esac;
+
+init[rflags_if] := {0, 1};
+next[rflags_if] := case
+  (* next[instruction_opcode] = sysret : next[sysretInst.rflags_if]; *)
+  next[instruction_opcode] = syscall : next[syscallInst.rflags_if];
+  (* next[instruction_opcode] = exception : next[exceptionInst.rflags_if]; *)
+  default : rflags_if;
+esac;
+
+init[cs_selector] := 0x000F;
+next[cs_selector] := case
+  next[instruction_opcode] = sysret : next[sysretInst.cs_selector];
+  next[instruction_opcode] = syscall : next[syscallInst.cs_selector];
+  (* next[instruction_opcode] = exception : next[exceptionInst.cs_selector]; *)
+  default : cs_selector;
+esac;
+
+init[cpl] := {user, sys};
+next[cpl] := case
+  (* next[instruction_opcode] = sysret : next[sysretInst.cpl]; *)
+  (* next[instruction_opcode] = syscall : next[syscallInst.cpl]; *)
+  next[instruction_opcode] = exception : next[exceptionInst.cpl];
+  default : cpl;
+esac;
+
+init[prev_cpl] := {user, sys};
+next[prev_cpl] := cpl;
+
+init[prev_prev_cpl] := {user, sys};
+next[prev_prev_cpl] := prev_cpl;
+
+init[rsp] := {user, sys};
+next[rsp] := case
+  (* next[instruction_opcode] = sysret : next[sysretInst.rsp]; *)
+  (* next[instruction_opcode] = syscall : next[syscallInst.rsp]; *)
+  next[instruction_opcode] = exception : next[exceptionInst.rsp];
+  default : rsp;
+esac;
+
+init[cs_l] := {0, 1};
+next[cs_l] := cs_l;
+
+init[IA32_EFER_LMA] := {0, 1};
+next[IA32_EFER_LMA] := IA32_EFER_LMA;
+
+init[IA32_EFER_SCE] := {0, 1};
+next[IA32_EFER_SCE] := IA32_EFER_SCE;
+
+init[IA32_FMASK_IF] := {0, 1};
+next[IA32_FMASK_IF] := IA32_FMASK_IF;
+
+init[IA32_STAR] := init_IA32_STAR;  (* WARNING: This kind of initialization didn't work for IA32_EFER_*, make sure that this can take on values other than 0. *)
+next[IA32_STAR] := IA32_STAR;
+
+(*----- control.txt -----*)
+(* ----- CONTROL MODULE ----- *)
+CONTROL
+
+EXTVAR
+(* Controlling values at each step:
+ * A variable must be declared here with a type and default value in order to
+ * control its value at each step. Then, in the EXEC section, set the value for
+ * a simulation step like this:
+ *     var[0] := value;
+ *)
+
+STOREVAR
+
+VAR
+
+CONST
+
+DEFINE
+
+EXEC
+(* To keep output clean and to keep test and assertions from interfering with
+ * eachother, only uncomment one of the blocks below:
+ *)
+
+(* Test the case statement for cs_selector *)
+
+instruction_opcode[0] := syscall;
+instruction_opcode[1] := sysret;
+simulate(1);
+decide(State.cs_selector = syscallInst.cs_selector);
+simulate(1);
+decide(State.cs_selector = sysretInst.cs_selector);
+
+
+(* Make sure exception_raised forces the next instruction to "exception" *)
+(*
+simulate(1);
+simulate(1);
+decide(State.prev_exception_raised => State.instruction_opcode = exception);
+*)
+
+(* Privileged exception handlers must run with ring0 stack.
+ * This is the OS expectation that exposed the sysret bug.
+ *)
+simulate(1);
+simulate(1);
+simulate(1);
+decide(
+    (
+     (State.IA32_EFER_LMA = 1) &
+     (State.IA32_EFER_SCE = 1) &
+     (State.cs_l = 1) &
+     (State.prev_prev_cpl = sys) &
+     (State.prev_instruction_opcode = exception))
+    => State.rsp = sys
+);
