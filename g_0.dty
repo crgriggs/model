@@ -1,2 +1,0 @@
-digraph Original {
- g[label = "Original graph (no duals)", shape = plaintext]
