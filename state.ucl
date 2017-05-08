@@ -6,7 +6,7 @@ typedef register : enum {a, b, c, d};
 typedef size : enum {bits64, bits32, bits16};
 
 CONST
-(*----- ./models/sysret.txt -----*)
+(*----- ./models//sysret.txt -----*)
 MODULE sysretInstr
 
 INPUT
@@ -23,6 +23,7 @@ State.cs_base : BITVEC[32];
 State.rip : BITVEC[64];
 State.cs_selector : BITVEC[16];
 State.cs_limit : BITVEC[20];
+isCanonical : PRED[1];
 State.rcx : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
@@ -42,7 +43,6 @@ rflags : BITVEC[64];
 
 CONST
 IA32_STAR: BITVEC[64];
-RCX_is_not_canonical: TRUTH;
 operand_size_is_64_bit: TRUTH;
 
 ss_base_i : BITVEC[32];
@@ -201,7 +201,7 @@ next[rflags] := case
 esac;
 
 
-(*----- ./models/push.txt -----*)
+(*----- ./models//push.txt -----*)
 MODULE pushInstr
 
 INPUT
@@ -284,7 +284,7 @@ init[memory] := memory_i;
 next[memory] := memory_n;
 
 
-(*----- ./models/mov.txt -----*)
+(*----- ./models//mov.txt -----*)
 MODULE movInstr
 
 INPUT
@@ -309,7 +309,7 @@ init[DEST] := DEST_i;
 next[DEST] := SRC;
 
 
-(*----- ./models/pop.txt -----*)
+(*----- ./models//pop.txt -----*)
 MODULE popInstr
 
 INPUT
@@ -387,7 +387,7 @@ init[OperandSize] := {bits64, bits32, bits16};
 next[OperandSize] := {bits64, bits32, bits16};
 
 
-(*----- ./models/syscall.txt -----*)
+(*----- ./models//syscall.txt -----*)
 MODULE syscallInstr
 
 INPUT
@@ -778,6 +778,7 @@ EXTVAR
 opcode : opcodes := {sysret, push, mov, pop, syscall};
 
 (*----- state/control.txt -----*)
+sysretInstr.isCanonical : PRED := {true, false};
 
 STOREVAR
 

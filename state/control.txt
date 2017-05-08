@@ -1,3 +1,4 @@
+sysretInstr.isCanonical : PRED := {true, false};
 
 STOREVAR
 
