@@ -917,4 +917,4 @@ simulate(1);
 sysret_cpl := State.cpl;
 
 
-decide((canonical(sysret_rcx) & isUserControlled(syscall_rsp) & syscall_rsp = sysret_rsp) => (isUserControlled(sysret_rsp) & sysret_cpl = ((b1)@(b1))));
+decide((canonical(sysret_rcx) & isUserControlled(syscall_rsp) & syscall_rsp = sysret_rsp) => ((isUserControlled(sysret_rsp) & sysret_cpl = ((b1)@(b1))) | (!!isUserControlled(sysret_rsp) & sysret_cpl = ((b0)@(b0)));
