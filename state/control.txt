@@ -42,7 +42,6 @@ syscall_rcx := State.rcx;                             (*RCX must implicitly be c
 (* Simulate some number of simulations *)
 (* y must changed to an actual number *)
 simulate(1);                                         (*RCX must change to force sysret bug*)
-opcodeStore := State.opcode;
 sysret_rcx := State.rcx;
 opcode[3] := pop;                                 (*RSP is set to pushed User RSP*)
 (*currentRegister[11] := rsp;*)                        (*Set rsp to recieve popped value*)
@@ -53,7 +52,4 @@ isCanonical[4] := setIsCanonical;
 simulate(1);
 sysret_cpl := State.cpl;
 
-
-decide((canonical(syscall_rcx) & syscall_rsp = sysret_rsp) => ((isUserControlled(sysret_rsp) & sysret_cpl = ((b1)@(b1))) | (!!isUserControlled(sysret_rsp) & sysret_cpl = ((b0)@(b0)))));
-
-print(storeOpcode);
+decide((canonical(syscall_rcx) & syscall_rsp = sysret_rsp) => (~(isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1)))));

@@ -18,4 +18,7 @@ for line in open("counterExample.txt"):
 		if "opcode:=" in line and "ITE" not in line and "the" not in line:
 			print "Opcode : " + opcodeDict[int(line.split(":=")[1].strip(), 2)]
 		if "exitStatus" in line and "," not in line and "evaluating" not in line:
-			print "Exit Status: "   +  exitStatusDict[int(line.split(":=")[1].strip(), 2)]
+			if "sysret" in line:
+				print "Sysret Exit Status: "   +  exitStatusDict[int(line.split(":=")[1].strip(), 2)]
+			else:
+				print "Syscall Exit Status: "   +  exitStatusDict[int(line.split(":=")[1].strip(), 2)]

@@ -51,7 +51,7 @@ Term State:
 ,syscallInstr.cs_limit:=syscallInstr.cs_limit_i
 ,State.cs_accessRights:=State.cs_accessRights_i
 ,State.r11:=State.r11_i
-,State.cpl:=@([0:0](1+(ZERO_)),[0:0](1+(ZERO_)))
+,State.cpl:=State.cpl_i
 ,sysretInstr.rflags:=sysretInstr.rflags_i
 ,popInstr.DEST:=popInstr.DEST_i
 ,sysretInstr.ss_base:=sysretInstr.ss_base_i
@@ -393,35 +393,36 @@ Using heuristic  1
 Ignoring Positive Equality Analysis....
 Using Ackermann's method to eliminate g-function symbols....
 **********************************************
-Stats : Original formula size :<|tnodes|,|Tnodes|> = <255,290>
+Stats : Original formula size :<|tnodes|,|Tnodes|> = <254,278>
 Getting function, predicate symbols.....
 Getting the PCEUF from the formula.....
 Initializing function application classes...
-Initial number of fAppClasses is 149
+Initial number of fAppClasses is 145
 Final number of fAppClasses is 1
 
- the function symbols:[State.EFER_i,State.SRC,State.addr,State.cs_accessRights_i,State.m0,State.rcx_i,State.rip_i,State.rsp_i,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
+ the function symbols:[State.EFER_i,State.SRC,State.addr,State.cpl_i,State.cs_accessRights_i,State.m0,State.rcx_i,State.rip_i,State.rsp_i,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
 
- the individual variables:[State.EFER_i,State.SRC,State.addr,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
+ the individual variables:[State.EFER_i,State.SRC,State.addr,State.cpl_i,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
 
  the p function symbols:[]
 Eliminating  uninterpreted g-func/pred symbols Ackermann.....
 Eliminating  uninterpreted p-func symbols Bryant.....
-# of vars  = 24
+# of vars  = 25
 # of pvars = 0
-# of gvars = 24
+# of gvars = 25
 
  the p-vars :[]
 
- the g-vars:[State.EFER_i,State.SRC,State.addr,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,V_State.m0_1,V_State.m0_2,V_State.m0_3,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
+ the g-vars:[State.EFER_i,State.SRC,State.addr,State.cpl_i,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,V_State.m0_1,V_State.m0_2,V_State.m0_3,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
 Fraction of p-vars = 0.0
-Stats :  after function elimination  size :<|tnodes|,|Tnodes|> = <446,290>
-Stats :  after predicate elimination  size :<|tnodes|,|Tnodes|> = <446,290>
+Stats :  after function elimination  size :<|tnodes|,|Tnodes|> = <444,278>
+Stats :  after predicate elimination  size :<|tnodes|,|Tnodes|> = <444,278>
 # of ITE vars = 0
 The final variable classes :
 {[State.EFER_i], true, Cardinality = 1}
 {[State.SRC,State.rcx_i,State.rip_i,V_State.m0_1,V_State.m0_2,V_State.m0_3,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR], true, Cardinality = 15}
 {[State.addr,State.rsp_i], true, Cardinality = 2}
+{[State.cpl_i], false, Cardinality = 1}
 {[State.cs_accessRights_i], true, Cardinality = 1}
 {[ZERO_], false, Cardinality = 1}
 {[__en_exitCase], true, Cardinality = 1}
@@ -430,37 +431,38 @@ The final variable classes :
 {[__en_size], true, Cardinality = 1}
 Starting Eager Encoding for Bit-Vector Arithmetic...
 Generating propositional encoding...
+#bits for __en_opcodes = 0 (constant encoding of 7)
+#bits for __en_size = 0 (constant encoding of 9)
 #bits for State.rsp_i = 64
 #bits for V_State.m0_1 = 4
 #bits for V_State.m0_2 = 4
 #bits for V_State.m0_3 = 4
-#bits for __en_opcodes = 0 (constant encoding of 6)
-#bits for __en_size = 0 (constant encoding of 8)
 #bits for V_State.m0_4 = 4
 #bits for V_State.m0_5 = 4
 #bits for V_State.m0_6 = 4
 #bits for V_State.m0_7 = 4
 #bits for V_State.m0_8 = 4
 #bits for V_State.m0_9 = 4
-#bits for __en_register = 0 (constant encoding of 7)
-#bits for movInstr.SRC = 64
-#bits for State.EFER_i = 64
-#bits for __en_exitCase = 0 (constant encoding of 5)
-#bits for syscallInstr.IA32_LSTAR = 64
-#bits for State.rip_i = 64
-#bits for popInstr.DEST_i = 64
-#bits for State.rcx_i = 64
+#bits for __en_register = 0 (constant encoding of 8)
 #bits for State.addr = 64
 #bits for State.SRC = 64
+#bits for popInstr.DEST_i = 64
+#bits for State.EFER_i = 64
+#bits for __en_exitCase = 0 (constant encoding of 6)
+#bits for State.cpl_i = 2
 #bits for State.cs_accessRights_i = 12
-User Time for propositional encoding: 0.104
+#bits for State.rcx_i = 64
+#bits for State.rip_i = 64
+#bits for syscallInstr.IA32_LSTAR = 64
+#bits for movInstr.SRC = 64
+User Time for propositional encoding: 0.108
 
 
  Overall Bit-Vector Encoding Time
-Encoding Usr Time: 0.104
+Encoding Usr Time: 0.112
 Encoding Sys Time: 0.000
 Writing CNF formula to file <StateModel.cnf>.....
-Formula has 12211 variables and 35263 clauses.
+Formula has 10102 variables and 28948 clauses.
 Running Minisat to check the formula.....
 Finished running Minisat.....
 
@@ -479,8 +481,27 @@ Finished running Minisat.....
 _p16=false
 _p17=false
 _p18=false
-movInstr.SRC=0000000000000000000000000000000000000000000000000000000000000000
+State.addr=1110101100110111011010111100001101000010000000101100100110101111
+_p0=false
+_p1=false
+_p2=false
+_p3=false
+State.rsp_i=0000000000000000000000000000000000000000000000000000000000000000
 ZERO_=00
+State.SRC=0000000000000000000000000000000000000000000000000000000000000000
+V_State.m0_1=00
+State.m0(00000000000000000000000000000000,)=00
+V_State.m0_2=00
+State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
+V_State.m0_3=00
+State.m0(0000000000000000,)=00
+V_State.m0_4=00
+State.m0(00000000000000000000000000000000,)=00
+V_State.m0_5=00
+State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
+V_State.m0_6=00
+State.m0(0000000000000000,)=00
+popInstr.DEST_i=0000000000000000000000000000000000000000000000000000000000000000
 State.EFER_i[0]=false
 State.EFER_i[1]=false
 State.EFER_i[2]=false
@@ -546,71 +567,23 @@ State.EFER_i[61]=false
 State.EFER_i[62]=false
 State.EFER_i[63]=false
 State.EFER_i=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.IA32_LSTAR[0]=false
-syscallInstr.IA32_LSTAR[1]=false
-syscallInstr.IA32_LSTAR[2]=false
-syscallInstr.IA32_LSTAR[3]=false
-syscallInstr.IA32_LSTAR[4]=false
-syscallInstr.IA32_LSTAR[5]=false
-syscallInstr.IA32_LSTAR[6]=false
-syscallInstr.IA32_LSTAR[7]=false
-syscallInstr.IA32_LSTAR[8]=false
-syscallInstr.IA32_LSTAR[9]=false
-syscallInstr.IA32_LSTAR[10]=false
-syscallInstr.IA32_LSTAR[11]=false
-syscallInstr.IA32_LSTAR[12]=false
-syscallInstr.IA32_LSTAR[13]=false
-syscallInstr.IA32_LSTAR[14]=false
-syscallInstr.IA32_LSTAR[15]=false
-syscallInstr.IA32_LSTAR[16]=false
-syscallInstr.IA32_LSTAR[17]=false
-syscallInstr.IA32_LSTAR[18]=false
-syscallInstr.IA32_LSTAR[19]=false
-syscallInstr.IA32_LSTAR[20]=false
-syscallInstr.IA32_LSTAR[21]=false
-syscallInstr.IA32_LSTAR[22]=false
-syscallInstr.IA32_LSTAR[23]=false
-syscallInstr.IA32_LSTAR[24]=false
-syscallInstr.IA32_LSTAR[25]=false
-syscallInstr.IA32_LSTAR[26]=false
-syscallInstr.IA32_LSTAR[27]=false
-syscallInstr.IA32_LSTAR[28]=false
-syscallInstr.IA32_LSTAR[29]=false
-syscallInstr.IA32_LSTAR[30]=false
-syscallInstr.IA32_LSTAR[31]=false
-syscallInstr.IA32_LSTAR[32]=false
-syscallInstr.IA32_LSTAR[33]=false
-syscallInstr.IA32_LSTAR[34]=false
-syscallInstr.IA32_LSTAR[35]=false
-syscallInstr.IA32_LSTAR[36]=false
-syscallInstr.IA32_LSTAR[37]=false
-syscallInstr.IA32_LSTAR[38]=false
-syscallInstr.IA32_LSTAR[39]=false
-syscallInstr.IA32_LSTAR[40]=false
-syscallInstr.IA32_LSTAR[41]=false
-syscallInstr.IA32_LSTAR[42]=false
-syscallInstr.IA32_LSTAR[43]=false
-syscallInstr.IA32_LSTAR[44]=false
-syscallInstr.IA32_LSTAR[45]=false
-syscallInstr.IA32_LSTAR[46]=false
-syscallInstr.IA32_LSTAR[47]=false
-syscallInstr.IA32_LSTAR[48]=false
-syscallInstr.IA32_LSTAR[49]=false
-syscallInstr.IA32_LSTAR[50]=false
-syscallInstr.IA32_LSTAR[51]=false
-syscallInstr.IA32_LSTAR[52]=false
-syscallInstr.IA32_LSTAR[53]=false
-syscallInstr.IA32_LSTAR[54]=false
-syscallInstr.IA32_LSTAR[55]=false
-syscallInstr.IA32_LSTAR[56]=false
-syscallInstr.IA32_LSTAR[57]=false
-syscallInstr.IA32_LSTAR[58]=false
-syscallInstr.IA32_LSTAR[59]=false
-syscallInstr.IA32_LSTAR[60]=false
-syscallInstr.IA32_LSTAR[61]=false
-syscallInstr.IA32_LSTAR[62]=false
-syscallInstr.IA32_LSTAR[63]=false
-syscallInstr.IA32_LSTAR=0000000000000000000000000000000000000000000000000000000000000000
+State.cpl_i=00
+_p15=false
+State.cs_accessRights_i[0]=false
+State.cs_accessRights_i[1]=false
+State.cs_accessRights_i[2]=false
+State.cs_accessRights_i[3]=false
+State.cs_accessRights_i[4]=false
+State.cs_accessRights_i[5]=false
+State.cs_accessRights_i[6]=false
+State.cs_accessRights_i[7]=false
+State.cs_accessRights_i[8]=false
+State.cs_accessRights_i[9]=false
+State.cs_accessRights_i[10]=false
+State.cs_accessRights_i[11]=false
+State.cs_accessRights_i=000000000000
+sysretInstr.operand_size_is_64_bit=false
+State.rcx_i=0000000000000000000000000000000000000000000000000000000000000000
 State.rip_i[0]=false
 State.rip_i[1]=false
 State.rip_i[2]=false
@@ -676,48 +649,84 @@ State.rip_i[61]=false
 State.rip_i[62]=false
 State.rip_i[63]=false
 State.rip_i=0000000000000000000000000000000000000000000000000000000000000000
+syscallInstr.IA32_LSTAR[0]=false
+syscallInstr.IA32_LSTAR[1]=false
+syscallInstr.IA32_LSTAR[2]=false
+syscallInstr.IA32_LSTAR[3]=false
+syscallInstr.IA32_LSTAR[4]=false
+syscallInstr.IA32_LSTAR[5]=false
+syscallInstr.IA32_LSTAR[6]=false
+syscallInstr.IA32_LSTAR[7]=false
+syscallInstr.IA32_LSTAR[8]=false
+syscallInstr.IA32_LSTAR[9]=false
+syscallInstr.IA32_LSTAR[10]=false
+syscallInstr.IA32_LSTAR[11]=false
+syscallInstr.IA32_LSTAR[12]=false
+syscallInstr.IA32_LSTAR[13]=false
+syscallInstr.IA32_LSTAR[14]=false
+syscallInstr.IA32_LSTAR[15]=false
+syscallInstr.IA32_LSTAR[16]=false
+syscallInstr.IA32_LSTAR[17]=false
+syscallInstr.IA32_LSTAR[18]=false
+syscallInstr.IA32_LSTAR[19]=false
+syscallInstr.IA32_LSTAR[20]=false
+syscallInstr.IA32_LSTAR[21]=false
+syscallInstr.IA32_LSTAR[22]=false
+syscallInstr.IA32_LSTAR[23]=false
+syscallInstr.IA32_LSTAR[24]=false
+syscallInstr.IA32_LSTAR[25]=false
+syscallInstr.IA32_LSTAR[26]=false
+syscallInstr.IA32_LSTAR[27]=false
+syscallInstr.IA32_LSTAR[28]=false
+syscallInstr.IA32_LSTAR[29]=false
+syscallInstr.IA32_LSTAR[30]=false
+syscallInstr.IA32_LSTAR[31]=false
+syscallInstr.IA32_LSTAR[32]=false
+syscallInstr.IA32_LSTAR[33]=false
+syscallInstr.IA32_LSTAR[34]=false
+syscallInstr.IA32_LSTAR[35]=false
+syscallInstr.IA32_LSTAR[36]=false
+syscallInstr.IA32_LSTAR[37]=false
+syscallInstr.IA32_LSTAR[38]=false
+syscallInstr.IA32_LSTAR[39]=false
+syscallInstr.IA32_LSTAR[40]=false
+syscallInstr.IA32_LSTAR[41]=false
+syscallInstr.IA32_LSTAR[42]=false
+syscallInstr.IA32_LSTAR[43]=false
+syscallInstr.IA32_LSTAR[44]=false
+syscallInstr.IA32_LSTAR[45]=false
+syscallInstr.IA32_LSTAR[46]=false
+syscallInstr.IA32_LSTAR[47]=false
+syscallInstr.IA32_LSTAR[48]=false
+syscallInstr.IA32_LSTAR[49]=false
+syscallInstr.IA32_LSTAR[50]=false
+syscallInstr.IA32_LSTAR[51]=false
+syscallInstr.IA32_LSTAR[52]=false
+syscallInstr.IA32_LSTAR[53]=false
+syscallInstr.IA32_LSTAR[54]=false
+syscallInstr.IA32_LSTAR[55]=false
+syscallInstr.IA32_LSTAR[56]=false
+syscallInstr.IA32_LSTAR[57]=false
+syscallInstr.IA32_LSTAR[58]=false
+syscallInstr.IA32_LSTAR[59]=false
+syscallInstr.IA32_LSTAR[60]=false
+syscallInstr.IA32_LSTAR[61]=false
+syscallInstr.IA32_LSTAR[62]=false
+syscallInstr.IA32_LSTAR[63]=false
+syscallInstr.IA32_LSTAR=0000000000000000000000000000000000000000000000000000000000000000
 _p8=false
 _p9=false
 _p10=false
-V_State.m0_1=00
-State.rsp_i=0000000000000000000000000000000000000000000000000000000000000000
-State.m0(00000000000000000000000000000000,)=00
-V_State.m0_2=00
-State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
-V_State.m0_3=00
-State.m0(0000000000000000,)=00
-popInstr.DEST_i=0000000000000000000000000000000000000000000000000000000000000000
-State.rcx_i=0000000000000000000000000000000000000000000000000000000000000000
+movInstr.SRC=0000000000000000000000000000000000000000000000000000000000000000
 canonical(0000000000000000000000000000000000000000000000000000000000000000,)=true
-_p23=false
-_p24=false
-_p25=false
+_p45=false
+_p46=false
+_p47=false
+_p48=false
+_p37=false
 _p26=false
-V_isUserControlled_1=false
-isUserControlled(0000000000000000000000000000000000000000000000000000000000000000,)=false
-_p15=false
-State.cs_accessRights_i[0]=false
-State.cs_accessRights_i[1]=false
-State.cs_accessRights_i[2]=false
-State.cs_accessRights_i[3]=false
-State.cs_accessRights_i[4]=false
-State.cs_accessRights_i[5]=false
-State.cs_accessRights_i[6]=false
-State.cs_accessRights_i[7]=false
-State.cs_accessRights_i[8]=false
-State.cs_accessRights_i[9]=false
-State.cs_accessRights_i[10]=false
-State.cs_accessRights_i[11]=false
-State.cs_accessRights_i=000000000000
-sysretInstr.operand_size_is_64_bit=false
-State.addr=0111111111101110010000000000000110110111110111111111011110111111
-State.SRC=0000000000000000000000000000000000000000000000000000000000000000
-V_State.m0_4=00
-State.m0(00000000000000000000000000000000,)=00
-V_State.m0_5=00
-State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
-V_State.m0_6=00
-State.m0(0000000000000000,)=00
+_p42=false
+isUserControlled(0000000000000000000000000000000000000000000000000000000000000000,)=true
 V_State.m0_7=00
 State.m0(00000000000000000000000000000000,)=00
 V_State.m0_8=00
@@ -806,7 +815,7 @@ syscallInstr.cs_limit:=00
 State.cs_accessRights:=000000000000
 State.r11_i=00
 State.r11:=00
-State.cpl:=11
+State.cpl:=00
 sysretInstr.rflags_i=00
 sysretInstr.rflags:=00
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
@@ -832,16 +841,16 @@ syscallInstr.cs_selector_i=00
 syscallInstr.cs_selector:=00
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0000
+popInstr.OperandSize:=0001
 syscallInstr.exitStatus:=0010
-popInstr.StackAddrSize:=0000
+popInstr.StackAddrSize:=0001
 sysretInstr.exitStatus:=0010
 State.currentReg:=00011
 pushInstr.OperandSize:=0010
-pushInstr.StackAddrSize:=0001
+pushInstr.StackAddrSize:=0010
 
  ####### External Enumerated State #######
-opcode:=001
+opcode:=000100
 
  ####### Function  State #######
 
@@ -862,7 +871,7 @@ pushInstr.memory:=00
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000001000
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.IA32_STAR=00
 Warning: just padded value with zeros because BV0[2] is smaller than bit-width of signal
 sysretInstr.ss_selector:=0000000000000000
@@ -886,7 +895,7 @@ syscallInstr.rflags_rfLAGS=00
 syscallInstr.r11:=00
 syscallInstr.IA32_FMASK=00
 syscallInstr.rflags:=00
-syscallInstr.cpl:=11
+syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
 pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
@@ -901,13 +910,13 @@ State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_limit:=00000000000000000000
 State.cs_accessRights:=0000000000000
 State.r11:=00
-State.cpl:=11
+State.cpl:=00
 sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=00
+State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=11
+sysretInstr.cpl:=00
 sysretInstr.ss_limit:=00000000000000000000
 State.ss_accessRights:=0000000000000
 State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
@@ -916,16 +925,16 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0000
+popInstr.OperandSize:=0001
 syscallInstr.exitStatus:=0001
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=0000
+popInstr.StackAddrSize:=0010
+sysretInstr.exitStatus:=0001
 State.currentReg:=00011
 pushInstr.OperandSize:=0010
 pushInstr.StackAddrSize:=0010
 
  ####### External Enumerated State #######
-opcode:=000100
+opcode:=001
 
  ####### Function  State #######
 
@@ -945,7 +954,7 @@ pushInstr.memory:=00000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000001000
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_selector:=0000000000000000
 syscallInstr.ss_selector:=0000000000000000
 State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
@@ -960,8 +969,8 @@ State.CR0:=00
 State.ss_limit:=00000000000000000000
 syscallInstr.cs_accessRights:=0000000000000
 syscallInstr.r11:=00
-syscallInstr.rflags:=00
-syscallInstr.cpl:=11
+syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
+syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
 pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
@@ -976,13 +985,13 @@ State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_limit:=00000000000000000000
 State.cs_accessRights:=0000000000000
 State.r11:=00
-State.cpl:=11
+State.cpl:=00
 sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_base:=00000000000000000000000000000000
 State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=11
+sysretInstr.cpl:=00
 sysretInstr.ss_limit:=00000000000000000000
 State.ss_accessRights:=0000000000000
 State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
@@ -994,13 +1003,13 @@ syscallInstr.cs_selector:=0000000000000000
 popInstr.OperandSize:=0010
 syscallInstr.exitStatus:=0001
 popInstr.StackAddrSize:=0010
-sysretInstr.exitStatus:=0000
-State.currentReg:=00000
+sysretInstr.exitStatus:=0001
+State.currentReg:=00011
 pushInstr.OperandSize:=0010
 pushInstr.StackAddrSize:=0010
 
  ####### External Enumerated State #######
-opcode:=00011
+opcode:=000100
 
  ####### Function  State #######
 
@@ -1036,7 +1045,7 @@ State.ss_limit:=00000000000000000000
 syscallInstr.cs_accessRights:=0000000000000
 syscallInstr.r11:=00
 syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=11
+syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
 pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
@@ -1051,13 +1060,13 @@ State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_limit:=00000000000000000000
 State.cs_accessRights:=0000000000000
 State.r11:=00
-State.cpl:=11
+State.cpl:=00
 sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_base:=00000000000000000000000000000000
 State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=11
+sysretInstr.cpl:=00
 sysretInstr.ss_limit:=00000000000000000000
 State.ss_accessRights:=0000000000000
 State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
@@ -1066,10 +1075,10 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0001
+popInstr.OperandSize:=0010
 syscallInstr.exitStatus:=0001
 popInstr.StackAddrSize:=0010
-sysretInstr.exitStatus:=0000
+sysretInstr.exitStatus:=0001
 _p38=false
 _p39=false
 _p40=false
@@ -1078,7 +1087,7 @@ pushInstr.OperandSize:=0010
 pushInstr.StackAddrSize:=0010
 
  ####### External Enumerated State #######
-opcode:=00
+opcode:=00011
 
  ####### Function  State #######
 
@@ -1114,7 +1123,7 @@ State.ss_limit:=00000000000000000000
 syscallInstr.cs_accessRights:=0000000000000
 syscallInstr.r11:=00
 syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=11
+syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
 pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
@@ -1129,13 +1138,13 @@ State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_limit:=00000000000000000000
 State.cs_accessRights:=0000000000000
 State.r11:=00
-State.cpl:=11
+State.cpl:=00
 sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_base:=00000000000000000000000000000000
 State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=11
+sysretInstr.cpl:=00
 sysretInstr.ss_limit:=00000000000000000000
 State.ss_accessRights:=0000000000000
 State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
@@ -1151,7 +1160,7 @@ syscallInstr.exitStatus:=0001
 _p54=false
 _p55=false
 popInstr.StackAddrSize:=0010
-sysretInstr.exitStatus:=0000
+sysretInstr.exitStatus:=0001
 _p49=false
 _p50=false
 _p51=false
@@ -1164,7 +1173,7 @@ _p59=false
 pushInstr.StackAddrSize:=0010
 
  ####### External Enumerated State #######
-opcode:=001
+opcode:=00
 
  ####### Function  State #######
 
@@ -1200,7 +1209,7 @@ State.ss_limit:=00000000000000000000
 syscallInstr.cs_accessRights:=0000000000000
 syscallInstr.r11:=00
 syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=11
+syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
 pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
@@ -1215,13 +1224,13 @@ State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_limit:=00000000000000000000
 State.cs_accessRights:=0000000000000
 State.r11:=00
-State.cpl:=11
+State.cpl:=00
 sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_base:=00000000000000000000000000000000
 State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=11
+sysretInstr.cpl:=00
 sysretInstr.ss_limit:=00000000000000000000
 State.ss_accessRights:=0000000000000
 State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
@@ -1250,7 +1259,7 @@ _p70=false
 pushInstr.StackAddrSize:=0010
 
  ####### External Enumerated State #######
-opcode:=001
+opcode:=000100
 
  ####### Function  State #######
 
