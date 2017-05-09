@@ -1,0 +1,54 @@
++---------------------+
+|       State 0::     |
++---------------------+
+RSP : 0
+RCX : 0
+CPL : 0
+Exit Status: Normal
+Exit Status: Normal
+Opcode : push
++---------------------+
+|       State 1::     |
++---------------------+
+RSP : 0
+RCX : 0
+CPL : 0
+Exit Status: UD
+Exit Status: UD
+Opcode : syscall
++---------------------+
+|       State 2::     |
++---------------------+
+RSP : 0
+RCX : 0
+CPL : 0
+Exit Status: UD
+Exit Status: UD
+Opcode : pop
++---------------------+
+|       State 3::     |
++---------------------+
+RSP : 0
+RCX : 0
+CPL : 0
+Exit Status: UD
+Exit Status: UD
+Opcode : sysret
++---------------------+
+|       State 4::     |
++---------------------+
+RSP : 0
+RCX : 0
+CPL : 0
+Exit Status: UD
+Exit Status: UD
+Opcode : push
++---------------------+
+|       State 5::     |
++---------------------+
+RSP : 0
+RCX : 0
+CPL : 0
+Exit Status: UD
+Exit Status: GP
+Opcode : push

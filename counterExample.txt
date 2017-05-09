@@ -83,27 +83,306 @@ Enum State:
 ,pushInstr.StackAddrSize:=ITE(_p2,bits64,ITE(_p3,bits32,bits16))
 ,]
 
+External Enum State:
+[opcode:=ITE(_p11,sysret,ITE(_p12,push,ITE(_p13,mov,ITE(_p14,pop,syscall))))
+,]
 Enum Func State:
 []
 
 Simulating...
-......................................................... step 1 complete
-......................................................... step 2 complete
-......................................................... step 3 complete
-......................................................... step 4 complete
-......................................................... step 5 complete
+evaluating State.CR0
+evaluating State.CR4
+evaluating State.EFER
+evaluating State.currentReg
+evaluating movInstr.DEST
+evaluating popInstr.DEST
+evaluating State.rax
+evaluating State.rbx
+evaluating State.rdx
+evaluating popInstr.OperandSize
+evaluating popInstr.StackAddrSize
+evaluating popInstr.rsp
+evaluating pushInstr.OperandSize
+evaluating pushInstr.StackAddrSize
+evaluating pushInstr.memory
+evaluating pushInstr.rsp
+evaluating State.memory
+evaluating State.rsp
+evaluating syscallInstr.exitStatus
+evaluating syscallInstr.cpl
+evaluating syscallInstr.cs_accessRights
+evaluating syscallInstr.cs_base
+evaluating syscallInstr.cs_limit
+evaluating syscallInstr.cs_selector
+evaluating syscallInstr.r11
+evaluating State.r11
+evaluating syscallInstr.rcx
+evaluating State.rcx
+evaluating syscallInstr.rflags
+evaluating syscallInstr.rip
+evaluating syscallInstr.ss_accessRights
+evaluating syscallInstr.ss_base
+evaluating syscallInstr.ss_limit
+evaluating syscallInstr.ss_selector
+evaluating sysretInstr.exitStatus
+evaluating sysretInstr.cpl
+evaluating State.cpl
+evaluating sysretInstr.cs_accessRights
+evaluating State.cs_accessRights
+evaluating sysretInstr.cs_base
+evaluating State.cs_base
+evaluating sysretInstr.cs_limit
+evaluating State.cs_limit
+evaluating sysretInstr.cs_selector
+evaluating State.cs_selector
+evaluating sysretInstr.rflags
+evaluating State.rflags
+evaluating sysretInstr.rip
+evaluating State.rip
+evaluating sysretInstr.ss_accessRights
+evaluating State.ss_accessRights
+evaluating sysretInstr.ss_base
+evaluating State.ss_base
+evaluating sysretInstr.ss_limit
+evaluating State.ss_limit
+evaluating sysretInstr.ss_selector
+evaluating State.ss_selector
+ step 1 complete
+evaluating State.CR0
+evaluating State.CR4
+evaluating State.EFER
+evaluating State.currentReg
+evaluating movInstr.DEST
+evaluating popInstr.DEST
+evaluating State.rax
+evaluating State.rbx
+evaluating State.rdx
+evaluating popInstr.OperandSize
+evaluating popInstr.StackAddrSize
+evaluating popInstr.rsp
+evaluating pushInstr.OperandSize
+evaluating pushInstr.StackAddrSize
+evaluating pushInstr.memory
+evaluating pushInstr.rsp
+evaluating State.memory
+evaluating State.rsp
+evaluating syscallInstr.exitStatus
+evaluating syscallInstr.cpl
+evaluating syscallInstr.cs_accessRights
+evaluating syscallInstr.cs_base
+evaluating syscallInstr.cs_limit
+evaluating syscallInstr.cs_selector
+evaluating syscallInstr.r11
+evaluating State.r11
+evaluating syscallInstr.rcx
+evaluating State.rcx
+evaluating syscallInstr.rflags
+evaluating syscallInstr.rip
+evaluating syscallInstr.ss_accessRights
+evaluating syscallInstr.ss_base
+evaluating syscallInstr.ss_limit
+evaluating syscallInstr.ss_selector
+evaluating sysretInstr.exitStatus
+evaluating sysretInstr.cpl
+evaluating State.cpl
+evaluating sysretInstr.cs_accessRights
+evaluating State.cs_accessRights
+evaluating sysretInstr.cs_base
+evaluating State.cs_base
+evaluating sysretInstr.cs_limit
+evaluating State.cs_limit
+evaluating sysretInstr.cs_selector
+evaluating State.cs_selector
+evaluating sysretInstr.rflags
+evaluating State.rflags
+evaluating sysretInstr.rip
+evaluating State.rip
+evaluating sysretInstr.ss_accessRights
+evaluating State.ss_accessRights
+evaluating sysretInstr.ss_base
+evaluating State.ss_base
+evaluating sysretInstr.ss_limit
+evaluating State.ss_limit
+evaluating sysretInstr.ss_selector
+evaluating State.ss_selector
+ step 2 complete
 Simulating...
-......................................................... step 6 complete
-......................................................... step 7 complete
+evaluating State.CR0
+evaluating State.CR4
+evaluating State.EFER
+evaluating State.currentReg
+evaluating movInstr.DEST
+evaluating popInstr.DEST
+evaluating State.rax
+evaluating State.rbx
+evaluating State.rdx
+evaluating popInstr.OperandSize
+evaluating popInstr.StackAddrSize
+evaluating popInstr.rsp
+evaluating pushInstr.OperandSize
+evaluating pushInstr.StackAddrSize
+evaluating pushInstr.memory
+evaluating pushInstr.rsp
+evaluating State.memory
+evaluating State.rsp
+evaluating syscallInstr.exitStatus
+evaluating syscallInstr.cpl
+evaluating syscallInstr.cs_accessRights
+evaluating syscallInstr.cs_base
+evaluating syscallInstr.cs_limit
+evaluating syscallInstr.cs_selector
+evaluating syscallInstr.r11
+evaluating State.r11
+evaluating syscallInstr.rcx
+evaluating State.rcx
+evaluating syscallInstr.rflags
+evaluating syscallInstr.rip
+evaluating syscallInstr.ss_accessRights
+evaluating syscallInstr.ss_base
+evaluating syscallInstr.ss_limit
+evaluating syscallInstr.ss_selector
+evaluating sysretInstr.exitStatus
+evaluating sysretInstr.cpl
+evaluating State.cpl
+evaluating sysretInstr.cs_accessRights
+evaluating State.cs_accessRights
+evaluating sysretInstr.cs_base
+evaluating State.cs_base
+evaluating sysretInstr.cs_limit
+evaluating State.cs_limit
+evaluating sysretInstr.cs_selector
+evaluating State.cs_selector
+evaluating sysretInstr.rflags
+evaluating State.rflags
+evaluating sysretInstr.rip
+evaluating State.rip
+evaluating sysretInstr.ss_accessRights
+evaluating State.ss_accessRights
+evaluating sysretInstr.ss_base
+evaluating State.ss_base
+evaluating sysretInstr.ss_limit
+evaluating State.ss_limit
+evaluating sysretInstr.ss_selector
+evaluating State.ss_selector
+ step 3 complete
 Simulating...
-......................................................... step 8 complete
-......................................................... step 9 complete
-......................................................... step 10 complete
-......................................................... step 11 complete
+evaluating State.CR0
+evaluating State.CR4
+evaluating State.EFER
+evaluating State.currentReg
+evaluating movInstr.DEST
+evaluating popInstr.DEST
+evaluating State.rax
+evaluating State.rbx
+evaluating State.rdx
+evaluating popInstr.OperandSize
+evaluating popInstr.StackAddrSize
+evaluating popInstr.rsp
+evaluating pushInstr.OperandSize
+evaluating pushInstr.StackAddrSize
+evaluating pushInstr.memory
+evaluating pushInstr.rsp
+evaluating State.memory
+evaluating State.rsp
+evaluating syscallInstr.exitStatus
+evaluating syscallInstr.cpl
+evaluating syscallInstr.cs_accessRights
+evaluating syscallInstr.cs_base
+evaluating syscallInstr.cs_limit
+evaluating syscallInstr.cs_selector
+evaluating syscallInstr.r11
+evaluating State.r11
+evaluating syscallInstr.rcx
+evaluating State.rcx
+evaluating syscallInstr.rflags
+evaluating syscallInstr.rip
+evaluating syscallInstr.ss_accessRights
+evaluating syscallInstr.ss_base
+evaluating syscallInstr.ss_limit
+evaluating syscallInstr.ss_selector
+evaluating sysretInstr.exitStatus
+evaluating sysretInstr.cpl
+evaluating State.cpl
+evaluating sysretInstr.cs_accessRights
+evaluating State.cs_accessRights
+evaluating sysretInstr.cs_base
+evaluating State.cs_base
+evaluating sysretInstr.cs_limit
+evaluating State.cs_limit
+evaluating sysretInstr.cs_selector
+evaluating State.cs_selector
+evaluating sysretInstr.rflags
+evaluating State.rflags
+evaluating sysretInstr.rip
+evaluating State.rip
+evaluating sysretInstr.ss_accessRights
+evaluating State.ss_accessRights
+evaluating sysretInstr.ss_base
+evaluating State.ss_base
+evaluating sysretInstr.ss_limit
+evaluating State.ss_limit
+evaluating sysretInstr.ss_selector
+evaluating State.ss_selector
+ step 4 complete
 Simulating...
-......................................................... step 12 complete
-Simulating...
-......................................................... step 13 complete
+evaluating State.CR0
+evaluating State.CR4
+evaluating State.EFER
+evaluating State.currentReg
+evaluating movInstr.DEST
+evaluating popInstr.DEST
+evaluating State.rax
+evaluating State.rbx
+evaluating State.rdx
+evaluating popInstr.OperandSize
+evaluating popInstr.StackAddrSize
+evaluating popInstr.rsp
+evaluating pushInstr.OperandSize
+evaluating pushInstr.StackAddrSize
+evaluating pushInstr.memory
+evaluating pushInstr.rsp
+evaluating State.memory
+evaluating State.rsp
+evaluating syscallInstr.exitStatus
+evaluating syscallInstr.cpl
+evaluating syscallInstr.cs_accessRights
+evaluating syscallInstr.cs_base
+evaluating syscallInstr.cs_limit
+evaluating syscallInstr.cs_selector
+evaluating syscallInstr.r11
+evaluating State.r11
+evaluating syscallInstr.rcx
+evaluating State.rcx
+evaluating syscallInstr.rflags
+evaluating syscallInstr.rip
+evaluating syscallInstr.ss_accessRights
+evaluating syscallInstr.ss_base
+evaluating syscallInstr.ss_limit
+evaluating syscallInstr.ss_selector
+evaluating sysretInstr.exitStatus
+evaluating sysretInstr.cpl
+evaluating State.cpl
+evaluating sysretInstr.cs_accessRights
+evaluating State.cs_accessRights
+evaluating sysretInstr.cs_base
+evaluating State.cs_base
+evaluating sysretInstr.cs_limit
+evaluating State.cs_limit
+evaluating sysretInstr.cs_selector
+evaluating State.cs_selector
+evaluating sysretInstr.rflags
+evaluating State.rflags
+evaluating sysretInstr.rip
+evaluating State.rip
+evaluating sysretInstr.ss_accessRights
+evaluating State.ss_accessRights
+evaluating sysretInstr.ss_base
+evaluating State.ss_base
+evaluating sysretInstr.ss_limit
+evaluating State.ss_limit
+evaluating sysretInstr.ss_selector
+evaluating State.ss_selector
+ step 5 complete
 
 **********************************************
      Decision Procedure 
@@ -114,11 +393,11 @@ Using heuristic  1
 Ignoring Positive Equality Analysis....
 Using Ackermann's method to eliminate g-function symbols....
 **********************************************
-Stats : Original formula size :<|tnodes|,|Tnodes|> = <755,833>
+Stats : Original formula size :<|tnodes|,|Tnodes|> = <256,294>
 Getting function, predicate symbols.....
 Getting the PCEUF from the formula.....
 Initializing function application classes...
-Initial number of fAppClasses is 340
+Initial number of fAppClasses is 153
 Final number of fAppClasses is 1
 
  the function symbols:[State.EFER_i,State.SRC,State.addr,State.cpl_i,State.cs_accessRights_i,State.m0,State.rcx_i,State.rip_i,State.rsp_i,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
@@ -128,19 +407,20 @@ Final number of fAppClasses is 1
  the p function symbols:[]
 Eliminating  uninterpreted g-func/pred symbols Ackermann.....
 Eliminating  uninterpreted p-func symbols Bryant.....
-# of vars  = 49
+# of vars  = 25
 # of pvars = 0
-# of gvars = 49
+# of gvars = 25
 
  the p-vars :[]
 
- the g-vars:[State.EFER_i,State.SRC,State.addr,State.cpl_i,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,V_State.m0_1,V_State.m0_10,V_State.m0_11,V_State.m0_12,V_State.m0_13,V_State.m0_14,V_State.m0_15,V_State.m0_16,V_State.m0_17,V_State.m0_18,V_State.m0_19,V_State.m0_2,V_State.m0_20,V_State.m0_21,V_State.m0_22,V_State.m0_23,V_State.m0_24,V_State.m0_25,V_State.m0_26,V_State.m0_27,V_State.m0_28,V_State.m0_29,V_State.m0_3,V_State.m0_30,V_State.m0_31,V_State.m0_32,V_State.m0_33,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
+ the g-vars:[State.EFER_i,State.SRC,State.addr,State.cpl_i,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,V_State.m0_1,V_State.m0_2,V_State.m0_3,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
 Fraction of p-vars = 0.0
-Stats :  after function elimination  size :<|tnodes|,|Tnodes|> = <3412,833>
-Stats :  after predicate elimination  size :<|tnodes|,|Tnodes|> = <3412,833>
+Stats :  after function elimination  size :<|tnodes|,|Tnodes|> = <446,294>
+Stats :  after predicate elimination  size :<|tnodes|,|Tnodes|> = <446,294>
 # of ITE vars = 0
 The final variable classes :
 {[State.EFER_i], true, Cardinality = 1}
+{[State.SRC,State.rcx_i,State.rip_i,V_State.m0_1,V_State.m0_2,V_State.m0_3,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR], true, Cardinality = 15}
 {[State.addr,State.rsp_i], true, Cardinality = 2}
 {[State.cpl_i], false, Cardinality = 1}
 {[State.cs_accessRights_i], true, Cardinality = 1}
@@ -149,66 +429,40 @@ The final variable classes :
 {[__en_opcodes], true, Cardinality = 1}
 {[__en_register], true, Cardinality = 1}
 {[__en_size], true, Cardinality = 1}
-{[State.SRC,State.rcx_i,State.rip_i,V_State.m0_1,V_State.m0_10,V_State.m0_11,V_State.m0_12,V_State.m0_13,V_State.m0_14,V_State.m0_15,V_State.m0_16,V_State.m0_17,V_State.m0_18,V_State.m0_19,V_State.m0_2,V_State.m0_20,V_State.m0_21,V_State.m0_22,V_State.m0_23,V_State.m0_24,V_State.m0_25,V_State.m0_26,V_State.m0_27,V_State.m0_28,V_State.m0_29,V_State.m0_3,V_State.m0_30,V_State.m0_31,V_State.m0_32,V_State.m0_33,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR], true, Cardinality = 39}
 Starting Eager Encoding for Bit-Vector Arithmetic...
 Generating propositional encoding...
-#bits for __en_opcodes = 0 (constant encoding of 6)
-#bits for __en_size = 0 (constant encoding of 8)
 #bits for State.rsp_i = 64
-#bits for V_State.m0_1 = 6
-#bits for V_State.m0_2 = 6
-#bits for V_State.m0_3 = 6
-#bits for V_State.m0_4 = 6
-#bits for V_State.m0_5 = 6
-#bits for V_State.m0_6 = 6
-#bits for V_State.m0_7 = 6
-#bits for V_State.m0_8 = 6
-#bits for V_State.m0_9 = 6
-#bits for V_State.m0_10 = 6
-#bits for V_State.m0_11 = 6
-#bits for V_State.m0_12 = 6
-#bits for V_State.m0_13 = 6
-#bits for V_State.m0_14 = 6
-#bits for V_State.m0_15 = 6
-#bits for V_State.m0_16 = 6
-#bits for V_State.m0_17 = 6
-#bits for V_State.m0_18 = 6
-#bits for V_State.m0_19 = 6
-#bits for V_State.m0_20 = 6
-#bits for V_State.m0_21 = 6
-#bits for V_State.m0_22 = 6
-#bits for V_State.m0_23 = 6
-#bits for V_State.m0_24 = 6
-#bits for V_State.m0_25 = 6
-#bits for V_State.m0_26 = 6
-#bits for V_State.m0_27 = 6
-#bits for V_State.m0_28 = 6
-#bits for V_State.m0_29 = 6
-#bits for V_State.m0_30 = 6
-#bits for V_State.m0_31 = 6
-#bits for V_State.m0_32 = 6
-#bits for V_State.m0_33 = 6
-#bits for __en_register = 0 (constant encoding of 7)
+#bits for V_State.m0_1 = 4
+#bits for V_State.m0_2 = 4
+#bits for V_State.m0_3 = 4
+#bits for __en_opcodes = 0 (constant encoding of 7)
+#bits for __en_size = 0 (constant encoding of 9)
+#bits for V_State.m0_4 = 4
+#bits for V_State.m0_5 = 4
+#bits for V_State.m0_6 = 4
+#bits for V_State.m0_7 = 4
+#bits for V_State.m0_8 = 4
+#bits for V_State.m0_9 = 4
+#bits for __en_register = 0 (constant encoding of 8)
 #bits for movInstr.SRC = 64
 #bits for State.EFER_i = 64
-#bits for __en_exitCase = 0 (constant encoding of 5)
-#bits for State.cpl_i = 2
-#bits for State.cs_accessRights_i = 12
+#bits for __en_exitCase = 0 (constant encoding of 6)
+#bits for syscallInstr.IA32_LSTAR = 64
+#bits for State.rip_i = 64
+#bits for popInstr.DEST_i = 64
+#bits for State.rcx_i = 64
 #bits for State.addr = 64
 #bits for State.SRC = 64
-#bits for popInstr.DEST_i = 64
-#bits for State.rip_i = 64
-#bits for State.rcx_i = 64
-#bits for syscallInstr.IA32_LSTAR = 64
-User Time for propositional encoding: 0.584
+#bits for State.cpl_i = 2
+#bits for State.cs_accessRights_i = 12
+User Time for propositional encoding: 0.116
 
 
  Overall Bit-Vector Encoding Time
-Encoding Usr Time: 0.588
-Encoding Sys Time: 0.020
-Encoding GC Time: 0.172
+Encoding Usr Time: 0.116
+Encoding Sys Time: 0.000
 Writing CNF formula to file <StateModel.cnf>.....
-Formula has 107215 variables and 319525 clauses.
+Formula has 12209 variables and 35260 clauses.
 Running Minisat to check the formula.....
 Finished running Minisat.....
 
@@ -224,9 +478,9 @@ Finished running Minisat.....
    Part 1 : Interpretations to func and predicates 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-_p71=false
-_p72=false
-_p73=false
+_p16=false
+_p17=false
+_p18=false
 movInstr.SRC=0000000000000000000000000000000000000000000000000000000000000000
 ZERO_=00
 State.EFER_i[0]=false
@@ -294,122 +548,6 @@ State.EFER_i[61]=false
 State.EFER_i[62]=false
 State.EFER_i[63]=false
 State.EFER_i=0000000000000000000000000000000000000000000000000000000000000000
-State.cpl_i=00
-_p15=false
-State.cs_accessRights_i[0]=false
-State.cs_accessRights_i[1]=false
-State.cs_accessRights_i[2]=false
-State.cs_accessRights_i[3]=false
-State.cs_accessRights_i[4]=false
-State.cs_accessRights_i[5]=false
-State.cs_accessRights_i[6]=false
-State.cs_accessRights_i[7]=false
-State.cs_accessRights_i[8]=false
-State.cs_accessRights_i[9]=false
-State.cs_accessRights_i[10]=false
-State.cs_accessRights_i[11]=false
-State.cs_accessRights_i=000000000000
-sysretInstr.operand_size_is_64_bit=false
-State.addr=0000000000000000000000000000000000000000000000000000000000010100
-State.rsp_i=1000000000000000000000000000000000000000000000000000000000011010
-State.SRC=0000000000000000000000000000000000000000000000000000000000000000
-V_State.m0_1=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_2=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_3=00
-State.m0(1000000000000000,)=00
-V_State.m0_4=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_5=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_6=00
-State.m0(1000000000000000,)=00
-V_State.m0_7=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_8=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_9=00
-State.m0(1000000000000000,)=00
-V_State.m0_10=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_11=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_12=00
-State.m0(1000000000000000,)=00
-V_State.m0_13=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_14=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_15=00
-State.m0(1000000000000000,)=00
-popInstr.DEST_i=0000000000000000000000000000000000000000000000000000000000000000
-State.rip_i[0]=false
-State.rip_i[1]=false
-State.rip_i[2]=false
-State.rip_i[3]=false
-State.rip_i[4]=false
-State.rip_i[5]=false
-State.rip_i[6]=false
-State.rip_i[7]=false
-State.rip_i[8]=false
-State.rip_i[9]=false
-State.rip_i[10]=false
-State.rip_i[11]=false
-State.rip_i[12]=false
-State.rip_i[13]=false
-State.rip_i[14]=false
-State.rip_i[15]=false
-State.rip_i[16]=false
-State.rip_i[17]=false
-State.rip_i[18]=false
-State.rip_i[19]=false
-State.rip_i[20]=false
-State.rip_i[21]=false
-State.rip_i[22]=false
-State.rip_i[23]=false
-State.rip_i[24]=false
-State.rip_i[25]=false
-State.rip_i[26]=false
-State.rip_i[27]=false
-State.rip_i[28]=false
-State.rip_i[29]=false
-State.rip_i[30]=false
-State.rip_i[31]=false
-State.rip_i[32]=false
-State.rip_i[33]=false
-State.rip_i[34]=false
-State.rip_i[35]=false
-State.rip_i[36]=false
-State.rip_i[37]=false
-State.rip_i[38]=false
-State.rip_i[39]=false
-State.rip_i[40]=false
-State.rip_i[41]=false
-State.rip_i[42]=false
-State.rip_i[43]=false
-State.rip_i[44]=false
-State.rip_i[45]=false
-State.rip_i[46]=false
-State.rip_i[47]=false
-State.rip_i[48]=false
-State.rip_i[49]=false
-State.rip_i[50]=false
-State.rip_i[51]=false
-State.rip_i[52]=false
-State.rip_i[53]=false
-State.rip_i[54]=false
-State.rip_i[55]=false
-State.rip_i[56]=false
-State.rip_i[57]=false
-State.rip_i[58]=false
-State.rip_i[59]=false
-State.rip_i[60]=false
-State.rip_i[61]=false
-State.rip_i[62]=false
-State.rip_i[63]=false
-State.rip_i=0000000000000000000000000000000000000000000000000000000000000000
-State.rcx_i=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.IA32_LSTAR[0]=false
 syscallInstr.IA32_LSTAR[1]=false
 syscallInstr.IA32_LSTAR[2]=false
@@ -475,56 +613,123 @@ syscallInstr.IA32_LSTAR[61]=false
 syscallInstr.IA32_LSTAR[62]=false
 syscallInstr.IA32_LSTAR[63]=false
 syscallInstr.IA32_LSTAR=0000000000000000000000000000000000000000000000000000000000000000
-V_State.m0_16=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_17=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_18=00
-State.m0(1000000000000000,)=00
+State.rip_i[0]=false
+State.rip_i[1]=false
+State.rip_i[2]=false
+State.rip_i[3]=false
+State.rip_i[4]=false
+State.rip_i[5]=false
+State.rip_i[6]=false
+State.rip_i[7]=false
+State.rip_i[8]=false
+State.rip_i[9]=false
+State.rip_i[10]=false
+State.rip_i[11]=false
+State.rip_i[12]=false
+State.rip_i[13]=false
+State.rip_i[14]=false
+State.rip_i[15]=false
+State.rip_i[16]=false
+State.rip_i[17]=false
+State.rip_i[18]=false
+State.rip_i[19]=false
+State.rip_i[20]=false
+State.rip_i[21]=false
+State.rip_i[22]=false
+State.rip_i[23]=false
+State.rip_i[24]=false
+State.rip_i[25]=false
+State.rip_i[26]=false
+State.rip_i[27]=false
+State.rip_i[28]=false
+State.rip_i[29]=false
+State.rip_i[30]=false
+State.rip_i[31]=false
+State.rip_i[32]=false
+State.rip_i[33]=false
+State.rip_i[34]=false
+State.rip_i[35]=false
+State.rip_i[36]=false
+State.rip_i[37]=false
+State.rip_i[38]=false
+State.rip_i[39]=false
+State.rip_i[40]=false
+State.rip_i[41]=false
+State.rip_i[42]=false
+State.rip_i[43]=false
+State.rip_i[44]=false
+State.rip_i[45]=false
+State.rip_i[46]=false
+State.rip_i[47]=false
+State.rip_i[48]=false
+State.rip_i[49]=false
+State.rip_i[50]=false
+State.rip_i[51]=false
+State.rip_i[52]=false
+State.rip_i[53]=false
+State.rip_i[54]=false
+State.rip_i[55]=false
+State.rip_i[56]=false
+State.rip_i[57]=false
+State.rip_i[58]=false
+State.rip_i[59]=false
+State.rip_i[60]=false
+State.rip_i[61]=false
+State.rip_i[62]=false
+State.rip_i[63]=false
+State.rip_i=0000000000000000000000000000000000000000000000000000000000000000
+_p8=false
+_p9=false
+_p10=false
+V_State.m0_1=00
+State.rsp_i=0000000000000000000000000000000000000000000000000000000000000000
+State.m0(00000000000000000000000000000000,)=00
+V_State.m0_2=00
+State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
+V_State.m0_3=00
+State.m0(0000000000000000,)=00
+popInstr.DEST_i=0000000000000000000000000000000000000000000000000000000000000000
+State.rcx_i=0000000000000000000000000000000000000000000000000000000000000000
 canonical(0000000000000000000000000000000000000000000000000000000000000000,)=true
-isUserControlled(1000000000000000000000000000000000000000000000000000000000011010,)=true
-_p133=false
-_p134=false
-_p135=false
-_p136=false
-_p78=false
-_p79=false
-_p80=false
-_p81=false
-isUserControlled(1000000000000000000000000000000000000000000000000000000000011010,)=true
-V_State.m0_19=00
-State.m0(11111111111111111111111111111111,)=00
-V_State.m0_20=00
-State.m0(1111111111111111111111111111111111111111111111111111111111101010,)=00
-V_State.m0_21=00
-State.m0(1111111111111111,)=00
-V_State.m0_22=00
-State.m0(11111111111111111111111111111111,)=00
-V_State.m0_23=00
-State.m0(1111111111111111111111111111111111111111111111111111111111101010,)=00
-V_State.m0_24=00
-State.m0(1111111111111111,)=00
-V_State.m0_25=00
-State.m0(11111111111111111111111111111111,)=00
-V_State.m0_26=00
-State.m0(1111111111111111111111111111111111111111111111111111111111101010,)=00
-V_State.m0_27=00
-State.m0(1111111111111111,)=00
-V_State.m0_28=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_29=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_30=00
-State.m0(1000000000000000,)=00
-V_State.m0_31=00
-State.m0(10000000000000000000000000000000,)=00
-V_State.m0_32=00
-State.m0(1000000000000000000000000000000000000000000000000000000000011010,)=00
-V_State.m0_33=00
-State.m0(1000000000000000,)=00
-_p82=false
-_p83=false
-_p84=false
+_p48=false
+_p37=false
+_p23=false
+_p24=false
+_p25=false
+_p26=false
+_p3=false
+_p42=false
+isUserControlled(0000000000000000000000000000000000000000000000000000000000000000,)=true
+State.cpl_i=00
+_p15=false
+State.cs_accessRights_i[0]=false
+State.cs_accessRights_i[1]=false
+State.cs_accessRights_i[2]=false
+State.cs_accessRights_i[3]=false
+State.cs_accessRights_i[4]=false
+State.cs_accessRights_i[5]=false
+State.cs_accessRights_i[6]=false
+State.cs_accessRights_i[7]=false
+State.cs_accessRights_i[8]=false
+State.cs_accessRights_i[9]=false
+State.cs_accessRights_i[10]=false
+State.cs_accessRights_i[11]=false
+State.cs_accessRights_i=000000000000
+sysretInstr.operand_size_is_64_bit=false
+State.addr=1111111111111111111110011111111111111111111111111111101111011111
+State.SRC=0000000000000000000000000000000000000000000000000000000000000000
+V_State.m0_4=00
+State.m0(00000000000000000000000000000000,)=00
+V_State.m0_5=00
+State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
+V_State.m0_6=00
+State.m0(0000000000000000,)=00
+V_State.m0_7=00
+State.m0(00000000000000000000000000000000,)=00
+V_State.m0_8=00
+State.m0(0000000000000000000000000000000000000000000000000000000000000000,)=00
+V_State.m0_9=00
+State.m0(0000000000000000,)=00
 canonical(0000000000000000000000000000000000000000000000000000000000000000,)=true
 
 
@@ -555,7 +760,7 @@ sysretInstr.ss_selector_i=00
 sysretInstr.ss_selector:=00
 syscallInstr.ss_selector_i=00
 syscallInstr.ss_selector:=00
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_base_i=00
 syscallInstr.cs_base:=00
 movInstr.DEST_i=00
@@ -633,13 +838,16 @@ syscallInstr.cs_selector_i=00
 syscallInstr.cs_selector:=00
 
  ####### Enumerated State #######
-popInstr.OperandSize:=1000
-syscallInstr.exitStatus:=0100
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=0100
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0000
+popInstr.OperandSize:=0001
+syscallInstr.exitStatus:=0010
+popInstr.StackAddrSize:=0010
+sysretInstr.exitStatus:=0010
+State.currentReg:=00011
+pushInstr.OperandSize:=0010
+pushInstr.StackAddrSize:=0010
+
+ ####### External Enumerated State #######
+opcode:=001
 
  ####### Function  State #######
 
@@ -660,14 +868,14 @@ pushInstr.memory:=00
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.IA32_STAR=00
 Warning: just padded value with zeros because BV0[2] is smaller than bit-width of signal
 sysretInstr.ss_selector:=0000000000000000
 syscallInstr.IA32_STAR=00
 Warning: just padded value with zeros because BV0[2] is smaller than bit-width of signal
 syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_base:=00000000000000000000000000000000
 movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 State.rip:=0000000000000000000000000000000000000000000000000000000000000000
@@ -687,7 +895,7 @@ syscallInstr.rflags:=00
 syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
+pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_base:=00000000000000000000000000000000
 syscallInstr.ss_base:=00000000000000000000000000000000
@@ -703,7 +911,7 @@ State.cpl:=00
 sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
 popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
+State.rflags:=00
 State.ss_base:=00000000000000000000000000000000
 sysretInstr.cpl:=00
 sysretInstr.ss_limit:=00000000000000000000
@@ -714,13 +922,16 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=1000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=1000
+popInstr.OperandSize:=0001
+syscallInstr.exitStatus:=0001
+popInstr.StackAddrSize:=0010
+sysretInstr.exitStatus:=0001
+State.currentReg:=00011
+pushInstr.OperandSize:=0010
+pushInstr.StackAddrSize:=0010
+
+ ####### External Enumerated State #######
+opcode:=000100
 
  ####### Function  State #######
 
@@ -740,10 +951,10 @@ pushInstr.memory:=00000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_selector:=0000000000000000
 syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_base:=00000000000000000000000000000000
 movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 State.rip:=0000000000000000000000000000000000000000000000000000000000000000
@@ -755,11 +966,11 @@ State.CR0:=00
 State.ss_limit:=00000000000000000000
 syscallInstr.cs_accessRights:=0000000000000
 syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
+syscallInstr.rflags:=00
 syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_base:=00000000000000000000000000000000
 syscallInstr.ss_base:=00000000000000000000000000000000
@@ -786,13 +997,16 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=1000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0000
+popInstr.OperandSize:=0001
+syscallInstr.exitStatus:=0001
+popInstr.StackAddrSize:=0010
+sysretInstr.exitStatus:=0001
+State.currentReg:=00011
+pushInstr.OperandSize:=0010
+pushInstr.StackAddrSize:=0010
+
+ ####### External Enumerated State #######
+opcode:=00011
 
  ####### Function  State #######
 
@@ -812,10 +1026,10 @@ pushInstr.memory:=00000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1100000000000000000000000000000000000000000000000000000000011010
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_selector:=0000000000000000
 syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_base:=00000000000000000000000000000000
 movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 State.rip:=0000000000000000000000000000000000000000000000000000000000000000
@@ -831,7 +1045,7 @@ syscallInstr.rflags:=00000000000000000000000000000000000000000000000000000000000
 syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
+pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_base:=00000000000000000000000000000000
 syscallInstr.ss_base:=00000000000000000000000000000000
@@ -858,13 +1072,19 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0100
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0000
+popInstr.OperandSize:=0010
+syscallInstr.exitStatus:=0001
+popInstr.StackAddrSize:=0010
+sysretInstr.exitStatus:=0001
+_p38=false
+_p39=false
+_p40=false
+State.currentReg:=00011
+pushInstr.OperandSize:=0010
+pushInstr.StackAddrSize:=0010
+
+ ####### External Enumerated State #######
+opcode:=00
 
  ####### Function  State #######
 
@@ -884,10 +1104,10 @@ pushInstr.memory:=00000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_selector:=0000000000000000
 syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_base:=00000000000000000000000000000000
 movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 State.rip:=0000000000000000000000000000000000000000000000000000000000000000
@@ -903,7 +1123,7 @@ syscallInstr.rflags:=00000000000000000000000000000000000000000000000000000000000
 syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
+pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_base:=00000000000000000000000000000000
 syscallInstr.ss_base:=00000000000000000000000000000000
@@ -930,13 +1150,27 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=1000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=1000
+_p52=false
+_p53=false
+popInstr.OperandSize:=0010
+syscallInstr.exitStatus:=0001
+_p54=false
+_p55=false
+popInstr.StackAddrSize:=0010
+sysretInstr.exitStatus:=0001
+_p49=false
+_p50=false
+_p51=false
+State.currentReg:=00011
+_p56=false
+_p57=false
+pushInstr.OperandSize:=0010
+_p58=false
+_p59=false
+pushInstr.StackAddrSize:=0010
+
+ ####### External Enumerated State #######
+opcode:=001
 
  ####### Function  State #######
 
@@ -956,10 +1190,10 @@ pushInstr.memory:=00000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_accessRights:=0000000000000
 sysretInstr.cs_limit:=00000000000000000000
 State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+popInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.ss_selector:=0000000000000000
 syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+State.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 syscallInstr.cs_base:=00000000000000000000000000000000
 movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
 State.rip:=0000000000000000000000000000000000000000000000000000000000000000
@@ -975,7 +1209,7 @@ syscallInstr.rflags:=00000000000000000000000000000000000000000000000000000000000
 syscallInstr.cpl:=00
 State.CR4:=00
 syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
+pushInstr.rsp:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
 sysretInstr.cs_base:=00000000000000000000000000000000
 syscallInstr.ss_base:=00000000000000000000000000000000
@@ -1002,614 +1236,27 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=1000
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 6::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1001000000000000000000000000000000000000000000000000000000011010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-popInstr.OperandSize:=0000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=1000
-State.currentReg:=11000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0100
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 7::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1001000000000000000000000000000000000000000000000000000000011010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-popInstr.OperandSize:=0000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=1000
-State.currentReg:=11000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0000
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 8::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1001000000000000000000000000000000000000000000000000000000011010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-popInstr.OperandSize:=1000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0100
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 9::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-popInstr.OperandSize:=0000
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=1000
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 10::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1110000000000000000000000000000000000000000000000000000000011010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-popInstr.OperandSize:=0100
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=1000
-State.currentReg:=00000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=1000
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 11::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-popInstr.OperandSize:=0100
-syscallInstr.exitStatus:=1000
-popInstr.StackAddrSize:=0000
-sysretInstr.exitStatus:=1000
-_p126=false
-_p127=false
-_p128=false
-State.currentReg:=11000
-pushInstr.OperandSize:=0100
-pushInstr.StackAddrSize:=0100
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 12::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1111111111111111111111111111111111111111111111111111111111101010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-_p140=false
-_p141=false
-popInstr.OperandSize:=0100
-syscallInstr.exitStatus:=1000
-_p142=false
-_p143=false
-popInstr.StackAddrSize:=0100
-sysretInstr.exitStatus:=1000
-_p137=false
-_p138=false
-_p139=false
-State.currentReg:=11000
-_p144=false
-_p145=false
-pushInstr.OperandSize:=0100
-_p146=false
-_p147=false
-pushInstr.StackAddrSize:=0100
-
- ####### Function  State #######
-
- ####### Predicate  State #######
-
- ####### Enumerated Function State #######
-
-+---------------------+
-|       State 13::     |
-+---------------------+
-
- ####### Boolean State #######
-
- ####### Term  State #######
-State.rax:=0000000000000000000000000000000000000000000000000000000000000000
-pushInstr.memory:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_accessRights:=0000000000000
-sysretInstr.cs_limit:=00000000000000000000
-State.EFER:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-sysretInstr.ss_selector:=0000000000000000
-syscallInstr.ss_selector:=0000000000000000
-State.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-syscallInstr.cs_base:=00000000000000000000000000000000
-movInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-State.rip:=0000000000000000000000000000000000000000000000000000000000000000
-State.cs_selector:=0000000000000000
-syscallInstr.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-State.rbx:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_accessRights:=0000000000000
-State.CR0:=00
-State.ss_limit:=00000000000000000000
-syscallInstr.cs_accessRights:=0000000000000
-syscallInstr.r11:=00
-syscallInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cpl:=00
-State.CR4:=00
-syscallInstr.ss_limit:=00000000000000000000
-pushInstr.rsp:=1000000000000000000000000000000000000000000000000000000000011010
-sysretInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_base:=00000000000000000000000000000000
-State.ss_selector:=0000000000000000
-State.cs_base:=00000000000000000000000000000000
-syscallInstr.ss_accessRights:=0000000000000
-State.cs_limit:=00000000000000000000
-State.rcx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.cs_limit:=00000000000000000000
-State.cs_accessRights:=0000000000000
-State.r11:=00
-State.cpl:=00
-sysretInstr.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-popInstr.DEST:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.ss_base:=00000000000000000000000000000000
-State.rflags:=0000000000000000000000000000000000000000000000000000000000000000
-State.ss_base:=00000000000000000000000000000000
-sysretInstr.cpl:=00
-sysretInstr.ss_limit:=00000000000000000000
-State.ss_accessRights:=0000000000000
-State.rdx:=0000000000000000000000000000000000000000000000000000000000000000
-syscallInstr.rip:=0000000000000000000000000000000000000000000000000000000000000000
-sysretInstr.cs_selector:=0000000000000000
-syscallInstr.cs_selector:=0000000000000000
-
- ####### Enumerated State #######
-_p151=false
-_p152=false
-popInstr.OperandSize:=0100
-syscallInstr.exitStatus:=1000
-_p153=false
-_p154=false
-popInstr.StackAddrSize:=0100
+_p63=false
+_p64=false
+popInstr.OperandSize:=0010
+syscallInstr.exitStatus:=0001
+_p65=false
+_p66=false
+popInstr.StackAddrSize:=0010
 sysretInstr.exitStatus:=0000
-_p148=false
-_p149=false
-_p150=false
-State.currentReg:=11000
-_p155=false
-_p156=false
-pushInstr.OperandSize:=0100
-_p157=false
-_p158=false
-pushInstr.StackAddrSize:=0100
+_p60=false
+_p61=false
+_p62=false
+State.currentReg:=00011
+_p67=false
+_p68=false
+pushInstr.OperandSize:=0010
+_p69=false
+_p70=false
+pushInstr.StackAddrSize:=0010
+
+ ####### External Enumerated State #######
+opcode:=001
 
  ####### Function  State #######
 
@@ -1619,12 +1266,10 @@ pushInstr.StackAddrSize:=0100
 
 
  Decision Procedure Encoding Time
-Usr Time: 1.376
-Sys Time: 0.536
-GC Time: 0.448
+Usr Time: 0.376
+Sys Time: 0.012
 
 
  Overall ML Execution Time
-Usr Time: 1.480
-Sys Time: 0.556
-GC Time: 0.452
+Usr Time: 0.404
+Sys Time: 0.012

@@ -7,6 +7,7 @@ syscall_rcx : BITVEC[64]; (* RCX after syscall/push *)
 syscall_rsp : BITVEC[64]; (*RSP before syscall*)
 sysret_rsp : BITVEC[64]; (*RSP after sysret*)
 sysret_cpl : BITVEC[64]; (*CPL after sysret*)
+opcodeStore : opcodes;
 
 VAR
 
@@ -30,26 +31,29 @@ EXEC
 (*----------------------------------------------------------------*)
 (* Simulate some number of simulations *)
 (* x must changed to an actual  number*)
-simulate(5);
+(*simulate(5);*)
 (* We need to call syscall and context sw*)
 syscall_rsp := State.rsp; 
-opcode[6] := syscall;                               (*RCX is set to RSP*)
-opcode[7] := push;                                  (*User RSP is sent to the stack*)
+opcode[0] := syscall;                               (*RCX is set to RSP*)
+opcode[1] := push;                                  (*User RSP is sent to the stack*)
 (*currentRegister[7] := rsp;*)                          (*Set rsp register to be pushed*)
 simulate(2);
 syscall_rcx := State.rcx;                             (*RCX must implicitly be canonical*)
 (* Simulate some number of simulations *)
 (* y must changed to an actual number *)
-simulate(4);                                          (*RCX must change to force sysret bug*)
+simulate(1);                                         (*RCX must change to force sysret bug*)
+opcodeStore := State.opcode;
 sysret_rcx := State.rcx;
-opcode[11] := pop;                                 (*RSP is set to pushed User RSP*)
+opcode[3] := pop;                                 (*RSP is set to pushed User RSP*)
 (*currentRegister[11] := rsp;*)                        (*Set rsp to recieve popped value*)
 simulate(1);
 sysret_rsp := State.rsp;
-opcode[12] := sysret;                              (*Will fault if rcx is not not canonical*)
-isCanonical[12] := setIsCanonical;
+opcode[4] := sysret;                              (*Will fault if rcx is not not canonical*)
+isCanonical[4] := setIsCanonical;
 simulate(1);
 sysret_cpl := State.cpl;
 
 
-decide((canonical(syscall_rcx) & isUserControlled(syscall_rsp) & syscall_rsp = sysret_rsp) => ((isUserControlled(sysret_rsp) & sysret_cpl = ((b1)@(b1))) | (!!isUserControlled(sysret_rsp) & sysret_cpl = ((b0)@(b0)));
+decide((canonical(syscall_rcx) & syscall_rsp = sysret_rsp) => ((isUserControlled(sysret_rsp) & sysret_cpl = ((b1)@(b1))) | (!!isUserControlled(sysret_rsp) & sysret_cpl = ((b0)@(b0)))));
+
+print(storeOpcode);

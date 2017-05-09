@@ -1,0 +1,93 @@
+UCLID
+Copyright (C) 2001-2011 The UCLID Team
+Compiling model StateModel...
+Compiling module sysretInstr...
+Compiling module pushInstr...
+Compiling module movInstr...
+Compiling module popInstr...
+Compiling module syscallInstr...
+Compiling module State...
+Compilation finished for UCLID model StateModel.
+
+INITIAL STATE:
+
+Boolean State:
+[]
+
+Term State:
+[State.rax:=State.rax_i
+,pushInstr.memory:=pushInstr.memory_i
+,sysretInstr.cs_accessRights:=sysretInstr.cs_accessRights_i
+,sysretInstr.cs_limit:=sysretInstr.cs_limit_i
+,State.EFER:=State.EFER_i
+,popInstr.rsp:=popInstr.rsp_i
+,sysretInstr.ss_selector:=sysretInstr.ss_selector_i
+,syscallInstr.ss_selector:=syscallInstr.ss_selector_i
+,State.rsp:=State.rsp_i
+,syscallInstr.cs_base:=syscallInstr.cs_base_i
+,movInstr.DEST:=movInstr.DEST_i
+,State.rip:=State.rip_i
+,State.cs_selector:=State.cs_selector_i
+,syscallInstr.rcx:=syscallInstr.rcx_i
+,State.rbx:=State.rbx_i
+,sysretInstr.ss_accessRights:=sysretInstr.ss_accessRights_i
+,State.CR0:=State.CR0_i
+,State.ss_limit:=State.ss_limit_i
+,syscallInstr.cs_accessRights:=syscallInstr.cs_accessRights_i
+,syscallInstr.r11:=syscallInstr.r11_i
+,syscallInstr.rflags:=syscallInstr.rflags_i
+,syscallInstr.cpl:=syscallInstr.cpl_i
+,State.CR4:=State.CR4_i
+,syscallInstr.ss_limit:=syscallInstr.ss_limit_i
+,pushInstr.rsp:=pushInstr.rsp_i
+,sysretInstr.rip:=sysretInstr.rip_i
+,sysretInstr.cs_base:=sysretInstr.cs_base_i
+,syscallInstr.ss_base:=syscallInstr.ss_base_i
+,State.ss_selector:=State.ss_selector_i
+,State.cs_base:=State.cs_base_i
+,syscallInstr.ss_accessRights:=syscallInstr.ss_accessRights_i
+,State.cs_limit:=State.cs_limit_i
+,State.rcx:=State.rcx_i
+,syscallInstr.cs_limit:=syscallInstr.cs_limit_i
+,State.cs_accessRights:=State.cs_accessRights_i
+,State.r11:=State.r11_i
+,State.cpl:=State.cpl_i
+,sysretInstr.rflags:=sysretInstr.rflags_i
+,popInstr.DEST:=popInstr.DEST_i
+,sysretInstr.ss_base:=sysretInstr.ss_base_i
+,State.rflags:=State.rflags_i
+,State.ss_base:=State.ss_base_i
+,sysretInstr.cpl:=sysretInstr.cpl_i
+,sysretInstr.ss_limit:=sysretInstr.ss_limit_i
+,State.ss_accessRights:=State.ss_accessRights_i
+,State.rdx:=State.rdx_i
+,syscallInstr.rip:=syscallInstr.rip_i
+,sysretInstr.cs_selector:=sysretInstr.cs_selector_i
+,syscallInstr.cs_selector:=syscallInstr.cs_selector_i
+,]
+
+Func State:
+[State.memory:=Lam(_i0).State.m0(_i0)
+,]
+
+Pred State:
+[]
+
+Enum State:
+[popInstr.OperandSize:=ITE(_p6,bits64,ITE(_p7,bits32,bits16))
+,syscallInstr.exitStatus:=Normal
+,popInstr.StackAddrSize:=ITE(_p4,bits64,ITE(_p5,bits32,bits16))
+,sysretInstr.exitStatus:=Normal
+,State.currentReg:=ITE(_p8,a,ITE(_p9,b,ITE(_p10,c,d)))
+,pushInstr.OperandSize:=ITE(_p0,bits64,ITE(_p1,bits32,bits16))
+,pushInstr.StackAddrSize:=ITE(_p2,bits64,ITE(_p3,bits32,bits16))
+,]
+
+Enum Func State:
+[]
+
+Simulating...
+......................................................... step 1 complete
+......................................................... step 2 complete
+Simulating...
+......................................................... step 3 complete
