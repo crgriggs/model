@@ -708,6 +708,9 @@ rsp_i : BITVEC[64];
 
 DEFINE
 
+b0 := ( 0 # [0:0] );
+b1 := ( 1 # [0:0] );
+
 ASSIGN
 
 init[currentReg] := {a, b, c, d};
@@ -826,7 +829,7 @@ init[CR0] := CR0_i;
 next[CR0] := CR0;
 
 
-init[cpl] := cpl_i;
+init[cpl] := (b1)@(b1);
 next[cpl] := case
     opcode = sysret : next[sysretInstr.cpl];
     opcode = syscall : next[syscallInstr.cpl];
