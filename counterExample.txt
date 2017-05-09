@@ -393,11 +393,11 @@ Using heuristic  1
 Ignoring Positive Equality Analysis....
 Using Ackermann's method to eliminate g-function symbols....
 **********************************************
-Stats : Original formula size :<|tnodes|,|Tnodes|> = <258,293>
+Stats : Original formula size :<|tnodes|,|Tnodes|> = <255,290>
 Getting function, predicate symbols.....
 Getting the PCEUF from the formula.....
 Initializing function application classes...
-Initial number of fAppClasses is 152
+Initial number of fAppClasses is 149
 Final number of fAppClasses is 1
 
  the function symbols:[State.EFER_i,State.SRC,State.addr,State.cs_accessRights_i,State.m0,State.rcx_i,State.rip_i,State.rsp_i,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
@@ -415,8 +415,8 @@ Eliminating  uninterpreted p-func symbols Bryant.....
 
  the g-vars:[State.EFER_i,State.SRC,State.addr,State.cs_accessRights_i,State.rcx_i,State.rip_i,State.rsp_i,V_State.m0_1,V_State.m0_2,V_State.m0_3,V_State.m0_4,V_State.m0_5,V_State.m0_6,V_State.m0_7,V_State.m0_8,V_State.m0_9,ZERO_,__en_exitCase,__en_opcodes,__en_register,__en_size,movInstr.SRC,popInstr.DEST_i,syscallInstr.IA32_LSTAR]
 Fraction of p-vars = 0.0
-Stats :  after function elimination  size :<|tnodes|,|Tnodes|> = <449,293>
-Stats :  after predicate elimination  size :<|tnodes|,|Tnodes|> = <449,293>
+Stats :  after function elimination  size :<|tnodes|,|Tnodes|> = <446,290>
+Stats :  after predicate elimination  size :<|tnodes|,|Tnodes|> = <446,290>
 # of ITE vars = 0
 The final variable classes :
 {[State.EFER_i], true, Cardinality = 1}
@@ -453,14 +453,14 @@ Generating propositional encoding...
 #bits for State.addr = 64
 #bits for State.SRC = 64
 #bits for State.cs_accessRights_i = 12
-User Time for propositional encoding: 0.100
+User Time for propositional encoding: 0.104
 
 
  Overall Bit-Vector Encoding Time
 Encoding Usr Time: 0.104
 Encoding Sys Time: 0.000
 Writing CNF formula to file <StateModel.cnf>.....
-Formula has 12213 variables and 35266 clauses.
+Formula has 12211 variables and 35263 clauses.
 Running Minisat to check the formula.....
 Finished running Minisat.....
 
@@ -693,6 +693,7 @@ _p23=false
 _p24=false
 _p25=false
 _p26=false
+V_isUserControlled_1=false
 isUserControlled(0000000000000000000000000000000000000000000000000000000000000000,)=false
 _p15=false
 State.cs_accessRights_i[0]=false
@@ -709,7 +710,7 @@ State.cs_accessRights_i[10]=false
 State.cs_accessRights_i[11]=false
 State.cs_accessRights_i=000000000000
 sysretInstr.operand_size_is_64_bit=false
-State.addr=1111110111101110000000000000010110100111110110111111111111111111
+State.addr=0111111111101110010000000000000110110111110111111111011110111111
 State.SRC=0000000000000000000000000000000000000000000000000000000000000000
 V_State.m0_4=00
 State.m0(00000000000000000000000000000000,)=00
@@ -990,7 +991,7 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0001
+popInstr.OperandSize:=0010
 syscallInstr.exitStatus:=0001
 popInstr.StackAddrSize:=0010
 sysretInstr.exitStatus:=0000
@@ -1065,7 +1066,7 @@ sysretInstr.cs_selector:=0000000000000000
 syscallInstr.cs_selector:=0000000000000000
 
  ####### Enumerated State #######
-popInstr.OperandSize:=0010
+popInstr.OperandSize:=0001
 syscallInstr.exitStatus:=0001
 popInstr.StackAddrSize:=0010
 sysretInstr.exitStatus:=0000
@@ -1259,10 +1260,10 @@ opcode:=001
 
 
  Decision Procedure Encoding Time
-Usr Time: 0.332
-Sys Time: 0.008
+Usr Time: 0.320
+Sys Time: 0.012
 
 
  Overall ML Execution Time
-Usr Time: 0.356
-Sys Time: 0.008
+Usr Time: 0.344
+Sys Time: 0.012
