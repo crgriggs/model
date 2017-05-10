@@ -113,8 +113,8 @@ esac;
 CS.D_n := CS.D0;
 
 exitStatus0 := case
-    CPL != 0 | isCanonical : GP;
-    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
+    CPL != (b0)@(b0) | isCanonical : GP;
+    CS.L != b1 | IA32_EFER.LMA != b1 | IA32_EFER.SCE != b1 : UD;
     default : Normal;
 esac;
 

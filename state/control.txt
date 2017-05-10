@@ -34,22 +34,24 @@ EXEC
 (*simulate(5);*)
 (* We need to call syscall and context sw*)
 syscall_rsp := State.rsp; 
-opcode[0] := syscall;                               (*RCX is set to RSP*)
-opcode[1] := push;                                  (*User RSP is sent to the stack*)
-(*currentRegister[7] := rsp;*)                          (*Set rsp register to be pushed*)
+opcode[0] := push;                               (*RCX is set to RSP*)
+opcode[1] := syscall;                                  (*User RSP is sent to the stack*)
+opcode[2] := mov;
+opcode[3] := pop; 
+opcode[4] := sysret;
+
+
+
+
 simulate(2);
 syscall_rcx := State.rcx;                             (*RCX must implicitly be canonical*)
-(* Simulate some number of simulations *)
-(* y must changed to an actual number *)
 simulate(1);                                         (*RCX must change to force sysret bug*)
 sysret_rcx := State.rcx;
-opcode[3] := pop;                                 (*RSP is set to pushed User RSP*)
-(*currentRegister[11] := rsp;*)                        (*Set rsp to recieve popped value*)
-simulate(1);
-sysret_rsp := State.rsp;
-opcode[4] := sysret;                              (*Will fault if rcx is not not canonical*)
+(*Will fault if rcx is not not canonical*)
 isCanonical[4] := setIsCanonical;
 simulate(1);
+sysret_rsp := State.rsp;
+
 sysret_cpl := State.cpl;
 
 decide((canonical(syscall_rcx) & syscall_rsp = sysret_rsp) => (~(isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1)))));

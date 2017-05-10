@@ -40,7 +40,11 @@ ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
 ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
 ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
 """
-
+    
+    #uclid requires that each literal match the length
+    #of the largest bitvector in our case the state var
+    #this prepends the correct number of bits to a bitvector
+    #or for flags ensures they stay at the correct num bits
     def correctBits(self, numBits, word):
         if numBits == "1":
             if word == "0":
@@ -58,6 +62,8 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
         numZeros = (int(numBits) - len(word) * 4)/4
         return "0"*numZeros + word 
 
+    #this changes int literals to uclid hex values
+    #also handles parens
     def cleanRHS(self, var, rhs):
         numBits = 0
         if var[:-1] in stateVars:
@@ -121,6 +127,32 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                 temp.append(word)
             temp.append(")")
         return " ".join(temp)
+
+
+    #this handles logic comparing flags to ints
+    def cleanLogic(self, line):
+        if " & " in line:
+            return " & ".join(map(lambda x: self.cleanLogic(x), line.split(" & ")))
+        elif " | " in line:
+            return " | ".join(map(lambda x: self.cleanLogic(x), line.split(" | ")))
+        elif len(line.split()) == 1:
+            return line
+        elif not line.split()[2].isdigit():
+            return line
+        else:
+            space = " "
+            line = line.split()
+            var = line[0]
+            op = line[1]
+            rhs = line[2]            
+            if "Type" in var:
+                numBits = "4"
+            elif var.upper() in ["DPL", "IOPL", "CPL"]:
+                numBits = "2"
+            else:
+                numBits = "1"
+            return var + space + op + space + self.correctBits(numBits, rhs)
+         
 
     def findInputs(self):
         file = open(self.filename)
@@ -247,7 +279,7 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
             alreadyDef.add(define.split(" := ")[0])
         for define in self.CS_SS:
             rhs = self.cleanRHS(define.split(" := ")[0], define.split(" := ")[1])
-            print define.split(" := ")[0].strip()  + " := " + rhs +";"
+            print self.cleanLogic(define.split(" := ")[0].strip())  + " := " + rhs +";"
             define = define.split(" := ")[0].strip()
             if define[0:3] == "CS.":
                 cs.add(define[3:])
@@ -272,6 +304,7 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                 for inputs in group:
                     #the first needs to set up the case statement
                     inputs[0] = self.cleanRHS(var, inputs[0])
+                    inputs[1] = self.cleanLogic(inputs[1])
                     if inputs[0] != None and bool(re.search('[A-Za-z0-9_]+[ ]*[[0-9]+:[0-9]+]', inputs[0])):
                         word = inputs[0].split("[")
                         inputs[0] = word[0] + " # [" + word[1]
