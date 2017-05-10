@@ -15,8 +15,8 @@ rflagsDict ={'CF': 'State.rflags # [0:0]', 'PF': 'State.rflags # [1:1]', 'AF': '
 CR0Dict = {'PE': 'State.CR0 # [0:0]', 'MP': 'State.CR0 # [1:1]', 'EM': 'State.CR0 # [2:2]', 'TS': 'State.CR0 # [3:3]', 'ET': 'State.CR0 # [4:4]', 'NE': 'State.CR0 # [5:5]', 'WP': 'State.CR0 # [16:16]', 'AM': 'State.CR0 # [18:18]','NW': 'State.CR0 # [29:29]', 'CD': 'State.CR0 # [30:30]', 'PG': 'State.CR0 # [31:31]'}
 CR4Dict = {'VME': 'State.CR4 # [0:0]', 'PVI': 'State.CR4 # [1:1]', 'TSD': 'State.CR4 # [2:2]', 'DE': 'State.CR4 # [3:3]', 'PSE': 'State.CR4 # [4:4]', 'PAE': 'State.CR4 # [5:5]', 'MCE': 'State.CR4 # [6:6]', 'PGE': 'State.CR4 # [7:7]','PCE': 'State.CR4 # [8:8]', 'OSFXSR': 'State.CR4 # [9:9]', 'OSXMMEXCPT': 'State.CR4 # [10:10]', 'VMXE': 'State.CR4 # [13:13]', 'SMXE': 'State.CR4 # [14:14]', 'FSGSBASE': 'State.CR4 # [16:16]', 'PCIDE': 'State.CR4 # [17:17]', 'OSXSAVE': 'State.CR4 # [18:18]', 'SMEP': 'State.CR4 # [20:20]', 'SMAP': 'State.CR4 # [21:21]', 'PKE': 'State.CR4 # [22:22]'}
 EFERDict = {'SCE': 'State.EFER # [0:0]', 'LME': 'State.EFER # [8:8]', 'LMA': 'State.EFER # [10:10]', 'NXE': 'State.EFER # [11:11]', 'SVME': 'State.EFER # [12:12]', 'LMSLE': 'State.EFER # [13:13]', 'FFXSR': 'State.EFER # [14:14]', 'TCE': 'State.EFER # [15:15]'}
-cs_accessRightsDict = {'Type': 'State.cs_accessRights # [11:8]', 'S': 'State.cs_accessRights # [7:7]', 'DPL': 'State.cs_accessRights # [6:5]', 'P': 'State.cs_accessRights # [4:4]', 'AVL': 'State.cs_accessRights # [3:3]', 'L': 'State.cs_accessRights # [2:2]', 'D': 'State.cs_accessRights # [1:1]', 'B': 'State.cs_accessRights # [1:1]', 'G': 'State.cs_accessRights # [0:0]'}#, "SELECTOR": "State.cs_selector", "BASE": "State.cs_base", "LIMIT": "State.cs_limit"}
-ss_accessRightsDict = {'Type': 'State.ss_accessRights # [11:8]', 'S': 'State.ss_accessRights # [7:7]', 'DPL': 'State.ss_accessRights # [6:5]', 'P': 'State.ss_accessRights # [4:4]', 'AVL': 'State.ss_accessRights # [3:3]', 'L': 'State.ss_accessRights # [2:2]', 'D': 'State.ss_accessRights # [1:1]', 'B': 'State.ss_accessRights # [1:1]', 'G': 'State.ss_accessRights # [0:0]'}#, "SELECTOR": "State.ss_selector", "BASE": "State.ss_base", "LIMIT": "State.ss_limit"}
+cs_accessRightsDict = {'Type': 'State.cs_accessRights # [11:8]', 'S': 'State.cs_accessRights # [7:7]', 'DPL': 'State.cs_accessRights # [6:5]', 'P': 'State.cs_accessRights # [4:4]', 'AVL': 'State.cs_accessRights # [3:3]', 'L': 'State.cs_accessRights # [2:2]', 'D': 'State.cs_accessRights # [1:1]',  'G': 'State.cs_accessRights # [0:0]'}#, "SELECTOR": "State.cs_selector", "BASE": "State.cs_base", "LIMIT": "State.cs_limit"}
+ss_accessRightsDict = {'Type': 'State.ss_accessRights # [11:8]', 'S': 'State.ss_accessRights # [7:7]', 'DPL': 'State.ss_accessRights # [6:5]', 'P': 'State.ss_accessRights # [4:4]', 'AVL': 'State.ss_accessRights # [3:3]', 'L': 'State.ss_accessRights # [2:2]', 'B': 'State.ss_accessRights # [1:1]', 'G': 'State.ss_accessRights # [0:0]'}#, "SELECTOR": "State.ss_selector", "BASE": "State.ss_base", "LIMIT": "State.ss_limit"}
 
 
 #traverses the ast pushing all the vars into varDict in the 
@@ -55,7 +55,7 @@ class astVisit(ast.NodeVisitor):
             elif "rflags_" in var:
                 rflags = True
         if cs:
-                self.varDict["cs_accessRights0"] = [["( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.B ) @ ( CS.G )", None, self.currentNode]]
+                self.varDict["cs_accessRights0"] = [["( CS.Type ) @ ( CS.S ) @ ( CS.DPL ) @ ( CS.P ) @ ( CS.AVL ) @ ( CS.L ) @ ( CS.D ) @ ( CS.G )", None, self.currentNode]]
                 if "cs_accessRights" in self.assignedToNode:
                     self.assignedToNode["cs_accessRights"].append(self.currentNode)
                 else:
@@ -65,7 +65,7 @@ class astVisit(ast.NodeVisitor):
                     if var[:3] == "CS." and var[3:] in cs_accessRightsDict:
                         self.assignedToNode[var[:-1]].append(self.currentNode)
         if ss:
-                self.varDict["ss_accessRights0"] = [["( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.D ) @ ( SS.B ) @ ( SS.G )", None, self.currentNode]]
+                self.varDict["ss_accessRights0"] = [["( SS.Type ) @ ( SS.S ) @ ( SS.DPL ) @ ( SS.P ) @ ( SS.AVL ) @ ( SS.L ) @ ( SS.B ) @ ( SS.G )", None, self.currentNode]]
                 if "ss_accessRights" in self.assignedToNode:
                     self.assignedToNode["ss_accessRights"].append(self.currentNode)
                 else:
@@ -489,6 +489,8 @@ class astVisit(ast.NodeVisitor):
             if word.upper() in EFERDict:
                 return True
             if word in cs_accessRightsDict or word[3:] in cs_accessRightsDict:
+                return True
+            if word in ss_accessRightsDict or word[3:] in ss_accessRightsDict:
                 return True      
         return False
 
