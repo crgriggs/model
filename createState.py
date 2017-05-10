@@ -73,8 +73,8 @@ def main():
                 f.write("init[exceptionThrown] := false;\n")
                 f.write("next[exceptionThrown] := case\n")
                 for op in stateVars[var]:
-                    f.write("    next[" + op + "Instr."  + var + "] != Normal : true;\n")
-                f.write("    default : false;\n")
+                    f.write("    opcode = "+ op + " & next[" + op + "Instr."  + var + "] != Normal : true;\n")
+                f.write("    default : exceptionThrown;\n")
                 f.write("esac;\n")
                 continue
             f.write("init["+var+"] := " + var + "_i;\n")
@@ -102,9 +102,6 @@ def main():
         f.write("opcode : opcodes := {" + ", ".join(opcodes) + "};\n")
         f.write("\n")
         append_file(f, "state/control.txt")
-        #need to how state vars are assigned
-        #    hard part is 
-        # append_file(f, "control.txt")
     except:
         f.close()
         raise
