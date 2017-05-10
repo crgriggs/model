@@ -628,10 +628,10 @@ next[cs_limit] := case
 esac;
 
 init[cpl] := cpl_i;
-next[cpl] := case
-    next[exitStatus] != UD : ( (b0)@(b0) );
+next[cpl] := ( (b0)@(b0) );
+    (*next[exitStatus] != UD : ( (b0)@(b0) );
     default : State.cpl;
-esac;
+esac;*)
 
 init[ss_selector] := ss_selector_i;
 next[ss_selector] := case
@@ -708,6 +708,9 @@ CR4_i : BITVEC[64];
 rsp_i : BITVEC[64];
 
 DEFINE
+
+b0 := 0x0 # [0:0];
+b1 := 0x1 # [0:0];
 
 ASSIGN
 
@@ -834,7 +837,7 @@ init[CR0] := CR0_i;
 next[CR0] := CR0;
 
 
-init[cpl] := cpl_i;
+init[cpl] := ((b1)@(b1));
 next[cpl] := case
     ~exceptionThrown & opcode = sysret : next[sysretInstr.cpl];
     ~exceptionThrown & opcode = syscall : next[syscallInstr.cpl];
@@ -880,7 +883,8 @@ sysret_rcx : BITVEC[64]; (* RCX before sysret/pop *)
 syscall_rcx : BITVEC[64]; (* RCX after syscall/push *)
 syscall_rsp : BITVEC[64]; (*RSP before syscall*)
 sysret_rsp : BITVEC[64]; (*RSP after sysret*)
-sysret_cpl : BITVEC[64]; (*CPL after sysret*)
+sysret_cpl : BITVEC[2]; (*CPL after sysret*)
+init_cpl : BITVEC[2];
 opcodeStore : opcodes;
 
 VAR
@@ -900,6 +904,12 @@ esac;
 b0 := 0x0 # [0:0];
 b1 := 0x1 # [0:0];
 
+initialState := ((init_cpl = ((b0)@(b0)) & ~isUserControlled(syscall_rsp)) | init_cpl > ((b0)@(b0)) & isUserControlled(syscall_rsp));
+
+endingState := ((sysret_cpl = ((b0)@(b0)) & ~isUserControlled(sysret_rsp)) | sysret_cpl > ((b0)@(b0)) & isUserControlled(sysret_rsp));
+
+
+
 (* Statements begin *)
 EXEC
 (*----------------------------------------------------------------*)
@@ -907,7 +917,8 @@ EXEC
 (* x must changed to an actual  number*)
 (*simulate(5);*)
 (* We need to call syscall and context sw*)
-syscall_rsp := State.rsp; 
+syscall_rsp := State.rsp;
+init_cpl := State.cpl; 
 opcode[0] := push;                               (*RCX is set to RSP*)
 opcode[1] := syscall;                                  (*User RSP is sent to the stack*)
 opcode[2] := mov;
@@ -922,11 +933,19 @@ syscall_rcx := State.rcx;                             (*RCX must implicitly be c
 simulate(1);                                         (*RCX must change to force sysret bug*)
 sysret_rcx := State.rcx;
 (*Will fault if rcx is not not canonical*)
-isCanonical[4] := setIsCanonical;
-simulate(1);
+isCanonical[4] := false;
 sysret_rsp := State.rsp;
+simulate(1);
+
 
 sysret_cpl := State.cpl;
 
-decide((canonical(syscall_rcx) & syscall_rsp = sysret_rsp) => (~(isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1)))));
+(*decide(sysretInstr.exitStatus = GP);*)
+
+decide(sysret_cpl = ((b0)@(b0)));
+
+(*decide(( syscall_rsp = sysret_rsp ) =>  sysret_cpl = ((b0)@(b0)));*)
+
+
+(*(~isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1))));*)
 
