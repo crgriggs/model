@@ -628,10 +628,10 @@ next[cs_limit] := case
 esac;
 
 init[cpl] := cpl_i;
-next[cpl] := ( (b0)@(b0) );
-    (*next[exitStatus] != UD : ( (b0)@(b0) );
+next[cpl] := case
+    next[exitStatus] != UD : ( (b0)@(b0) );
     default : State.cpl;
-esac;*)
+esac;
 
 init[ss_selector] := ss_selector_i;
 next[ss_selector] := case
@@ -708,9 +708,6 @@ CR4_i : BITVEC[64];
 rsp_i : BITVEC[64];
 
 DEFINE
-
-b0 := 0x0 # [0:0];
-b1 := 0x1 # [0:0];
 
 ASSIGN
 
@@ -837,7 +834,7 @@ init[CR0] := CR0_i;
 next[CR0] := CR0;
 
 
-init[cpl] := ((b1)@(b1));
+init[cpl] := cpl_i;
 next[cpl] := case
     ~exceptionThrown & opcode = sysret : next[sysretInstr.cpl];
     ~exceptionThrown & opcode = syscall : next[syscallInstr.cpl];
@@ -933,19 +930,11 @@ syscall_rcx := State.rcx;                             (*RCX must implicitly be c
 simulate(1);                                         (*RCX must change to force sysret bug*)
 sysret_rcx := State.rcx;
 (*Will fault if rcx is not not canonical*)
-isCanonical[4] := false;
-sysret_rsp := State.rsp;
+isCanonical[4] := setIsCanonical;
 simulate(1);
-
+sysret_rsp := State.rsp;
 
 sysret_cpl := State.cpl;
 
-(*decide(sysretInstr.exitStatus = GP);*)
-
-decide(sysret_cpl = ((b0)@(b0)));
-
-(*decide(( syscall_rsp = sysret_rsp ) =>  sysret_cpl = ((b0)@(b0)));*)
-
-
-(*(~isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1))));*)
+decide(((initialState & endingState) & initialState & canonical(syscall_rcx) & syscall_rsp = sysret_rsp) =>  (~isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1))));
 
