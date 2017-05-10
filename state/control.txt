@@ -2,12 +2,12 @@ isCanonical : TRUTH := {true, false};
 
 STOREVAR
 
-sysret_rcx : BITVEC[64]; (* RCX before sysret/pop *)
-syscall_rcx : BITVEC[64]; (* RCX after syscall/push *)
-syscall_rsp : BITVEC[64]; (*RSP before syscall*)
-sysret_rsp : BITVEC[64]; (*RSP after sysret*)
-sysret_cpl : BITVEC[2]; (*CPL after sysret*)
-init_cpl : BITVEC[2];
+sysret_rcx : BITVEC[63]; (* RCX before sysret/pop *)
+syscall_rcx : BITVEC[63]; (* RCX after syscall/push *)
+syscall_rsp : BITVEC[63]; (*RSP before syscall*)
+sysret_rsp : BITVEC[63]; (*RSP after sysret*)
+sysret_cpl : BITVEC[1]; (*CPL after sysret*)
+init_cpl : BITVEC[1];
 opcodeStore : opcodes;
 
 VAR
@@ -40,10 +40,13 @@ EXEC
 (* x must changed to an actual  number*)
 (*simulate(5);*)
 (* We need to call syscall and context sw*)
+initialize;
 syscall_rsp := State.rsp;
 init_cpl := State.cpl; 
 opcode[0] := push;                               (*RCX is set to RSP*)
 opcode[1] := syscall;                                  (*User RSP is sent to the stack*)
+
+
 opcode[2] := mov;
 opcode[3] := pop; 
 opcode[4] := sysret;
@@ -62,4 +65,4 @@ sysret_rsp := State.rsp;
 
 sysret_cpl := State.cpl;
 
-decide(((initialState & endingState) & initialState & canonical(syscall_rcx) & syscall_rsp = sysret_rsp) =>  (~isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1))));
+decide((initialState & canonical(syscall_rcx) & syscall_rsp = sysret_rsp) =>  endingState);
