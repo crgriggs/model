@@ -413,7 +413,7 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                         print "cs_accessRights : BITVEC[12];"
                         continue 
             if var == 'exitStatus':
-                print "exitStatus: exitCase;"
+                print "exitStatus : exitCase;"
             elif var in ['StackAddrSize', 'OperandSize']:
                 print var + " : size;"
             elif var == 'DEST':

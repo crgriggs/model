@@ -20,7 +20,7 @@ State.cs_accessRights : BITVEC[12];
 
 VAR
 ss_base : BITVEC[32];
-exitStatus: exitCase;
+exitStatus : exitCase;
 cpl : BITVEC[2];
 ss_limit : BITVEC[20];
 cs_selector : BITVEC[16];

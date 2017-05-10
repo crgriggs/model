@@ -59,7 +59,7 @@ def main():
         for filename in os.listdir("./" + str(propType)):
             if filename.endswith(".txt"):
                 append_file(f, "./" + str(propType)+"/"+filename)
-        stateVars = {'rsp' : [],'ss_limit' : [], 'ss_selector' : [],  'rax' : [], 'rbx' : [], 'rcx' : [], 'rdx' : [], 'rflags' : [], 'r11' : [], 'ss_base' : [], 'ss_accessRights' : [], 'EFER' : [], 'cs_base' : [], 'rip' : [], 'cs_selector' : [], 'cs_limit' : [], 'cpl' : [], 'cs_accessRights' : [], 'CR0' : [], 'CR4' : [] }
+        stateVars = {'exitStatus' : [], 'rsp' : [],'ss_limit' : [], 'ss_selector' : [],  'rax' : [], 'rbx' : [], 'rcx' : [], 'rdx' : [], 'rflags' : [], 'r11' : [], 'ss_base' : [], 'ss_accessRights' : [], 'EFER' : [], 'cs_base' : [], 'rip' : [], 'cs_selector' : [], 'cs_limit' : [], 'cpl' : [], 'cs_accessRights' : [], 'CR0' : [], 'CR4' : [] }
         gprs = {'a', 'b', 'c', 'd'}
         #as of now an unpriviliged instruction can write to a single gpr during any one execution step
         unpriv = {"mov", 'pop', 'push'}
@@ -68,6 +68,15 @@ def main():
         findInstrVars(stateVars, gprs, propType)
         for var in stateVars:
             f.write("\n")
+            if var == "exitStatus":
+                f.write("\n")
+                f.write("init[exceptionThrown] := false;\n")
+                f.write("next[exceptionThrown] := case\n")
+                for op in stateVars[var]:
+                    f.write("    next[" + op + "Instr."  + var + "] != Normal : true;\n")
+                f.write("    default : false;\n")
+                f.write("esac;\n")
+                continue
             f.write("init["+var+"] := " + var + "_i;\n")
             if stateVars[var] == []:
                 f.write("next["+var+"] := " + var + ";\n")
@@ -76,11 +85,13 @@ def main():
             f.write("next["+var+"] := case\n")
             for op in stateVars[var]:
                 if op in unpriv and var[1] in gprs:
-                    f.write("    opcode = " + op +" & currentReg = " + var[1] + " : next[" + op + "Instr.DEST];\n")
+                    f.write("    ~exceptionThrown & opcode = " + op +" & currentReg = " + var[1] + " : next[" + op + "Instr.DEST];\n")
                 else:
-                    f.write("    opcode = " + op +" : next[" + op + "Instr."  + var + "];\n")
+                    f.write("    ~exceptionThrown & opcode = " + op +" : next[" + op + "Instr."  + var + "];\n")
             f.write("    default : " + var + ";\n")
             f.write("esac;\n")
+            
+
         f.write("\n")
         f.write("(* ----- CONTROL MODULE ----- *)\n")
         f.write("\n")

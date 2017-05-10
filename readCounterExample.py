@@ -22,7 +22,7 @@ for line in open("counterExample.txt"):
 			print "CS.L : " + line.split(":=")[1][-11:-10]
 		if "opcode:=" in line and "ITE" not in line and "the" not in line:
 			print "Opcode : " + opcodeDict[int(line.split(":=")[1].strip(), 2)]
-		if "exitStatus" in line and "," not in line and "evaluating" not in line:
+		if "exitStatus" in line and "," not in line and "evaluating" not in line and "_i" not in line :
 			if "sysret" in line:
 				print "Sysret Exit Status: "   +  exitStatusDict[int(line.split(":=")[1].strip(), 2)]
 			else:

@@ -28,6 +28,7 @@ currentReg : register;
 opcode : opcodes;
 memory : FUNC[1];
 rsp : BITVEC[64];
+exceptionThrown : TRUTH;
 
 CONST
 

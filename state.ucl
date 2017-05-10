@@ -29,7 +29,7 @@ State.cs_accessRights : BITVEC[12];
 
 VAR
 ss_base : BITVEC[32];
-exitStatus: exitCase;
+exitStatus : exitCase;
 cpl : BITVEC[2];
 ss_limit : BITVEC[20];
 cs_selector : BITVEC[16];
@@ -477,7 +477,7 @@ State.cs_accessRights : BITVEC[12];
 
 VAR
 ss_base : BITVEC[32];
-exitStatus: exitCase;
+exitStatus : exitCase;
 rcx : BITVEC[64];
 r11 : BITVEC[64];
 ss_limit : BITVEC[20];
@@ -677,6 +677,7 @@ currentReg : register;
 opcode : opcodes;
 memory : FUNC[1];
 rsp : BITVEC[64];
+exceptionThrown : TRUTH;
 
 CONST
 
@@ -725,30 +726,30 @@ next[memory] := Lambda(i).
 
 init[ss_limit] := ss_limit_i;
 next[ss_limit] := case
-    opcode = sysret : next[sysretInstr.ss_limit];
-    opcode = syscall : next[syscallInstr.ss_limit];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.ss_limit];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.ss_limit];
     default : ss_limit;
 esac;
 
 init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    opcode = sysret : next[sysretInstr.ss_accessRights];
-    opcode = syscall : next[syscallInstr.ss_accessRights];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.ss_accessRights];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.ss_accessRights];
     default : ss_accessRights;
 esac;
 
 init[rcx] := rcx_i;
 next[rcx] := case
-    opcode = mov & currentReg = c : next[movInstr.DEST];
-    opcode = pop & currentReg = c : next[popInstr.DEST];
-    opcode = syscall : next[syscallInstr.rcx];
+    ~exceptionThrown & opcode = mov & currentReg = c : next[movInstr.DEST];
+    ~exceptionThrown & opcode = pop & currentReg = c : next[popInstr.DEST];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.rcx];
     default : rcx;
 esac;
 
 init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    opcode = sysret : next[sysretInstr.cs_accessRights];
-    opcode = syscall : next[syscallInstr.cs_accessRights];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.cs_accessRights];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.cs_accessRights];
     default : cs_accessRights;
 esac;
 
@@ -758,28 +759,28 @@ next[CR4] := CR4;
 
 init[rbx] := rbx_i;
 next[rbx] := case
-    opcode = mov & currentReg = b : next[movInstr.DEST];
-    opcode = pop & currentReg = b : next[popInstr.DEST];
+    ~exceptionThrown & opcode = mov & currentReg = b : next[movInstr.DEST];
+    ~exceptionThrown & opcode = pop & currentReg = b : next[popInstr.DEST];
     default : rbx;
 esac;
 
 init[ss_base] := ss_base_i;
 next[ss_base] := case
-    opcode = sysret : next[sysretInstr.ss_base];
-    opcode = syscall : next[syscallInstr.ss_base];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.ss_base];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.ss_base];
     default : ss_base;
 esac;
 
-init[cs_base] := cs_base_i;
-next[cs_base] := case
-    opcode = sysret : next[sysretInstr.cs_base];
-    opcode = syscall : next[syscallInstr.cs_base];
-    default : cs_base;
+init[rsp] := rsp_i;
+next[rsp] := case
+    ~exceptionThrown & opcode = push : next[pushInstr.rsp];
+    ~exceptionThrown & opcode = pop : next[popInstr.rsp];
+    default : rsp;
 esac;
 
 init[r11] := r11_i;
 next[r11] := case
-    opcode = syscall : next[syscallInstr.r11];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.r11];
     default : r11;
 esac;
 
@@ -789,36 +790,43 @@ next[EFER] := EFER;
 
 init[ss_selector] := ss_selector_i;
 next[ss_selector] := case
-    opcode = sysret : next[sysretInstr.ss_selector];
-    opcode = syscall : next[syscallInstr.ss_selector];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.ss_selector];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.ss_selector];
     default : ss_selector;
 esac;
 
 init[rip] := rip_i;
 next[rip] := case
-    opcode = sysret : next[sysretInstr.rip];
-    opcode = syscall : next[syscallInstr.rip];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.rip];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.rip];
     default : rip;
 esac;
 
 init[rdx] := rdx_i;
 next[rdx] := case
-    opcode = mov & currentReg = d : next[movInstr.DEST];
-    opcode = pop & currentReg = d : next[popInstr.DEST];
+    ~exceptionThrown & opcode = mov & currentReg = d : next[movInstr.DEST];
+    ~exceptionThrown & opcode = pop & currentReg = d : next[popInstr.DEST];
     default : rdx;
+esac;
+
+init[cs_base] := cs_base_i;
+next[cs_base] := case
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.cs_base];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.cs_base];
+    default : cs_base;
 esac;
 
 init[cs_limit] := cs_limit_i;
 next[cs_limit] := case
-    opcode = sysret : next[sysretInstr.cs_limit];
-    opcode = syscall : next[syscallInstr.cs_limit];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.cs_limit];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.cs_limit];
     default : cs_limit;
 esac;
 
 init[cs_selector] := cs_selector_i;
 next[cs_selector] := case
-    opcode = sysret : next[sysretInstr.cs_selector];
-    opcode = syscall : next[syscallInstr.cs_selector];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.cs_selector];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.cs_selector];
     default : cs_selector;
 esac;
 
@@ -828,29 +836,30 @@ next[CR0] := CR0;
 
 init[cpl] := cpl_i;
 next[cpl] := case
-    opcode = sysret : next[sysretInstr.cpl];
-    opcode = syscall : next[syscallInstr.cpl];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.cpl];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.cpl];
     default : cpl;
 esac;
 
-init[rsp] := rsp_i;
-next[rsp] := case
-    opcode = push : next[pushInstr.rsp];
-    opcode = pop : next[popInstr.rsp];
-    default : rsp;
+
+init[exceptionThrown] := false;
+next[exceptionThrown] := case
+    next[sysretInstr.exitStatus] != Normal : true;
+    next[syscallInstr.exitStatus] != Normal : true;
+    default : false;
 esac;
 
 init[rflags] := rflags_i;
 next[rflags] := case
-    opcode = sysret : next[sysretInstr.rflags];
-    opcode = syscall : next[syscallInstr.rflags];
+    ~exceptionThrown & opcode = sysret : next[sysretInstr.rflags];
+    ~exceptionThrown & opcode = syscall : next[syscallInstr.rflags];
     default : rflags;
 esac;
 
 init[rax] := rax_i;
 next[rax] := case
-    opcode = mov & currentReg = a : next[movInstr.DEST];
-    opcode = pop & currentReg = a : next[popInstr.DEST];
+    ~exceptionThrown & opcode = mov & currentReg = a : next[movInstr.DEST];
+    ~exceptionThrown & opcode = pop & currentReg = a : next[popInstr.DEST];
     default : rax;
 esac;
 
