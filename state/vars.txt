@@ -5,58 +5,58 @@ INPUT
 opcode : opcodes;
 
 VAR
-ss_limit : BITVEC[20];
-ss_selector : BITVEC[16];
-rax : BITVEC[64];
-rbx : BITVEC[64];
-rcx : BITVEC[64];
-rdx : BITVEC[64];
-rflags : BITVEC[64];
-r11 : BITVEC[64];
-ss_base : BITVEC[32];
-ss_accessRights : BITVEC[12];
-EFER : BITVEC[64];
-cs_base : BITVEC[32];
-rip : BITVEC[64];
-cs_selector : BITVEC[16];
-cs_limit : BITVEC[20];
-cpl : BITVEC[2];
-cs_accessRights : BITVEC[12];
-CR0 : BITVEC[64];
-CR4 : BITVEC[64];
+ss_limit : BITVEC[19];
+ss_selector : BITVEC[15];
+rax : BITVEC[63];
+rbx : BITVEC[63];
+rcx : BITVEC[63];
+rdx : BITVEC[63];
+rflags : BITVEC[63];
+r11 : BITVEC[63];
+ss_base : BITVEC[31];
+ss_accessRights : BITVEC[11];
+EFER : BITVEC[63];
+cs_base : BITVEC[31];
+rip : BITVEC[63];
+cs_selector : BITVEC[15];
+cs_limit : BITVEC[19];
+cpl : BITVEC[1];
+cs_accessRights : BITVEC[11];
+CR0 : BITVEC[63];
+CR4 : BITVEC[63];
 currentReg : register;
 opcode : opcodes;
 memory : FUNC[1];
-rsp : BITVEC[64];
+rsp : BITVEC[63];
 exceptionThrown : TRUTH;
 
 CONST
 
 i : TERM;
 m0 : FUNC[1];
-addr  : BITVEC[64];
-SRC : BITVEC[64];
+addr  : BITVEC[63];
+SRC : BITVEC[63];
 
-ss_limit_i : BITVEC[20];
-ss_selector_i : BITVEC[16];
-rax_i : BITVEC[64];
-rbx_i : BITVEC[64];
-rcx_i : BITVEC[64];
-rdx_i : BITVEC[64];
-rflags_i : BITVEC[64];
-r11_i : BITVEC[64];
-ss_base_i : BITVEC[32];
-ss_accessRights_i : BITVEC[12];
-EFER_i : BITVEC[64];
-cs_base_i : BITVEC[32];
-rip_i : BITVEC[64];
-cs_selector_i : BITVEC[16];
-cs_limit_i : BITVEC[20];
-cpl_i : BITVEC[2];
-cs_accessRights_i : BITVEC[12];
-CR0_i : BITVEC[64];
-CR4_i : BITVEC[64];
-rsp_i : BITVEC[64];
+ss_limit_i : BITVEC[19];
+ss_selector_i : BITVEC[15];
+rax_i : BITVEC[63];
+rbx_i : BITVEC[63];
+rcx_i : BITVEC[63];
+rdx_i : BITVEC[63];
+rflags_i : BITVEC[63];
+r11_i : BITVEC[63];
+ss_base_i : BITVEC[31];
+ss_accessRights_i : BITVEC[11];
+EFER_i : BITVEC[63];
+cs_base_i : BITVEC[31];
+rip_i : BITVEC[63];
+cs_selector_i : BITVEC[15];
+cs_limit_i : BITVEC[19];
+cpl_i : BITVEC[1];
+cs_accessRights_i : BITVEC[11];
+CR0_i : BITVEC[63];
+CR4_i : BITVEC[63];
+rsp_i : BITVEC[63];
 
 DEFINE
 
