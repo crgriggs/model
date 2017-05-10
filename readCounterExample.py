@@ -14,12 +14,12 @@ for line in open("counterExample.txt"):
 		if "State.rsp" in line and "_i" not in line and "evaluating" not in line:
 			print "RSP : " + str(int(line.split(":=")[1].strip(), 2))
 		if "State.cpl" in line and "_i" not in line and "evaluating" not in line and "," not in line:
-			print "CPL : " + str(int(line.split(":=")[1].strip(), 2))
+			print "CPL : " + str(int(line.split(":=")[1].strip(), 2)) +" "+ line.split(":=")[1].strip()
 		if "State.EFER" in line and "_i" not in line and "evaluating" not in line and "," not in line:
 			print "EFER : " + str(int(line.split(":=")[1].strip(), 2))
 		if "State.cs_accessRights" in line and "_i" not in line and "evaluating" not in line and "," not in line:
-			print "AR : " + str(int(line.split(":=")[1].strip(), 2))
-			print "CS.L : " + line.split(":=")[1][-11:-10]
+			print "CS : " + str(int(line.split(":=")[1].strip(), 2))
+			print "CS.L : " + line.split(":=")[1][9:10]
 		if "opcode:=" in line and "ITE" not in line and "the" not in line:
 			print "Opcode : " + opcodeDict[int(line.split(":=")[1].strip(), 2)]
 		if "exitStatus" in line and "," not in line and "evaluating" not in line and "_i" not in line :
