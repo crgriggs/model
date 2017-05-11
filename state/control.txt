@@ -1,4 +1,3 @@
-isCanonical : TRUTH := {true, false};
 
 STOREVAR
 
@@ -14,22 +13,21 @@ VAR
 
 CONST
 
-canonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
+
 isUserControlled: PRED[1]; (* Predicate to decide whether stack is user controlled *)
 
 DEFINE
 
-setIsCanonical := case
-	canonical(sysret_rcx) : true;
-	default : false;
-esac;
+
 
 b0 := 0x0 # [0:0];
 b1 := 0x1 # [0:0];
 
-initialState := ((init_cpl = ((b0)@(b0)) & ~isUserControlled(syscall_rsp)) | init_cpl > ((b0)@(b0)) & isUserControlled(syscall_rsp));
+three := (State.cpl = ((b0)@(b1))) | (State.cpl = ((b1)@(b1)))  | (State.cpl = ((b1)@(b0)));
+threeInit := (init_cpl = ((b0)@(b1))) | (init_cpl = ((b1)@(b1)))  | (init_cpl = ((b1)@(b0)));
+initialState := ((init_cpl = ((b0)@(b0)) & ~isUserControlled(syscall_rsp)) | (threeInit) & isUserControlled(syscall_rsp));
 
-endingState := ((sysret_cpl = ((b0)@(b0)) & ~isUserControlled(sysret_rsp)) | sysret_cpl > ((b0)@(b0)) & isUserControlled(sysret_rsp));
+endingState := ((State.cpl = ((b0)@(b0)) & ~isUserControlled(sysret_rsp)) | (three) & isUserControlled(sysret_rsp));
 
 
 
@@ -40,14 +38,14 @@ EXEC
 (* x must changed to an actual  number*)
 (*simulate(5);*)
 (* We need to call syscall and context sw*)
-initialize;
+
 syscall_rsp := State.rsp;
 init_cpl := State.cpl; 
 opcode[0] := push;                               (*RCX is set to RSP*)
 opcode[1] := syscall;                                  (*User RSP is sent to the stack*)
 
 
-opcode[2] := mov;
+
 opcode[3] := pop; 
 opcode[4] := sysret;
 
@@ -56,13 +54,16 @@ opcode[4] := sysret;
 
 simulate(2);
 syscall_rcx := State.rcx;                             (*RCX must implicitly be canonical*)
+
+
 simulate(1);                                         (*RCX must change to force sysret bug*)
 sysret_rcx := State.rcx;
 (*Will fault if rcx is not not canonical*)
-isCanonical[4] := setIsCanonical;
+
 simulate(1);
 sysret_rsp := State.rsp;
 
-sysret_cpl := State.cpl;
 
-decide((initialState & canonical(syscall_rcx) & syscall_rsp = sysret_rsp) =>  endingState);
+
+
+decide((initialState & syscall_rsp = sysret_rsp & isUserControlled(syscall_rsp)) => ( State.cpl > ((b0)@b0)));

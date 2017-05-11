@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
-stateVars = {'memory' : '1', 'rsp': '63','r11': '63', 'CR0' : '63', 'CS': '63', 'SS': '63', 'cs_selector': '15', 'cs_base': '31', 'cs_limit': '19', 'cs_accessRights': '11', 'cpl': '1', 'ss_selector': '15', 'ss_base': '31', 'ss_limit': '19', 'ss_accessRights': '11', 'EFER': '63', 'CR4': '63', 'rflags': '63', 'rcx': '63', 'rip': '63'}
+stateVars = {'memory' : '1', 'rsp': '64','r11': '64', 'CR0' : '64', 'CS': '64', 'SS': '64', 'cs_selector': '16', 'cs_base': '32', 'cs_limit': '20', 'cs_accessRights': '12', 'cpl': '2', 'ss_selector': '16', 'ss_base': '32', 'ss_limit': '20', 'ss_accessRights': '12', 'EFER': '64', 'CR4': '64', 'rflags': '64', 'rcx': '64', 'rip': '64'}
 rflagsDict ={'CF': 'State.rflags # [0:0]', 'PF': 'State.rflags # [1:1]', 'AF': 'State.rflags # [4:4]', 'ZF': 'State.rflags # [6:6]', 'SF': 'State.rflags # [7:7]', 'TF': 'State.rflags # [8:8]', 'IF': 'State.rflags # [9:9]', 'DF': 'State.rflags # [10:10]', 'OF': 'State.rflags # [11:11]', 'IOPL': 'State.rflags # [13:12]', 'NT': 'State.rflags # [14:14]', 'RF': 'State.rflags # [16:16]', 'VM': 'State.rflags # [17:17]', 'AC': 'State.rflags # [18:18]', 'VIF': 'State.rflags # [19:19]', 'VIP': 'State.rflags # [20:20]', 'ID': 'State.rflags # [21:21]'}
 CR0Dict = {'PE': 'State.CR0 # [0:0]', 'MP': 'State.CR0 # [1:1]', 'EM': 'State.CR0 # [2:2]', 'TS': 'State.CR0 # [3:3]', 'ET': 'State.CR0 # [4:4]', 'NE': 'State.CR0 # [5:5]', 'WP': 'State.CR0 # [16:16]', 'AM': 'State.CR0 # [18:18]','NW': 'State.CR0 # [29:29]', 'CD': 'State.CR0 # [30:30]', 'PG': 'State.CR0 # [31:31]'}
 CR4Dict = {'VME': 'State.CR4 # [0:0]', 'PVI': 'State.CR4 # [1:1]', 'TSD': 'State.CR4 # [2:2]', 'DE': 'State.CR4 # [3:3]', 'PSE': 'State.CR4 # [4:4]', 'PAE': 'State.CR4 # [5:5]', 'MCE': 'State.CR4 # [6:6]', 'PGE': 'State.CR4 # [7:7]','PCE': 'State.CR4 # [8:8]', 'OSFXSR': 'State.CR4 # [9:9]', 'OSXMMEXCPT': 'State.CR4 # [10:10]', 'VMXE': 'State.CR4 # [13:13]', 'SMXE': 'State.CR4 # [14:14]', 'FSGSBASE': 'State.CR4 # [16:16]', 'PCIDE': 'State.CR4 # [17:17]', 'OSXSAVE': 'State.CR4 # [18:18]', 'SMEP': 'State.CR4 # [20:20]', 'SMAP': 'State.CR4 # [21:21]', 'PKE': 'State.CR4 # [22:22]'}
@@ -46,11 +46,11 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
     #this prepends the correct number of bits to a bitvector
     #or for flags ensures they stay at the correct num bits
     def correctBits(self, numBits, word):
-        if numBits == "1":
+        if str(numBits) == "1":
             if word == "0":
                 return "b0"
             return "b1"
-        if numBits == "2":
+        if str(numBits) == "2":
             if word == "0":
                 return "(b0)@(b0)"
             elif word == "1":
@@ -83,7 +83,8 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
         elif var not in stateVars:
             return rhs
         if numBits == 0:
-            numBits = int(stateVars[var]) + 1
+            numBits = int(stateVars[var])
+
         hexDict = {"0" : "ucl_hex_0", "1" : "ucl_hex_1", "2" : "ucl_hex_2", "3" : "ucl_hex_3", "4" : "ucl_hex_4", "5" : "ucl_hex_5", "6" : "ucl_hex_6", "7" : "ucl_hex_7", "8" : "ucl_hex_8", "9" : "ucl_hex_9", "A" : "ucl_hex_a", "B" : "ucl_hex_b", "C" : "ucl_hex_c", "D" : "ucl_hex_d", "E" : "ucl_hex_e", "F" : "ucl_hex_f"}
         rhs = rhs.replace("+", "+_" + str(numBits)).replace("-", "-_" + str(numBits)).replace("*", "*_" + str(numBits)).replace("/", "/_" + str(numBits))
         temp = []
@@ -252,7 +253,7 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                 elif word in ['StackAddrSize', 'OperandSize']:
                     self.cvd[word] = [['{bits64, bits32, bits16}'], None, None]
                 elif word == "isCanonical":
-                    self.inputs.add(word)
+                    continue
                 else:
                     self.constants.add(word)
 

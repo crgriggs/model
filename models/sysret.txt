@@ -14,7 +14,6 @@ State.cs_base : BITVEC[32];
 State.rip : BITVEC[64];
 State.cs_selector : BITVEC[16];
 State.cs_limit : BITVEC[20];
-isCanonical : TRUTH;
 State.rcx : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
@@ -113,7 +112,7 @@ esac;
 CS.D_n := CS.D0;
 
 exitStatus0 := case
-    CPL != (b0)@(b0) | isCanonical : GP;
+    CPL != (b0)@(b0) | isCanonical(RCX) : GP;
     CS.L != b1 | IA32_EFER.LMA != b1 | IA32_EFER.SCE != b1 : UD;
     default : Normal;
 esac;
@@ -168,7 +167,7 @@ esac;
 
 init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.D ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
+    next[exitStatus] != UD & next[exitStatus] != GP : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
     default : State.ss_accessRights;
 esac;
 
@@ -180,7 +179,7 @@ esac;
 
 init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D_n ) ) @ ( ( CS.B ) ) @ ( ( CS.G ) );
+    next[exitStatus] != UD & next[exitStatus] != GP : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D_n ) ) @ ( ( CS.G ) );
     default : State.cs_accessRights;
 esac;
 

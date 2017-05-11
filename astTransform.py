@@ -277,7 +277,7 @@ class astVisit(ast.NodeVisitor):
     def visit_If(self, node, condition = None):
         parent = self.currentNode
         comparison = self.visit(node.test, condition)
-        comparison = comparison.replace("StackAddrSize ==", "StackAddrSize =").replace("OperandSize ==", "OperandSize =")
+        comparison = comparison.replace("StackAddrSize ==", "StackAddrSize =").replace("OperandSize ==", "OperandSize =").replace("isCanonical", "isCanonical(RCX)")
         copy = comparison
         
         if condition != None:

@@ -56,6 +56,7 @@ def main():
         f.write("typedef size : enum {bits64, bits32, bits16};\n")
         f.write("\n")
         f.write("CONST\n")
+        f.write("isCanonical : PRED[1]; (* Predicate to decide whether is canonical or not *)\n")
         for filename in os.listdir("./" + str(propType)):
             if filename.endswith(".txt"):
                 append_file(f, "./" + str(propType)+"/"+filename)
@@ -73,7 +74,7 @@ def main():
                 f.write("init[exceptionThrown] := false;\n")
                 f.write("next[exceptionThrown] := case\n")
                 for op in stateVars[var]:
-                    f.write("    opcode = "+ op + " & next[" + op + "Instr."  + var + "] != Normal : true;\n")
+                    f.write("    opcode = "+ op + " & " + op + "Instr."  + var + " != Normal : true;\n")
                 f.write("    default : exceptionThrown;\n")
                 f.write("esac;\n")
                 continue

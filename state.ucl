@@ -6,6 +6,7 @@ typedef register : enum {a, b, c, d};
 typedef size : enum {bits64, bits32, bits16};
 
 CONST
+isCanonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
 (*----- ./models//sysret.txt -----*)
 MODULE sysretInstr
 
@@ -23,7 +24,6 @@ State.cs_base : BITVEC[32];
 State.rip : BITVEC[64];
 State.cs_selector : BITVEC[16];
 State.cs_limit : BITVEC[20];
-isCanonical : TRUTH;
 State.rcx : BITVEC[64];
 State.cs_accessRights : BITVEC[12];
 
@@ -122,7 +122,7 @@ esac;
 CS.D_n := CS.D0;
 
 exitStatus0 := case
-    CPL != (b0)@(b0) | isCanonical : GP;
+    CPL != (b0)@(b0) | isCanonical(RCX) : GP;
     CS.L != b1 | IA32_EFER.LMA != b1 | IA32_EFER.SCE != b1 : UD;
     default : Normal;
 esac;
@@ -177,7 +177,7 @@ esac;
 
 init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.D ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
+    next[exitStatus] != UD & next[exitStatus] != GP : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
     default : State.ss_accessRights;
 esac;
 
@@ -189,7 +189,7 @@ esac;
 
 init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    next[exitStatus] != UD & next[exitStatus] != GP : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D_n ) ) @ ( ( CS.B ) ) @ ( ( CS.G ) );
+    next[exitStatus] != UD & next[exitStatus] != GP : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D_n ) ) @ ( ( CS.G ) );
     default : State.cs_accessRights;
 esac;
 
@@ -545,7 +545,7 @@ SS.DPL := ( (b0)@(b0) );
 SS.G := ( b1 );
 SS.P := ( b1 );
 CS.P := ( b1 );
-CS.L := ( b1 );
+CS.L_n := ( b1 );
 CS.Type := ( (ucl_hex_b) );
 CS.D := ( b0 );
 SS.S := ( b1 );
@@ -569,7 +569,7 @@ esac;
 
 init[exitStatus] := Normal;
 next[exitStatus] := case
-    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
+    CS.L != b1 | IA32_EFER.LMA != b1 | IA32_EFER.SCE != b1 : UD;
     default : Normal;
 esac;
 
@@ -599,7 +599,7 @@ esac;
 
 init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    next[exitStatus] != UD : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.D ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
+    next[exitStatus] != UD : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
     default : State.ss_accessRights;
 esac;
 
@@ -611,7 +611,7 @@ esac;
 
 init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    next[exitStatus] != UD : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L ) ) @ ( ( CS.D ) ) @ ( ( CS.B ) ) @ ( ( CS.G ) );
+    next[exitStatus] != UD : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D ) ) @ ( ( CS.G ) );
     default : State.cs_accessRights;
 esac;
 
@@ -655,7 +655,7 @@ opcode : opcodes;
 
 VAR
 ss_limit : BITVEC[20];
-ss_selector : BITVEC[16];
+ss_selector : BITVEC[15];
 rax : BITVEC[64];
 rbx : BITVEC[64];
 rcx : BITVEC[64];
@@ -667,7 +667,7 @@ ss_accessRights : BITVEC[12];
 EFER : BITVEC[64];
 cs_base : BITVEC[32];
 rip : BITVEC[64];
-cs_selector : BITVEC[16];
+cs_selector : BITVEC[15];
 cs_limit : BITVEC[20];
 cpl : BITVEC[2];
 cs_accessRights : BITVEC[12];
@@ -687,7 +687,7 @@ addr  : BITVEC[64];
 SRC : BITVEC[64];
 
 ss_limit_i : BITVEC[20];
-ss_selector_i : BITVEC[16];
+ss_selector_i : BITVEC[15];
 rax_i : BITVEC[64];
 rbx_i : BITVEC[64];
 rcx_i : BITVEC[64];
@@ -699,7 +699,7 @@ ss_accessRights_i : BITVEC[12];
 EFER_i : BITVEC[64];
 cs_base_i : BITVEC[32];
 rip_i : BITVEC[64];
-cs_selector_i : BITVEC[16];
+cs_selector_i : BITVEC[15];
 cs_limit_i : BITVEC[20];
 cpl_i : BITVEC[2];
 cs_accessRights_i : BITVEC[12];
@@ -844,9 +844,9 @@ esac;
 
 init[exceptionThrown] := false;
 next[exceptionThrown] := case
-    next[sysretInstr.exitStatus] != Normal : true;
-    next[syscallInstr.exitStatus] != Normal : true;
-    default : false;
+    opcode = sysret & next[sysretInstr.exitStatus] != Normal : true;
+    opcode = syscall & next[syscallInstr.exitStatus] != Normal : true;
+    default : exceptionThrown;
 esac;
 
 init[rflags] := rflags_i;
@@ -872,7 +872,6 @@ EXTVAR
 opcode : opcodes := {sysret, push, mov, pop, syscall};
 
 (*----- state/control.txt -----*)
-isCanonical : TRUTH := {true, false};
 
 STOREVAR
 
@@ -888,22 +887,21 @@ VAR
 
 CONST
 
-canonical : PRED[1]; (* Predicate to decide whether is canonical or not *)
+
 isUserControlled: PRED[1]; (* Predicate to decide whether stack is user controlled *)
 
 DEFINE
 
-setIsCanonical := case
-	canonical(sysret_rcx) : true;
-	default : false;
-esac;
+
 
 b0 := 0x0 # [0:0];
 b1 := 0x1 # [0:0];
 
-initialState := ((init_cpl = ((b0)@(b0)) & ~isUserControlled(syscall_rsp)) | init_cpl > ((b0)@(b0)) & isUserControlled(syscall_rsp));
+three := (State.cpl = ((b0)@(b1))) | (State.cpl = ((b1)@(b1)))  | (State.cpl = ((b1)@(b0)));
+threeInit := (init_cpl = ((b0)@(b1))) | (init_cpl = ((b1)@(b1)))  | (init_cpl = ((b1)@(b0)));
+initialState := ((init_cpl = ((b0)@(b0)) & ~isUserControlled(syscall_rsp)) | (threeInit) & isUserControlled(syscall_rsp));
 
-endingState := ((sysret_cpl = ((b0)@(b0)) & ~isUserControlled(sysret_rsp)) | sysret_cpl > ((b0)@(b0)) & isUserControlled(sysret_rsp));
+endingState := ((State.cpl = ((b0)@(b0)) & ~isUserControlled(sysret_rsp)) | (three) & isUserControlled(sysret_rsp));
 
 
 
@@ -914,11 +912,14 @@ EXEC
 (* x must changed to an actual  number*)
 (*simulate(5);*)
 (* We need to call syscall and context sw*)
+
 syscall_rsp := State.rsp;
 init_cpl := State.cpl; 
 opcode[0] := push;                               (*RCX is set to RSP*)
 opcode[1] := syscall;                                  (*User RSP is sent to the stack*)
-opcode[2] := mov;
+
+
+
 opcode[3] := pop; 
 opcode[4] := sysret;
 
@@ -927,14 +928,16 @@ opcode[4] := sysret;
 
 simulate(2);
 syscall_rcx := State.rcx;                             (*RCX must implicitly be canonical*)
+
+
 simulate(1);                                         (*RCX must change to force sysret bug*)
 sysret_rcx := State.rcx;
 (*Will fault if rcx is not not canonical*)
-isCanonical[4] := setIsCanonical;
+
 simulate(1);
 sysret_rsp := State.rsp;
 
-sysret_cpl := State.cpl;
 
-decide(((initialState & endingState) & initialState & canonical(syscall_rcx) & syscall_rsp = sysret_rsp) =>  (~isUserControlled(sysret_rsp) | sysret_cpl = ((b1)@(b1))));
 
+
+decide((initialState & syscall_rsp = sysret_rsp & isUserControlled(syscall_rsp)) => three);

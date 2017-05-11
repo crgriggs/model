@@ -87,7 +87,7 @@ SS.DPL := ( (b0)@(b0) );
 SS.G := ( b1 );
 SS.P := ( b1 );
 CS.P := ( b1 );
-CS.L := ( b1 );
+CS.L_n := ( b1 );
 CS.Type := ( (ucl_hex_b) );
 CS.D := ( b0 );
 SS.S := ( b1 );
@@ -111,7 +111,7 @@ esac;
 
 init[exitStatus] := Normal;
 next[exitStatus] := case
-    CS.L != 1 | IA32_EFER.LMA != 1 | IA32_EFER.SCE != 1 : UD;
+    CS.L != b1 | IA32_EFER.LMA != b1 | IA32_EFER.SCE != b1 : UD;
     default : Normal;
 esac;
 
@@ -141,7 +141,7 @@ esac;
 
 init[ss_accessRights] := ss_accessRights_i;
 next[ss_accessRights] := case
-    next[exitStatus] != UD : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.D ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
+    next[exitStatus] != UD : ( ( SS.Type ) ) @ ( ( SS.S ) ) @ ( ( SS.DPL ) ) @ ( ( SS.P ) ) @ ( ( SS.AVL ) ) @ ( ( SS.L ) ) @ ( ( SS.B ) ) @ ( ( SS.G ) );
     default : State.ss_accessRights;
 esac;
 
@@ -153,7 +153,7 @@ esac;
 
 init[cs_accessRights] := cs_accessRights_i;
 next[cs_accessRights] := case
-    next[exitStatus] != UD : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L ) ) @ ( ( CS.D ) ) @ ( ( CS.B ) ) @ ( ( CS.G ) );
+    next[exitStatus] != UD : ( ( CS.Type ) ) @ ( ( CS.S ) ) @ ( ( CS.DPL ) ) @ ( ( CS.P ) ) @ ( ( CS.AVL ) ) @ ( ( CS.L_n ) ) @ ( ( CS.D ) ) @ ( ( CS.G ) );
     default : State.cs_accessRights;
 esac;
 
