@@ -254,6 +254,9 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                     self.cvd[word] = [['{bits64, bits32, bits16}'], None, None]
                 elif word == "isCanonical":
                     continue
+                elif word == "SRC":
+                    self.cvd[word] = [['RNG(SRC)', None, None]]
+                    self.constants.add("RNG")
                 else:
                     self.constants.add(word)
 
@@ -360,7 +363,11 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
         print "CONST"
         for con in self.constants:
             if "_is_" in con:
-                 print con + ": TRUTH;"
+                print con + ": TRUTH;"
+            elif "ioPriv" in con:
+                print con + ": TRUTH;"
+            elif "RNG" in con:
+                print con + ": BITVECFUNC[64];"
             else:
                 print con + ": BITVEC[64];"
 
@@ -389,6 +396,8 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                 continue
             elif var == 'DEST':
                 print "DEST_i : BITVEC[64];" 
+            elif var == 'SRC':
+                print "SRC_i : BITVEC[64];" 
             elif var == "memory":
                 print "memory_i : BITVEC[64];" 
             elif var.upper().startswith("RFLAGS") or var in rflagsDict:
@@ -433,6 +442,8 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
                 if rflags:
                     rflags = False
                     print "rflags : BITVEC[64];"
+            elif "SRC" in var.strip():
+                print "SRC : BITVEC[64];" 
             else:
                 if var not in stateVars:
                     var = var.lower()

@@ -6,14 +6,16 @@ State.rsp : BITVEC[64];
 State.memory : FUNC[1];
 
 VAR
+SRC : BITVEC[64];
 OperandSize : size;
 StackAddrSize : size;
 rsp : BITVEC[64];
 memory : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
+SRC_i : BITVEC[64];
 rsp_i : BITVEC[64];
 memory_i : BITVEC[64];
 
@@ -83,6 +85,9 @@ memory_n := memory0;
 
 
 ASSIGN
+
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
 
 init[OperandSize] := {bits64, bits32, bits16};
 next[OperandSize] := {bits64, bits32, bits16};

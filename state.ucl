@@ -16,11 +16,13 @@ INPUT
 
 VAR
 DEST : BITVEC[64];
+SRC : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
 DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
 
 DEFINE
 
@@ -48,6 +50,9 @@ ASSIGN
 
 init[DEST] := DEST_i;
 next[DEST] := DEST + SRC;
+
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
 
 
 (*----- ./models//inc.txt -----*)
@@ -352,14 +357,16 @@ State.rsp : BITVEC[64];
 State.memory : FUNC[1];
 
 VAR
+SRC : BITVEC[64];
 OperandSize : size;
 StackAddrSize : size;
 rsp : BITVEC[64];
 memory : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
+SRC_i : BITVEC[64];
 rsp_i : BITVEC[64];
 memory_i : BITVEC[64];
 
@@ -430,6 +437,9 @@ memory_n := memory0;
 
 ASSIGN
 
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
+
 init[OperandSize] := {bits64, bits32, bits16};
 next[OperandSize] := {bits64, bits32, bits16};
 
@@ -452,11 +462,13 @@ State.rflags : BITVEC[64];
 
 VAR
 DEST : BITVEC[64];
+SRC : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
 DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
 
 DEFINE
 
@@ -486,6 +498,9 @@ ASSIGN
 init[DEST] := DEST_i;
 next[DEST] := DEST + SRC + rflags_cf;
 
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
+
 
 (*----- ./models//and.txt -----*)
 MODULE andInstr
@@ -495,11 +510,13 @@ INPUT
 
 VAR
 DEST : BITVEC[64];
+SRC : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
 DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
 
 DEFINE
 
@@ -528,6 +545,9 @@ ASSIGN
 init[DEST] := DEST_i;
 next[DEST] := DEST && SRC;
 
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
+
 
 (*----- ./models//mov.txt -----*)
 MODULE movInstr
@@ -537,11 +557,13 @@ INPUT
 
 VAR
 DEST : BITVEC[64];
+SRC : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
 DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
 
 DEFINE
 
@@ -570,8 +592,79 @@ ASSIGN
 init[DEST] := DEST_i;
 next[DEST] := SRC;
 
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
+
 
 (*----- ./models//out.txt -----*)
+MODULE outInstr
+
+INPUT
+
+State.CR0 : BITVEC[64];
+State.cpl : BITVEC[2];
+State.rflags : BITVEC[64];
+
+VAR
+DEST : BITVEC[64];
+SRC : BITVEC[64];
+exitStatus : exitCase;
+
+CONST
+ioPriv: TRUTH;
+RNG: BITVECFUNC[64];
+
+DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
+
+DEFINE
+
+b0 := ( 0 # [0:0] );
+b1 := ( 1 # [0:0] );
+ucl_hex_0 := ( b0 @ b0 @ b0 @ b0);
+ucl_hex_1 := ( b0 @ b0 @ b0 @ b1);
+ucl_hex_2 := ( b0 @ b0 @ b1 @ b0);
+ucl_hex_3 := ( b0 @ b0 @ b1 @ b1);
+ucl_hex_4 := ( b0 @ b1 @ b0 @ b0);
+ucl_hex_5 := ( b0 @ b1 @ b0 @ b1);
+ucl_hex_6 := ( b0 @ b1 @ b1 @ b0);
+ucl_hex_7 := ( b0 @ b1 @ b1 @ b1);
+ucl_hex_8 := ( b1 @ b0 @ b0 @ b0);
+ucl_hex_9 := ( b1 @ b0 @ b0 @ b1);
+ucl_hex_a := ( b1 @ b0 @ b1 @ b0);
+ucl_hex_b := ( b1 @ b0 @ b1 @ b1);
+ucl_hex_c := ( b1 @ b1 @ b0 @ b0);
+ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
+ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
+ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
+
+PE := State.CR0 # [0:0];
+rflags_iopl := State.rflags # [13:12];
+rflags_vm := State.rflags # [17:17];
+CPL := State.cpl;
+DEST0 := case
+    PE = b1 & CPL > rflags_iopl | rflags_vm = b1 : SRC;
+    ioPriv & (PE = b1 & CPL > rflags_iopl | rflags_vm = 1) : SRC;
+    default : DEST;
+esac;
+
+DEST_n := DEST0;
+
+
+ASSIGN
+
+init[DEST] := DEST_i;
+next[DEST] := DEST_n;
+
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
+
+init[exitStatus] := Normal;
+next[exitStatus] := case
+    ioPriv & PE = b1 & CPL > rflags_iopl | rflags_vm = b1 : GP;
+    default : Normal;
+esac;
+
 
 (*----- ./models//pop.txt -----*)
 MODULE popInstr
@@ -893,6 +986,7 @@ stack : BITVECFUNC[64];
 cache : BITVECFUNC[64];
 rsp : BITVEC[64];
 exceptionThrown : TRUTH;
+manyCacheTypes : FUNC[1] of cacheType;
 
 CONST
 
@@ -900,6 +994,8 @@ i : BITVEC[64];
 j : BITVEC[64];
 k : BITVEC[64];
 m0 : BITVECFUNC[64];
+c0 : FUNC[1];
+s0 : BITVECFUNC[64];
 addr  : BITVEC[64];
 SRC : BITVEC[64];
 
@@ -925,7 +1021,6 @@ CR0_i : BITVEC[64];
 CR4_i : BITVEC[64];
 rsp_i : BITVEC[64];
 
-manyCacheTypes : FUNC[1] of cachType:
 
 DEFINE
 
@@ -934,7 +1029,7 @@ ASSIGN
 init[currentReg] := {a, b, c, d};
 next[currentReg] := {a, b, c, d};
 
-init[stack] := Lambda(i). m0(i);
+init[stack] := Lambda(i). s0(i);
 next[stack] := Lambda(i).
 	case
 		i = next[pushInstr.rsp] & opcode = push : SRC; 
@@ -949,8 +1044,7 @@ next[memory] := Lambda(j).
 		default : memory(j); 
 	esac;
 
-
-init[cache] := Lambda(k). m0(k);
+init[cache] := Lambda(k). c0(k);
 next[cache] := Lambda(k).
 	case
 		manyCacheTypes(k) = cacheable & opcode = mov & k = movInstr.DEST: SRC; 
@@ -975,11 +1069,11 @@ esac;
 
 init[rcx] := rcx_i;
 next[rcx] := case
-    ~exceptionThrown & opcode = add : next[addInstr.rcx];
-    ~exceptionThrown & opcode = inc : next[incInstr.rcx];
-    ~exceptionThrown & opcode = dec : next[decInstr.rcx];
-    ~exceptionThrown & opcode = adc : next[adcInstr.rcx];
-    ~exceptionThrown & opcode = and : next[andInstr.rcx];
+    ~exceptionThrown & opcode = add & currentReg = c : next[addInstr.DEST];
+    ~exceptionThrown & opcode = inc & currentReg = c : next[incInstr.DEST];
+    ~exceptionThrown & opcode = dec & currentReg = c : next[decInstr.DEST];
+    ~exceptionThrown & opcode = adc & currentReg = c : next[adcInstr.DEST];
+    ~exceptionThrown & opcode = and & currentReg = c : next[andInstr.DEST];
     ~exceptionThrown & opcode = mov & currentReg = c : next[movInstr.DEST];
     ~exceptionThrown & opcode = pop & currentReg = c : next[popInstr.DEST];
     ~exceptionThrown & opcode = syscall : next[syscallInstr.rcx];
@@ -999,11 +1093,11 @@ next[CR4] := CR4;
 
 init[rbx] := rbx_i;
 next[rbx] := case
-    ~exceptionThrown & opcode = add : next[addInstr.rbx];
-    ~exceptionThrown & opcode = inc : next[incInstr.rbx];
-    ~exceptionThrown & opcode = dec : next[decInstr.rbx];
-    ~exceptionThrown & opcode = adc : next[adcInstr.rbx];
-    ~exceptionThrown & opcode = and : next[andInstr.rbx];
+    ~exceptionThrown & opcode = add & currentReg = b : next[addInstr.DEST];
+    ~exceptionThrown & opcode = inc & currentReg = b : next[incInstr.DEST];
+    ~exceptionThrown & opcode = dec & currentReg = b : next[decInstr.DEST];
+    ~exceptionThrown & opcode = adc & currentReg = b : next[adcInstr.DEST];
+    ~exceptionThrown & opcode = and & currentReg = b : next[andInstr.DEST];
     ~exceptionThrown & opcode = mov & currentReg = b : next[movInstr.DEST];
     ~exceptionThrown & opcode = pop & currentReg = b : next[popInstr.DEST];
     default : rbx;
@@ -1049,11 +1143,11 @@ esac;
 
 init[rdx] := rdx_i;
 next[rdx] := case
-    ~exceptionThrown & opcode = add : next[addInstr.rdx];
-    ~exceptionThrown & opcode = inc : next[incInstr.rdx];
-    ~exceptionThrown & opcode = dec : next[decInstr.rdx];
-    ~exceptionThrown & opcode = adc : next[adcInstr.rdx];
-    ~exceptionThrown & opcode = and : next[andInstr.rdx];
+    ~exceptionThrown & opcode = add & currentReg = d : next[addInstr.DEST];
+    ~exceptionThrown & opcode = inc & currentReg = d : next[incInstr.DEST];
+    ~exceptionThrown & opcode = dec & currentReg = d : next[decInstr.DEST];
+    ~exceptionThrown & opcode = adc & currentReg = d : next[adcInstr.DEST];
+    ~exceptionThrown & opcode = and & currentReg = d : next[andInstr.DEST];
     ~exceptionThrown & opcode = mov & currentReg = d : next[movInstr.DEST];
     ~exceptionThrown & opcode = pop & currentReg = d : next[popInstr.DEST];
     default : rdx;
@@ -1095,6 +1189,7 @@ esac;
 init[exceptionThrown] := false;
 next[exceptionThrown] := case
     opcode = sysret & sysretInstr.exitStatus != Normal : true;
+    opcode = out & outInstr.exitStatus != Normal : true;
     opcode = syscall & syscallInstr.exitStatus != Normal : true;
     default : exceptionThrown;
 esac;
@@ -1108,11 +1203,11 @@ esac;
 
 init[rax] := rax_i;
 next[rax] := case
-    ~exceptionThrown & opcode = add : next[addInstr.rax];
-    ~exceptionThrown & opcode = inc : next[incInstr.rax];
-    ~exceptionThrown & opcode = dec : next[decInstr.rax];
-    ~exceptionThrown & opcode = adc : next[adcInstr.rax];
-    ~exceptionThrown & opcode = and : next[andInstr.rax];
+    ~exceptionThrown & opcode = add & currentReg = a : next[addInstr.DEST];
+    ~exceptionThrown & opcode = inc & currentReg = a : next[incInstr.DEST];
+    ~exceptionThrown & opcode = dec & currentReg = a : next[decInstr.DEST];
+    ~exceptionThrown & opcode = adc & currentReg = a : next[adcInstr.DEST];
+    ~exceptionThrown & opcode = and & currentReg = a : next[andInstr.DEST];
     ~exceptionThrown & opcode = mov & currentReg = a : next[movInstr.DEST];
     ~exceptionThrown & opcode = pop & currentReg = a : next[popInstr.DEST];
     default : rax;

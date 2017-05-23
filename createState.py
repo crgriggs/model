@@ -22,7 +22,7 @@ def findInstrVars(stateVars, gprs, propType):
                 var = line.split(" : ")[0]
                 if var in stateVars.keys():
                     stateVars[var].append(filename.replace(".txt", ""))
-                if var == "DEST":
+                if var == "DEST" and "out" not in filename:
                     for gpr in gprs:
                         stateVars["r"+gpr+"x"].append(filename.replace(".txt", ""))
 
@@ -64,7 +64,7 @@ def main():
         stateVars = {'exitStatus' : [], 'rsp' : [],'ss_limit' : [], 'ss_selector' : [],  'rax' : [], 'rbx' : [], 'rcx' : [], 'rdx' : [], 'rflags' : [], 'r11' : [], 'ss_base' : [], 'ss_accessRights' : [], 'EFER' : [], 'cs_base' : [], 'rip' : [], 'cs_selector' : [], 'cs_limit' : [], 'cpl' : [], 'cs_accessRights' : [], 'CR0' : [], 'CR4' : [] }
         gprs = {'a', 'b', 'c', 'd'}
         #as of now an unpriviliged instruction can write to a single gpr during any one execution step
-        unpriv = {"mov", 'pop', 'push'}
+        unpriv = {"mov", 'pop', 'push', 'add', 'adc', 'and', 'dec', 'inc'}
         append_file(f, "state/vars.txt")
         f.write("\n")
         findInstrVars(stateVars, gprs, propType)

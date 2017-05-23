@@ -5,11 +5,13 @@ INPUT
 
 VAR
 DEST : BITVEC[64];
+SRC : BITVEC[64];
 
 CONST
-SRC: BITVEC[64];
+RNG: BITVECFUNC[64];
 
 DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
 
 DEFINE
 
@@ -37,4 +39,7 @@ ASSIGN
 
 init[DEST] := DEST_i;
 next[DEST] := DEST + SRC;
+
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
 

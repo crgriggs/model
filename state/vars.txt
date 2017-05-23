@@ -31,6 +31,7 @@ stack : BITVECFUNC[64];
 cache : BITVECFUNC[64];
 rsp : BITVEC[64];
 exceptionThrown : TRUTH;
+manyCacheTypes : FUNC[1] of cacheType;
 
 CONST
 
@@ -63,7 +64,6 @@ CR0_i : BITVEC[64];
 CR4_i : BITVEC[64];
 rsp_i : BITVEC[64];
 
-manyCacheTypes : FUNC[1] of cachType:
 
 DEFINE
 

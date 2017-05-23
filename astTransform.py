@@ -102,7 +102,7 @@ class astVisit(ast.NodeVisitor):
             ast.NodeVisitor.generic_visit(self, node, conditional)
 
     #basic terminals
-    def visit_Name(self, node):
+    def visit_Name(self, node, conditional = None):
         return str(node.id)
 
     def visit_Eq(self, node):
@@ -277,7 +277,7 @@ class astVisit(ast.NodeVisitor):
     def visit_If(self, node, condition = None):
         parent = self.currentNode
         comparison = self.visit(node.test, condition)
-        comparison = comparison.replace("StackAddrSize ==", "StackAddrSize =").replace("OperandSize ==", "OperandSize =").replace("isCanonical", "isCanonical(RCX)")
+        comparison = comparison.replace("==", "=").replace("isCanonical", "isCanonical(RCX)")
         copy = comparison
         
         if condition != None:

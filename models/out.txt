@@ -1,0 +1,68 @@
+MODULE outInstr
+
+INPUT
+
+State.CR0 : BITVEC[64];
+State.cpl : BITVEC[2];
+State.rflags : BITVEC[64];
+
+VAR
+DEST : BITVEC[64];
+SRC : BITVEC[64];
+exitStatus : exitCase;
+
+CONST
+ioPriv: TRUTH;
+RNG: BITVECFUNC[64];
+
+DEST_i : BITVEC[64];
+SRC_i : BITVEC[64];
+
+DEFINE
+
+b0 := ( 0 # [0:0] );
+b1 := ( 1 # [0:0] );
+ucl_hex_0 := ( b0 @ b0 @ b0 @ b0);
+ucl_hex_1 := ( b0 @ b0 @ b0 @ b1);
+ucl_hex_2 := ( b0 @ b0 @ b1 @ b0);
+ucl_hex_3 := ( b0 @ b0 @ b1 @ b1);
+ucl_hex_4 := ( b0 @ b1 @ b0 @ b0);
+ucl_hex_5 := ( b0 @ b1 @ b0 @ b1);
+ucl_hex_6 := ( b0 @ b1 @ b1 @ b0);
+ucl_hex_7 := ( b0 @ b1 @ b1 @ b1);
+ucl_hex_8 := ( b1 @ b0 @ b0 @ b0);
+ucl_hex_9 := ( b1 @ b0 @ b0 @ b1);
+ucl_hex_a := ( b1 @ b0 @ b1 @ b0);
+ucl_hex_b := ( b1 @ b0 @ b1 @ b1);
+ucl_hex_c := ( b1 @ b1 @ b0 @ b0);
+ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
+ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
+ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
+
+PE := State.CR0 # [0:0];
+rflags_iopl := State.rflags # [13:12];
+rflags_vm := State.rflags # [17:17];
+CPL := State.cpl;
+DEST0 := case
+    PE = b1 & CPL > rflags_iopl | rflags_vm = b1 : SRC;
+    ioPriv & (PE = b1 & CPL > rflags_iopl | rflags_vm = 1) : SRC;
+    default : DEST;
+esac;
+
+DEST_n := DEST0;
+
+
+ASSIGN
+
+init[DEST] := DEST_i;
+next[DEST] := DEST_n;
+
+init[SRC] := SRC_i;
+next[SRC] := RNG(SRC);
+
+init[exitStatus] := Normal;
+next[exitStatus] := case
+    ioPriv & PE = b1 & CPL > rflags_iopl | rflags_vm = b1 : GP;
+    default : Normal;
+esac;
+

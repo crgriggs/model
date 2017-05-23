@@ -59,6 +59,7 @@ class fileConverter():
                     comment = "(* " + line.split("(*")[1]
                     line = line.split("(*")[0]
                 line = line.replace("= SS:", "= memory[")[:-1] + "]; " + comment + "\n"
+            line = line.replace("Any I/O Permission Bit for I/O port being accessed == 1", "ioPriv")
             line = line.replace("EFLAGS.", "")
             line = line.replace("≠", "!=")
             line = line.replace("-", "_")
@@ -90,6 +91,8 @@ class fileConverter():
                 line = line[0] + "    " + line[1]
             if "*)" in line:
                 line = line.replace("(*", "#")
+                line = line.replace("( *", "#")
+                line = line.replace("* )", "")
                 line = line.replace("*)", "")
             writeFile.write(line)
         return outfile

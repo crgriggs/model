@@ -1,9 +1,0 @@
-if ((PE == 1) and ((CPL >rflags_iopl) or (rflags_vm== 1)))
-  # Protected mode with CPL > rflags_ioplor virtual_8086 mode 
- (Any I/O Permission Bit for I/O port being accessed == 1)
-# I/O operation is not allowed 
-Status = GP
- ( * I/O operation is allowed 
- = SRC # Writes to selected I/O port 
-e: (Real Mode or Protected Mode with CPL ≤ rflags_iopl
-ST = SRC # Writes to selected I/O port 
