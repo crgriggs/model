@@ -49,7 +49,9 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
 ASSIGN
 
 init[DEST] := DEST_i;
-next[DEST] := DEST + SRC;
+next[DEST] := DEST +_64 SRC;
+
+
 
 init[SRC] := SRC_i;
 next[SRC] := RNG(SRC);
@@ -137,9 +139,9 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
 
 ASSIGN
 
+(*CKS: Do you need to make sure 1 is a 64-bit number before doing the addition?*)
 init[DEST] := DEST_i;
-next[DEST] := DEST + 1;
-
+next[DEST] := DEST +_64 1;
 
 (*----- ./models//sysret.txt -----*)
 MODULE sysretInstr
@@ -389,9 +391,9 @@ ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
 
 ASSIGN
 
+(*CKS: Do you need to make sure 1 is a 64-bit number before doing bitvector subtraction*)
 init[DEST] := DEST_i;
-next[DEST] := DEST - 1;
-
+next[DEST] := DEST -_64 1;
 
 (*----- ./models//push.txt -----*)
 MODULE pushInstr
@@ -542,8 +544,10 @@ rflags_cf := State.rflags # [0:0];
 
 ASSIGN
 
+(*CKS: do you need to 0-extend rflags_cf so it is 64 bits long before doing the addition?*)
 init[DEST] := DEST_i;
-next[DEST] := DEST + SRC + rflags_cf;
+next[DEST] := DEST +_64 SRC +_64 rflags_cf;
+
 
 init[SRC] := SRC_i;
 next[SRC] := RNG(SRC);
@@ -1041,7 +1045,10 @@ CONST
 i : BITVEC[64];
 j : BITVEC[64];
 k : BITVEC[64];
+
 mct : BITVEC[64];
+
+
 m0 : BITVECFUNC[64];
 addr  : BITVEC[64];
 SRC : BITVEC[64];
@@ -1083,12 +1090,15 @@ next[stack] := Lambda(i).
 		default : stack(i); 
 	esac;
 
-init[manyCacheTypes] := Lambda(mct). manyCacheTypes(mct);
+
+init[manyCacheTypes] := Lambda(mct). cacheable ;
 next[manyCacheTypes] := Lambda(mct).
 	case
 		mct = rcx & opcode = wrmsr : manyCacheTypes((rdx # [31:0]) @ (rax # [31:0])); 
 		default : manyCacheTypes(mct); 
 	esac;
+
+
 
 init[memory] := Lambda(j). m0(j);
 next[memory] := Lambda(j).
@@ -1097,6 +1107,7 @@ next[memory] := Lambda(j).
 		manyCacheTypes(j) = uncacheable & opcode = mov & j = movInstr.DEST: SRC; 
 		default : memory(j); 
 	esac;
+
 
 
 init[cache] := Lambda(k). m0(k);
@@ -1345,5 +1356,5 @@ sysret_rsp := State.rsp;
 
 
 
-
 decide((initialState & syscall_rsp = sysret_rsp & isUserControlled(syscall_rsp)) => ( State.cpl > ((b0)@b0)));
+
