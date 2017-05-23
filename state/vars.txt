@@ -38,6 +38,7 @@ CONST
 i : BITVEC[64];
 j : BITVEC[64];
 k : BITVEC[64];
+mct : BITVEC[64];
 m0 : BITVECFUNC[64];
 addr  : BITVEC[64];
 SRC : BITVEC[64];
@@ -77,6 +78,13 @@ next[stack] := Lambda(i).
 	case
 		i = next[pushInstr.rsp] & opcode = push : SRC; 
 		default : stack(i); 
+	esac;
+
+init[manyCacheTypes] := Lambda(mct). manyCacheTypes(mct);
+next[manyCacheTypes] := Lambda(mct).
+	case
+		mct = rcx & opcode = wrmsr : manyCacheTypes((rdx # [31:0]) @ (rax # [31:0])); 
+		default : manyCacheTypes(mct); 
 	esac;
 
 init[memory] := Lambda(j). m0(j);

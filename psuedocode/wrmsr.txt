@@ -1,1 +1,1 @@
-MSR[ECX] ← EDX:EAX;
+RCX ← EDX;

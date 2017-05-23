@@ -1,6 +1,6 @@
 MODEL StateModel
 
-typedef opcodes : enum{add, inc, sysret, dec, push, adc, and, mov, out, pop, syscall};
+typedef opcodes : enum{add, wrmsr, inc, sysret, dec, push, wrsmr, adc, and, mov, out, pop, syscall};
 typedef exitCase : enum {GP, UD, Normal};
 typedef register : enum {a, b, c, d};
 typedef cacheType : enum {uncacheable, cacheable, writeBack};
@@ -53,6 +53,51 @@ next[DEST] := DEST + SRC;
 
 init[SRC] := SRC_i;
 next[SRC] := RNG(SRC);
+
+
+(*----- ./models//wrmsr.txt -----*)
+MODULE wrmsrInstr
+
+INPUT
+
+State.rcx : BITVEC[64];
+State.rdx : BITVEC[64];
+
+VAR
+rcx : BITVEC[64];
+
+CONST
+
+rcx_i : BITVEC[64];
+
+DEFINE
+
+b0 := ( 0 # [0:0] );
+b1 := ( 1 # [0:0] );
+ucl_hex_0 := ( b0 @ b0 @ b0 @ b0);
+ucl_hex_1 := ( b0 @ b0 @ b0 @ b1);
+ucl_hex_2 := ( b0 @ b0 @ b1 @ b0);
+ucl_hex_3 := ( b0 @ b0 @ b1 @ b1);
+ucl_hex_4 := ( b0 @ b1 @ b0 @ b0);
+ucl_hex_5 := ( b0 @ b1 @ b0 @ b1);
+ucl_hex_6 := ( b0 @ b1 @ b1 @ b0);
+ucl_hex_7 := ( b0 @ b1 @ b1 @ b1);
+ucl_hex_8 := ( b1 @ b0 @ b0 @ b0);
+ucl_hex_9 := ( b1 @ b0 @ b0 @ b1);
+ucl_hex_a := ( b1 @ b0 @ b1 @ b0);
+ucl_hex_b := ( b1 @ b0 @ b1 @ b1);
+ucl_hex_c := ( b1 @ b1 @ b0 @ b0);
+ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
+ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
+ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
+
+RCX := State.rcx;
+EDX := State.rdx # [31:0];
+
+ASSIGN
+
+init[rcx] := rcx_i;
+next[rcx] := EDX;
 
 
 (*----- ./models//inc.txt -----*)
@@ -452,6 +497,8 @@ next[rsp] := RSP_n;
 init[memory] := memory_i;
 next[memory] := memory_n;
 
+
+(*----- ./models//wrsmr.txt -----*)
 
 (*----- ./models//adc.txt -----*)
 MODULE adcInstr
@@ -987,15 +1034,15 @@ cache : BITVECFUNC[64];
 rsp : BITVEC[64];
 exceptionThrown : TRUTH;
 manyCacheTypes : FUNC[1] of cacheType;
+works : FUNC[1] of cacheType;
 
 CONST
 
 i : BITVEC[64];
 j : BITVEC[64];
 k : BITVEC[64];
+mct : BITVEC[64];
 m0 : BITVECFUNC[64];
-c0 : FUNC[1];
-s0 : BITVECFUNC[64];
 addr  : BITVEC[64];
 SRC : BITVEC[64];
 
@@ -1029,11 +1076,18 @@ ASSIGN
 init[currentReg] := {a, b, c, d};
 next[currentReg] := {a, b, c, d};
 
-init[stack] := Lambda(i). s0(i);
+init[stack] := Lambda(i). m0(i);
 next[stack] := Lambda(i).
 	case
 		i = next[pushInstr.rsp] & opcode = push : SRC; 
 		default : stack(i); 
+	esac;
+
+init[manyCacheTypes] := Lambda(mct). manyCacheTypes(mct);
+next[manyCacheTypes] := Lambda(mct).
+	case
+		mct = rcx & opcode = wrmsr : manyCacheTypes((rdx # [31:0]) @ (rax # [31:0])); 
+		default : manyCacheTypes(mct); 
 	esac;
 
 init[memory] := Lambda(j). m0(j);
@@ -1044,7 +1098,8 @@ next[memory] := Lambda(j).
 		default : memory(j); 
 	esac;
 
-init[cache] := Lambda(k). c0(k);
+
+init[cache] := Lambda(k). m0(k);
 next[cache] := Lambda(k).
 	case
 		manyCacheTypes(k) = cacheable & opcode = mov & k = movInstr.DEST: SRC; 
@@ -1070,6 +1125,7 @@ esac;
 init[rcx] := rcx_i;
 next[rcx] := case
     ~exceptionThrown & opcode = add & currentReg = c : next[addInstr.DEST];
+    ~exceptionThrown & opcode = wrmsr : next[wrmsrInstr.rcx];
     ~exceptionThrown & opcode = inc & currentReg = c : next[incInstr.DEST];
     ~exceptionThrown & opcode = dec & currentReg = c : next[decInstr.DEST];
     ~exceptionThrown & opcode = adc & currentReg = c : next[adcInstr.DEST];
@@ -1219,7 +1275,7 @@ CONTROL
 
 EXTVAR
 
-opcode : opcodes := {add, inc, sysret, dec, push, adc, and, mov, out, pop, syscall};
+opcode : opcodes := {add, wrmsr, inc, sysret, dec, push, wrsmr, adc, and, mov, out, pop, syscall};
 
 (*----- state/control.txt -----*)
 

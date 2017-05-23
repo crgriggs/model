@@ -1,0 +1,43 @@
+MODULE wrmsrInstr
+
+INPUT
+
+State.rcx : BITVEC[64];
+State.rdx : BITVEC[64];
+
+VAR
+rcx : BITVEC[64];
+
+CONST
+
+rcx_i : BITVEC[64];
+
+DEFINE
+
+b0 := ( 0 # [0:0] );
+b1 := ( 1 # [0:0] );
+ucl_hex_0 := ( b0 @ b0 @ b0 @ b0);
+ucl_hex_1 := ( b0 @ b0 @ b0 @ b1);
+ucl_hex_2 := ( b0 @ b0 @ b1 @ b0);
+ucl_hex_3 := ( b0 @ b0 @ b1 @ b1);
+ucl_hex_4 := ( b0 @ b1 @ b0 @ b0);
+ucl_hex_5 := ( b0 @ b1 @ b0 @ b1);
+ucl_hex_6 := ( b0 @ b1 @ b1 @ b0);
+ucl_hex_7 := ( b0 @ b1 @ b1 @ b1);
+ucl_hex_8 := ( b1 @ b0 @ b0 @ b0);
+ucl_hex_9 := ( b1 @ b0 @ b0 @ b1);
+ucl_hex_a := ( b1 @ b0 @ b1 @ b0);
+ucl_hex_b := ( b1 @ b0 @ b1 @ b1);
+ucl_hex_c := ( b1 @ b1 @ b0 @ b0);
+ucl_hex_d := ( b1 @ b1 @ b0 @ b1);
+ucl_hex_e := ( b1 @ b1 @ b1 @ b0);
+ucl_hex_f := ( b1 @ b1 @ b1 @ b1);
+
+RCX := State.rcx;
+EDX := State.rdx # [31:0];
+
+ASSIGN
+
+init[rcx] := rcx_i;
+next[rcx] := EDX;
+

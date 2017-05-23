@@ -2,6 +2,7 @@ UCLID
 Copyright (C) 2001-2011 The UCLID Team
 Compiling model StateModel...
 Compiling module addInstr...
+Compiling module wrmsrInstr...
 Compiling module incInstr...
 Compiling module sysretInstr...
 Compiling module decInstr...
@@ -13,107 +14,9 @@ Compiling module outInstr...
 Compiling module popInstr...
 Compiling module syscallInstr...
 Compiling module State...
-Compilation finished for UCLID model StateModel.
-
-INITIAL STATE:
-
-Boolean State:
-[State.exceptionThrown:=F
-,]
-
-Term State:
-[adcInstr.DEST:=adcInstr.DEST_i
-,State.rax:=State.rax_i
-,pushInstr.memory:=pushInstr.memory_i
-,pushInstr.SRC:=pushInstr.SRC_i
-,sysretInstr.cs_accessRights:=sysretInstr.cs_accessRights_i
-,sysretInstr.cs_limit:=sysretInstr.cs_limit_i
-,State.EFER:=State.EFER_i
-,popInstr.rsp:=popInstr.rsp_i
-,outInstr.SRC:=outInstr.SRC_i
-,addInstr.DEST:=addInstr.DEST_i
-,sysretInstr.ss_selector:=sysretInstr.ss_selector_i
-,syscallInstr.ss_selector:=syscallInstr.ss_selector_i
-,State.rsp:=State.rsp_i
-,syscallInstr.cs_base:=syscallInstr.cs_base_i
-,movInstr.DEST:=movInstr.DEST_i
-,State.rip:=State.rip_i
-,State.cs_selector:=State.cs_selector_i
-,syscallInstr.rcx:=syscallInstr.rcx_i
-,State.rbx:=State.rbx_i
-,sysretInstr.ss_accessRights:=sysretInstr.ss_accessRights_i
-,State.CR0:=State.CR0_i
-,syscallInstr.r11:=syscallInstr.r11_i
-,syscallInstr.cs_accessRights:=syscallInstr.cs_accessRights_i
-,State.ss_limit:=State.ss_limit_i
-,syscallInstr.cpl:=syscallInstr.cpl_i
-,syscallInstr.rflags:=syscallInstr.rflags_i
-,State.CR4:=State.CR4_i
-,syscallInstr.ss_limit:=syscallInstr.ss_limit_i
-,pushInstr.rsp:=pushInstr.rsp_i
-,sysretInstr.rip:=sysretInstr.rip_i
-,sysretInstr.cs_base:=sysretInstr.cs_base_i
-,syscallInstr.ss_base:=syscallInstr.ss_base_i
-,State.ss_selector:=State.ss_selector_i
-,outInstr.DEST:=outInstr.DEST_i
-,movInstr.SRC:=movInstr.SRC_i
-,State.cs_base:=State.cs_base_i
-,addInstr.SRC:=addInstr.SRC_i
-,syscallInstr.ss_accessRights:=syscallInstr.ss_accessRights_i
-,State.cs_limit:=State.cs_limit_i
-,State.rcx:=State.rcx_i
-,syscallInstr.cs_limit:=syscallInstr.cs_limit_i
-,State.cs_accessRights:=State.cs_accessRights_i
-,State.r11:=State.r11_i
-,State.cpl:=State.cpl_i
-,sysretInstr.rflags:=sysretInstr.rflags_i
-,popInstr.DEST:=popInstr.DEST_i
-,sysretInstr.ss_base:=sysretInstr.ss_base_i
-,adcInstr.SRC:=adcInstr.SRC_i
-,State.rflags:=State.rflags_i
-,State.ss_base:=State.ss_base_i
-,sysretInstr.cpl:=sysretInstr.cpl_i
-,sysretInstr.ss_limit:=sysretInstr.ss_limit_i
-,incInstr.DEST:=incInstr.DEST_i
-,andInstr.DEST:=andInstr.DEST_i
-,State.ss_accessRights:=State.ss_accessRights_i
-,State.rdx:=State.rdx_i
-,sysretInstr.cs_selector:=sysretInstr.cs_selector_i
-,syscallInstr.rip:=syscallInstr.rip_i
-,syscallInstr.cs_selector:=syscallInstr.cs_selector_i
-,decInstr.DEST:=decInstr.DEST_i
-,andInstr.SRC:=andInstr.SRC_i
-,]
-
-Func State:
-[State.cache:=Lam(_i4).State.m0(_i4)
-,State.memory:=Lam(_i2).State.m0(_i2)
-,State.stack:=Lam(_i0).State.m0(_i0)
-,]
-
-Pred State:
-[]
-
-Enum State:
-[popInstr.OperandSize:=ITE(_p6,bits64,ITE(_p7,bits32,bits16))
-,syscallInstr.exitStatus:=Normal
-,popInstr.StackAddrSize:=ITE(_p4,bits64,ITE(_p5,bits32,bits16))
-,sysretInstr.exitStatus:=Normal
-,outInstr.exitStatus:=Normal
-,State.currentReg:=ITE(_p8,a,ITE(_p9,b,ITE(_p10,c,d)))
-,pushInstr.OperandSize:=ITE(_p0,bits64,ITE(_p1,bits32,bits16))
-,pushInstr.StackAddrSize:=ITE(_p2,bits64,ITE(_p3,bits32,bits16))
-,]
-
-External Enum State:
-[opcode:=ITE(_p11,add,ITE(_p12,inc,ITE(_p13,sysret,ITE(_p14,dec,ITE(_p15,push,ITE(_p16,adc,ITE(_p17,and,ITE(_p18,mov,ITE(_p19,out,ITE(_p20,pop,syscall))))))))))
-,]
-Enum Func State:
-[]
-
-Simulating...
-evaluating State.CR0
-evaluating State.CR4
-evaluating State.EFER
-evaluating State.cache
 SSim:ef_storeCounterexInfo
+File "state.ucl", line 1085, characters 56-57:
+! init[manyCacheTypes] := Lambda(mct). manyCacheTypes(mct);
+!                                                         ^
+! RHS current state variable not initialized yet
+
