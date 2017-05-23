@@ -60,3 +60,12 @@ State
 		right now if it's after the phi function than it's reference by var_n so I think one round is fine
 	inputs need to be linked to code
 	enums can't match var names
+
+
+convert rcx to be implicit in the code
+print c=opcodes 
+remo
+
+cacheable writes to memory and cache
+uncacheable writes to just memory
+wb cacheable writes to just cache

@@ -53,6 +53,7 @@ def main():
         f.write("typedef opcodes : enum{" + ", ".join(opcodes) + "};\n")
         f.write("typedef exitCase : enum {GP, UD, Normal};\n")
         f.write("typedef register : enum {a, b, c, d};\n")
+        f.write("typedef cacheType : enum {uncacheable, cacheable, writeBack};\n")
         f.write("typedef size : enum {bits64, bits32, bits16};\n")
         f.write("\n")
         f.write("CONST\n")

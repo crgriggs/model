@@ -26,16 +26,21 @@ CR0 : BITVEC[64];
 CR4 : BITVEC[64];
 currentReg : register;
 opcode : opcodes;
-memory : FUNC[1];
+memory : BITVECFUNC[64];
+stack : BITVECFUNC[64];
+cache : BITVECFUNC[64];
 rsp : BITVEC[64];
 exceptionThrown : TRUTH;
 
 CONST
 
-i : TERM;
-m0 : FUNC[1];
+i : BITVEC[64];
+j : BITVEC[64];
+k : BITVEC[64];
+m0 : BITVECFUNC[64];
 addr  : BITVEC[64];
 SRC : BITVEC[64];
+
 
 ss_limit_i : BITVEC[20];
 ss_selector_i : BITVEC[15];
@@ -58,6 +63,8 @@ CR0_i : BITVEC[64];
 CR4_i : BITVEC[64];
 rsp_i : BITVEC[64];
 
+manyCacheTypes : FUNC[1] of cachType:
+
 DEFINE
 
 ASSIGN
@@ -65,10 +72,26 @@ ASSIGN
 init[currentReg] := {a, b, c, d};
 next[currentReg] := {a, b, c, d};
 
-init[memory] := Lambda(i). m0(i);
-next[memory] := Lambda(i).
-(* at each step, write "data" into the address "addr" *)
+init[stack] := Lambda(i). m0(i);
+next[stack] := Lambda(i).
 	case
-		addr = next[pushInstr.rsp] & opcode = push : SRC; (* only change the content of "addr" *)
-		default : memory(i); (* content of other addr remains unchanged *)
+		i = next[pushInstr.rsp] & opcode = push : SRC; 
+		default : stack(i); 
+	esac;
+
+init[memory] := Lambda(j). m0(j);
+next[memory] := Lambda(j).
+	case
+		manyCacheTypes(j) = cacheable & opcode = mov & j = movInstr.DEST: SRC; 
+		manyCacheTypes(j) = uncacheable & opcode = mov & j = movInstr.DEST: SRC; 
+		default : memory(j); 
+	esac;
+
+
+init[cache] := Lambda(k). m0(k);
+next[cache] := Lambda(k).
+	case
+		manyCacheTypes(k) = cacheable & opcode = mov & k = movInstr.DEST: SRC; 
+		manyCacheTypes(k) = writeBack & opcode = mov & k = movInstr.DEST: SRC; 
+		default : cache(k); 
 	esac;
